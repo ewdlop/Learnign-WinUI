@@ -7,7 +7,6 @@ using SilkDotNetLibraries.Window;
 using Silk.NET.Windowing;
 using Silk.NET.Maths;
 using SilkDotNetWrapper.OpenGL;
-using CoreLibrary.DependencyInjectionOperation;
 
 namespace ConsoleApp
 {
@@ -42,9 +41,6 @@ namespace ConsoleApp
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .ConfigureServices((context, services) => {
-                    services.AddTransient<IOperationTransient, Operation>();
-                    services.AddScoped<IOperationScoped, Operation>();
-                    services.AddSingleton<IOperationSingleton, Operation>();
                     services.AddScoped(
                         (servicProvider) =>
                         {
@@ -54,25 +50,9 @@ namespace ConsoleApp
                             return Window.Create(options);
                         }
                     );
-                    services.AddScoped(
-                        (servicProvider) =>
-                        {
-                            return new OpenGLContext(servicProvider.GetRequiredService<IWindow>());
-                        }
-                    );
-                    services.AddScoped(
-                        (servicProvider) =>
-                        {
-                            return new SilkDotNetWindowEventHandler(servicProvider.GetRequiredService<IWindow>(),
-                                                                    servicProvider.GetRequiredService<OpenGLContext>());
-                        }
-                    );
-                    services.AddHostedService(
-                        (servicProvider)=>
-                        {
-                            return new App(servicProvider.GetRequiredService<SilkDotNetWindowEventHandler>());
-                        }
-                    );
+                    services.AddScoped<OpenGLContext>();
+                    services.AddScoped<SilkDotNetWindowEventHandler>();
+                    services.AddHostedService<App>();
                 });
     }
 }

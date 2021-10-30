@@ -5,7 +5,6 @@ using Silk.NET.Windowing;
 
 namespace SilkDotNetWrapper.OpenGL
 {
-
     public interface IReadOnlyOpenGLContext
     {
         bool IsClosed { get;}
@@ -19,8 +18,8 @@ namespace SilkDotNetWrapper.OpenGL
     }
     public class OpenGLContext : IOpenGLContext
     {
-        private GL GL { get; set; }
         private readonly IWindow _window;
+        private GL GL { get; set; }
         public uint Vao { get; private set; }
         public uint Vbo { get; private set; }
         public uint Ebo { get; private set; }
@@ -32,6 +31,7 @@ namespace SilkDotNetWrapper.OpenGL
             Log.Information("Creating OpenGLContext...");
             _window = Window;
         }
+
         public unsafe void OnLoad()
         {
             GL = GL.GetApi(_window);

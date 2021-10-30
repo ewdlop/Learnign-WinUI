@@ -7,10 +7,6 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp
 {
-    public interface IApp
-    {
-    }
-
     public class App : IApp, IHostedService, IDisposable
     {
         private readonly IWindowEventHandler _windowEventHandler;
