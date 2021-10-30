@@ -4,16 +4,21 @@ using Silk.NET.Windowing;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SilkDotNetWrapper.OpenGL;
 
-namespace CoreLibrary.SilkDotNet.Window
+namespace SilkDotNetLibraries.Window
 {
     public abstract class WindowEventHandler : IWindowEventHandler
     {
+        private readonly OpenGLContext _openGLContext;
+        protected IInputContext Input { get; set; }
         protected IWindow Window { get; set; }
         protected bool disposed;
-        public WindowEventHandler(IWindow Window)
+
+        protected WindowEventHandler(IWindow window, OpenGLContext openGLContext)
         {
-            this.Window = Window;
+            Window = window;
+            _openGLContext = openGLContext;
         }
 
         public virtual Task Start(CancellationToken cancellationToken)
@@ -26,38 +31,50 @@ namespace CoreLibrary.SilkDotNet.Window
         }
         public virtual Task Stop(CancellationToken cancellationToken)
         {
+            Log.Information("Window Closing...");
             return Task.Run(() => Window?.Close(), cancellationToken);
         }
 
         public virtual void OnLoad()
         {
-            IInputContext input = Window.CreateInput();
-            for (int i = 0; i < input.Keyboards.Count; i++)
+            Input = Window.CreateInput();
+            for (int i = 0; i < Input.Keyboards.Count; i++)
             {
-                input.Keyboards[i].KeyDown += KeyDown;
+                Input.Keyboards[i].KeyDown += KeyDown;
             }
+            _openGLContext.OnLoad();
         }
 
-        public abstract void OnRender(double dt);
+        public virtual void OnRender(double dt) => _openGLContext.OnRender(dt);
 
         public abstract void OnStop();
 
-        public abstract void OnUpdate(double dt);
+        public virtual void OnUpdate(double dt) => _openGLContext.OnUpdate(dt);
 
         public virtual void OnClose()
         {
+            _openGLContext.OnClose();
             Log.Information("Window Closing...");
-            Window?.Close();
+            if(Window is not null)
+            {
+                Window.Close();
+                Log.Information("Window Closed...");
+            }
+            else
+            {
+                Log.Information("Window could not be found...");
+            }
         }
 
         public virtual void OnClosing()
         {
-            Window = null;
+            _openGLContext.OnClose();
+            Window = null; //cannot access IsClosed from IView rip
         }
 
         public virtual void KeyDown(IKeyboard arg1, Key arg2, int arg3)
         {
-            //Check to close the window on escape.
+            Log.Information("Escpae Key Pressed...");
             if (arg2 == Key.Escape)
             {
                 OnClose();
@@ -81,6 +98,7 @@ namespace CoreLibrary.SilkDotNet.Window
                 if (disposing)
                 {
                     // Dispose managed resources.
+                    Input.Dispose();
                     OnClose();
                 }
 

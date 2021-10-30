@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\3rdPartyGraphicLibrary\3rdPartyGraphicLibrary.csproj" />
     <ProjectReference Include="..\CoreLibrary\CoreLibrary.csproj" />
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\SilkDotNetLibraries\SilkDotNetLibraries.csproj" />
   </ItemGroup>
 
 </Project>

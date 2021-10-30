@@ -1,25 +1,20 @@
-﻿using Serilog;
+﻿using SilkDotNetWrapper.OpenGL;
+using Serilog;
 using Silk.NET.Windowing;
 using System;
 
-namespace CoreLibrary.SilkDotNet.Window
+namespace SilkDotNetLibraries.Window
 {
     public class SilkDotNetWindowEventHandler : WindowEventHandler
     {
-        public SilkDotNetWindowEventHandler(IWindow Window) : base(Window){}
-
-        public override void OnRender(double dt)
+        public SilkDotNetWindowEventHandler(IWindow window, OpenGLContext openGLContext) : base(window, openGLContext) 
         {
+            Log.Information("Creating SilkDotNetWindowEventHandler...");
         }
 
         public override void OnStop()
         {
 
-        }
-
-        public override void OnUpdate(double dt)
-        {
-            
         }
 
         public override void Dispose()

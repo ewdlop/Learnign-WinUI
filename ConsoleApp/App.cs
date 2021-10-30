@@ -1,4 +1,4 @@
-﻿using CoreLibrary.SilkDotNet.Window;
+﻿using SilkDotNetLibraries.Window;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
@@ -18,6 +18,7 @@ namespace ConsoleApp
 
         public App(SilkDotNetWindowEventHandler windowEventHandler)
         {
+            Log.Information("Creating App...");
             _windowEventHandler = windowEventHandler;
         }
 
@@ -50,7 +51,7 @@ namespace ConsoleApp
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    _windowEventHandler.Dispose();
+                    _windowEventHandler.OnClose();
                 }
 
                 // Note disposing has been done.

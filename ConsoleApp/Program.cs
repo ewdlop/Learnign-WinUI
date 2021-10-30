@@ -3,8 +3,11 @@ using Microsoft.Extensions.Hosting;
 using Serilog.Events;
 using Serilog;
 using System;
-using CoreLibrary.SilkDotNet.Window;
+using SilkDotNetLibraries.Window;
 using Silk.NET.Windowing;
+using Silk.NET.Maths;
+using SilkDotNetWrapper.OpenGL;
+using CoreLibrary.DependencyInjectionOperation;
 
 namespace ConsoleApp
 {
@@ -39,19 +42,34 @@ namespace ConsoleApp
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .ConfigureServices((context, services) => {
+                    services.AddTransient<IOperationTransient, Operation>();
+                    services.AddScoped<IOperationScoped, Operation>();
+                    services.AddSingleton<IOperationSingleton, Operation>();
                     services.AddScoped(
                         (servicProvider) =>
                         {
                             var options = WindowOptions.Default;
                             options.Title = "LearnOpenGL with Silk.NET";
-                            var window = Window.Create(options);
-                            return new SilkDotNetWindowEventHandler(window);
+                            options.Size = new Vector2D<int>(800, 600);
+                            return Window.Create(options);
+                        }
+                    );
+                    services.AddScoped(
+                        (servicProvider) =>
+                        {
+                            return new OpenGLContext(servicProvider.GetRequiredService<IWindow>());
+                        }
+                    );
+                    services.AddScoped(
+                        (servicProvider) =>
+                        {
+                            return new SilkDotNetWindowEventHandler(servicProvider.GetRequiredService<IWindow>(),
+                                                                    servicProvider.GetRequiredService<OpenGLContext>());
                         }
                     );
                     services.AddHostedService(
                         (servicProvider)=>
                         {
-                            Log.Information("Creating App...");
                             return new App(servicProvider.GetRequiredService<SilkDotNetWindowEventHandler>());
                         }
                     );
