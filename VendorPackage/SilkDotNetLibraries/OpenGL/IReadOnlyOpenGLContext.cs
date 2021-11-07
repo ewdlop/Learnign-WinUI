@@ -1,4 +1,4 @@
-﻿namespace SilkDotNetWrapper.OpenGL
+﻿namespace SilkDotNetLibraries.OpenGL
 {
     public interface IReadOnlyOpenGLContext
     {

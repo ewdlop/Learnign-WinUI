@@ -1,9 +1,9 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 
-namespace _3rdPartyGraphicLibrary.OpenGL.Buffer
+namespace SilkDotNetLibraries.OpenGL.Buffer
 {
-    public class VertexArrayObjectObject<TVertexType, TIndexType> : IDisposable
+    public sealed class VertexArrayObjectObject<TVertexType, TIndexType> : IDisposable
        where TVertexType : unmanaged
        where TIndexType : unmanaged
     {

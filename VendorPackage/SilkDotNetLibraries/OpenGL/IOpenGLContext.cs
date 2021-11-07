@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SilkDotNetWrapper.OpenGL
+namespace SilkDotNetLibraries.OpenGL
 {
     public interface IOpenGLContext : IDisposable, IReadOnlyOpenGLContext
     {

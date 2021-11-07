@@ -1,6 +1,6 @@
 ﻿using Silk.NET.Input;
 
-namespace SilkDotNetLibraries.Window
+namespace SilkDotNetLibraries.Input
 {
     public interface IInputInputHandler
     {

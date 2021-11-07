@@ -4,11 +4,10 @@ using Silk.NET.Windowing;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SilkDotNetWrapper.OpenGL;
 
-namespace SilkDotNetLibraries.Window
+namespace SilkDotNetLibraries.OpenGL.Window
 {
-    public abstract class WindowEventHandler : IWindowEventHandler
+    public class WindowEventHandler : IWindowEventHandler
     {
         private readonly OpenGLContext _openGLContext;
         protected bool disposedValue;
@@ -48,7 +47,10 @@ namespace SilkDotNetLibraries.Window
 
         public virtual void OnRender(double dt) => _openGLContext.OnRender(dt);
 
-        public abstract void OnStop();
+        public virtual void OnStop()
+        {
+
+        }
 
         public virtual void OnUpdate(double dt) => _openGLContext.OnUpdate(dt);
 

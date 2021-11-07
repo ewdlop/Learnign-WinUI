@@ -1,4 +1,4 @@
-﻿namespace _3rdPartyGraphicLibrary.OpenGL.Shader
+﻿namespace SilkDotNetLibraries.OpenGL.Shader
 {
     public interface IReadOnlyShader
     {

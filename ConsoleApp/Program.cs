@@ -3,10 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Serilog.Events;
 using Serilog;
 using System;
-using SilkDotNetLibraries.Window;
 using Silk.NET.Windowing;
 using Silk.NET.Maths;
-using SilkDotNetWrapper.OpenGL;
+using SilkDotNetLibraries.OpenGL;
+using SilkDotNetLibraries.OpenGL.Window;
 
 namespace ConsoleApp
 {
@@ -52,7 +52,7 @@ namespace ConsoleApp
                         }
                     );
                     services.AddScoped<OpenGLContext>();
-                    services.AddScoped<SilkDotNetWindowEventHandler>();
+                    services.AddScoped<WindowEventHandler>();
                     services.AddHostedService<App>();
                 });
     }

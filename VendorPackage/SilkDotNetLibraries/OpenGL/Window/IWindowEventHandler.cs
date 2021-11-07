@@ -1,8 +1,9 @@
-﻿using System;
+﻿using SilkDotNetLibraries.Input;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SilkDotNetLibraries.Window
+namespace SilkDotNetLibraries.OpenGL.Window
 {
     public interface IWindowEventHandler : IInputInputHandler, IDisposable
     {

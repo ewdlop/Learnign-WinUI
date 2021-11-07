@@ -1,4 +1,4 @@
-﻿namespace _3rdPartyGraphicLibrary.OpenGL.Buffer
+﻿namespace SilkDotNetLibraries.OpenGL.Buffer
 {
     public interface IBufferObject<TDataType> where TDataType : unmanaged
     {
