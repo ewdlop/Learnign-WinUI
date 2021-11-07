@@ -33,12 +33,12 @@ namespace SilkDotNetLibraries.OpenGL.Buffer
             _gl.BindVertexArray(_vertexArrayObjectObjectHandle);
         }
 
-        protected virtual void OnDipose()
+        protected void OnDipose()
         {
             _gl.DeleteVertexArray(_vertexArrayObjectObjectHandle);
         }
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (!disposedValue)
             {

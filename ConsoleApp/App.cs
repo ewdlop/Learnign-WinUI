@@ -1,4 +1,4 @@
-﻿using SilkDotNetLibraries.Window;
+﻿using SilkDotNetLibraries.OpenGL.Window;
 using Serilog;
 using System;
 using System.Threading;
@@ -11,7 +11,7 @@ namespace ConsoleApp
         private readonly IWindowEventHandler _windowEventHandler;
         protected bool disposedValue;
 
-        public App(SilkDotNetWindowEventHandler windowEventHandler)
+        public App(WindowEventHandler windowEventHandler)
         {
             Log.Information("Creating App...");
             _windowEventHandler = windowEventHandler;
