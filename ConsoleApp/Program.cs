@@ -15,14 +15,14 @@ namespace ConsoleApp
         public static int Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-           .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-           .Enrich.FromLogContext()
-           .WriteTo.Console()
-           .CreateLogger();
+               .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+               .Enrich.FromLogContext()
+               .WriteTo.Console()
+               .CreateLogger();
 
             try
             {
-                Log.Information("Starting host");
+                Log.Information("Starting Host...");
                 CreateHostBuilder(args).Build().Run();
                 return 0;
             }
@@ -41,6 +41,7 @@ namespace ConsoleApp
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .ConfigureServices((context, services) => {
+                    Log.Information("Configuring Service Provider...");
                     services.AddScoped(
                         (servicProvider) =>
                         {

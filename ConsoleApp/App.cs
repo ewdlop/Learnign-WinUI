@@ -1,5 +1,4 @@
 ﻿using SilkDotNetLibraries.Window;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using System.Threading;
@@ -7,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp
 {
-    public class App : IApp, IHostedService, IDisposable
+    public class App : IApp
     {
         private readonly IWindowEventHandler _windowEventHandler;
-        private bool disposed;
+        protected bool disposedValue;
 
         public App(SilkDotNetWindowEventHandler windowEventHandler)
         {
@@ -29,35 +28,39 @@ namespace ConsoleApp
             Log.Information("App Stopping...");
             await _windowEventHandler.Stop(cancellationToken);
         }
+        protected virtual void OnDipose()
+        {
+            _windowEventHandler.Dispose();
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    OnDipose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+            Log.Information("App Already Diposed...");
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~App()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
 
         public void Dispose()
         {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Log.Information("App Disposing...");
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    _windowEventHandler.OnClose();
-                }
-
-                // Note disposing has been done.
-                disposed = true;
-            }
-        }
-
-        ~App()
-        {
-            Dispose(disposing: false);
         }
     }
 }

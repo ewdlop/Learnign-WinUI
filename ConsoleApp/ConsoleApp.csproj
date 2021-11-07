@@ -11,8 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreLibrary\CoreLibrary.csproj" />
-    <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
-    <ProjectReference Include="..\SilkDotNetLibraries\SilkDotNetLibraries.csproj" />
   </ItemGroup>
 
 </Project>

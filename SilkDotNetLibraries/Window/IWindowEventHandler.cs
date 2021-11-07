@@ -12,7 +12,6 @@ namespace SilkDotNetLibraries.Window
         void OnLoad();
         void OnUpdate(double dt);
         void OnRender(double dt);
-        void OnClose();
         void OnClosing();
         void OnStop();
     }

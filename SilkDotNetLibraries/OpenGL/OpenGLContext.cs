@@ -2,29 +2,19 @@
 using Serilog;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
+using System;
 
 namespace SilkDotNetWrapper.OpenGL
 {
-    public interface IReadOnlyOpenGLContext
-    {
-        bool IsClosed { get;}
-    }
-    public interface IOpenGLContext : IReadOnlyOpenGLContext
-    {
-        unsafe void OnLoad();
-        unsafe void OnRender(double dt);
-        void OnUpdate(double dt);
-        void OnClose();
-    }
     public class OpenGLContext : IOpenGLContext
     {
         private readonly IWindow _window;
+        protected bool disposedValue;
         private GL GL { get; set; }
         public uint Vao { get; private set; }
         public uint Vbo { get; private set; }
         public uint Ebo { get; private set; }
         public uint ShaderProgram { get; private set; }
-        public bool IsClosed { get; private set; }
 
         public OpenGLContext(IWindow Window)
         {
@@ -94,7 +84,12 @@ namespace SilkDotNetWrapper.OpenGL
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
 
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
+            GL.VertexAttribPointer(0,
+                                   3,
+                                   VertexAttribPointerType.Float,
+                                   false,
+                                   3 * sizeof(float),
+                                   null);
             GL.EnableVertexAttribArray(0);
         }
 
@@ -105,7 +100,10 @@ namespace SilkDotNetWrapper.OpenGL
             GL.BindVertexArray(Vao);
             GL.UseProgram(ShaderProgram);
 
-            GL.DrawElements(PrimitiveType.Triangles, (uint)Quad.Indices.Length, DrawElementsType.UnsignedInt, null);
+            GL.DrawElements(PrimitiveType.Triangles,
+                            (uint)Quad.Indices.Length,
+                            DrawElementsType.UnsignedInt,
+                            null);
         }
 
         public void OnUpdate(double dt)
@@ -113,16 +111,43 @@ namespace SilkDotNetWrapper.OpenGL
 
         }
 
-        public void OnClose()
+        protected virtual void OnDipose()
         {
-            if(!IsClosed)
+            Log.Information("OpnGLContext Diposing...");
+            GL.DeleteBuffer(Vbo);
+            GL.DeleteBuffer(Ebo);
+            GL.DeleteVertexArray(Vao);
+            GL.DeleteProgram(ShaderProgram);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
             {
-                GL.DeleteBuffer(Vbo);
-                GL.DeleteBuffer(Ebo);
-                GL.DeleteVertexArray(Vao);
-                GL.DeleteProgram(ShaderProgram);
+                if (disposing)
+                {
+                    OnDipose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
             }
-            IsClosed = true;
+            Log.Information("OpnGLContext Already Diposed...");
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~OpenGLContext()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,6 +1,9 @@
-﻿namespace ConsoleApp
+﻿using Microsoft.Extensions.Hosting;
+using System;
+
+namespace ConsoleApp
 {
-    public interface IApp
+    public interface IApp : IHostedService, IDisposable
     {
     }
 }

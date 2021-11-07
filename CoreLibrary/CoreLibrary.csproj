@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\3rdPartyGraphicLibrary\SilkDotNetLibraries.csproj" />
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\SilkDotNetLibraries\SilkDotNetLibraries.csproj" />
   </ItemGroup>
 
 </Project>

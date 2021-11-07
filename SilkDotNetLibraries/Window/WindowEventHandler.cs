@@ -11,9 +11,10 @@ namespace SilkDotNetLibraries.Window
     public abstract class WindowEventHandler : IWindowEventHandler
     {
         private readonly OpenGLContext _openGLContext;
+        protected bool disposedValue;
+
         protected IInputContext Input { get; set; }
         protected IWindow Window { get; set; }
-        protected bool disposed;
 
         protected WindowEventHandler(IWindow window, OpenGLContext openGLContext)
         {
@@ -40,7 +41,7 @@ namespace SilkDotNetLibraries.Window
             Input = Window.CreateInput();
             for (int i = 0; i < Input.Keyboards.Count; i++)
             {
-                Input.Keyboards[i].KeyDown += KeyDown;
+                Input.Keyboards[i].KeyDown += OnKeyDown;
             }
             _openGLContext.OnLoad();
         }
@@ -51,14 +52,32 @@ namespace SilkDotNetLibraries.Window
 
         public virtual void OnUpdate(double dt) => _openGLContext.OnUpdate(dt);
 
-        public virtual void OnClose()
+        public virtual void OnClosing()
         {
-            _openGLContext.OnClose();
-            Log.Information("Window Closing...");
-            if(Window is not null)
+            //trigger by closing Window
+            _openGLContext.Dispose();
+            Window = null;
+        }
+
+        public virtual void OnKeyDown(IKeyboard arg1, Key arg2, int arg3)
+        {
+            Log.Information("Escpae Key Pressed...");
+            if (arg2 == Key.Escape)
             {
-                Window.Close();
-                Log.Information("Window Closed...");
+                OnDispose();
+            }
+        }
+
+        protected virtual void OnDispose()
+        {
+            Log.Information("Input Dispose...");
+            Input?.Dispose();
+            _openGLContext.Dispose();
+            Log.Information("Window Disposing...");
+            if (Window is not null)
+            {
+                Window.Dispose();
+                Log.Information("Window Disposed...");
             }
             else
             {
@@ -66,50 +85,36 @@ namespace SilkDotNetLibraries.Window
             }
         }
 
-        public virtual void OnClosing()
+        protected virtual void Dispose(bool disposing)
         {
-            _openGLContext.OnClose();
-            Window = null; //cannot access IsClosed from IView rip
-        }
-
-        public virtual void KeyDown(IKeyboard arg1, Key arg2, int arg3)
-        {
-            Log.Information("Escpae Key Pressed...");
-            if (arg2 == Key.Escape)
+            if (!disposedValue)
             {
-                OnClose();
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    OnDispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
             }
+            Log.Information("WindowEventHandler Already Diposed...");
         }
 
-        public virtual void Dispose()
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~WindowEventHandler()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
         {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Log.Information("WindowEventHandler Disposing...");
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    Input.Dispose();
-                    OnClose();
-                }
-
-                // Note disposing has been done.
-                disposed = true;
-            }
-        }
-        ~WindowEventHandler()
-        {
-            Log.Information("WindowEventHandler Finalizer Disposing...");
-            Dispose(disposing: false);
         }
     }
 }
