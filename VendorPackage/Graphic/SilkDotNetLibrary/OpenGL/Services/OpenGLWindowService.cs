@@ -4,7 +4,7 @@ using SilkDotNetLibrary.OpenGL.Window;
 using SilkDotNetLibrary.OpenGL.Apps;
 using System;
 
-namespace SilkDotNetLibrary.OpenGL.Service
+namespace SilkDotNetLibrary.OpenGL.Services
 {
     public static class OpenGLWindowService
     {

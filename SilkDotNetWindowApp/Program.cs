@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Serilog.Events;
 using Serilog;
-using Silk.NET.Maths;
-using Silk.NET.Windowing;
-using SilkDotNetLibrary.OpenGL.Service;
 using System;
+using CoreLibrary.Services;
 
 namespace SilkDotNetWindowApp
 {
@@ -40,11 +38,7 @@ namespace SilkDotNetWindowApp
                 .UseSerilog()
                 .ConfigureServices((context, services) => {
                     Log.Information("Configuring Service Provider...");
-                    services.UseSilkDotNetOpenGLWindow(options =>
-                    {
-                        options.Title = "LearnOpenGL with Silk.NET";
-                        options.Size = new Vector2D<int>(800, 600);
-                    });
+                    services.UseVeryMiniEngine();
                 });
     }
 }
