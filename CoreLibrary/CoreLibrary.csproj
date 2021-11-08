@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -14,9 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
-    <ProjectReference Include="..\SilkDotNetLibraries\SilkDotNetLibraries.csproj" />
-    <ProjectReference Include="..\VendorPackage\PhysicsLibrary\PhysicsLibrary.csproj" />
-    <ProjectReference Include="..\VendorPackage\SilkDotNetLibraries\SilkDotNetLibraries.csproj" />
+    <ProjectReference Include="..\VendorPackage\Graphic\SilkDotNetLibrary\SilkDotNetLibrary.csproj" />
   </ItemGroup>
 
 </Project>
