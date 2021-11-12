@@ -20,12 +20,14 @@ namespace SilkDotNetLibrary.OpenGL.Apps
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             Log.Information("App Starting...");
+            Log.Information("App Starting thread ID: {0}", Environment.CurrentManagedThreadId);
             await _windowEventHandler.Start(cancellationToken);
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            Log.Information("App Stopping...");
+            Log.Information("Window App Stopping...");
+            Log.Information("Window App Stopping thread ID: {0}", Environment.CurrentManagedThreadId);
             await _windowEventHandler.Stop(cancellationToken);
         }
         protected virtual void OnDipose()

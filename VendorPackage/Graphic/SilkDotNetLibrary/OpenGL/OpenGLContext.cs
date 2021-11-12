@@ -5,8 +5,6 @@ using Silk.NET.Windowing;
 using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
-using System.IO;
-using System.Reflection;
 
 namespace SilkDotNetLibrary.OpenGL
 {

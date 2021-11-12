@@ -27,12 +27,20 @@ namespace SilkDotNetLibrary.OpenGL.Window
             Window.Update += OnUpdate;
             Window.Render += OnRender;
             Window.Closing += OnClosing;
-            return Task.Run(() => Window?.Run(), cancellationToken);
+            return Task.Run(() =>
+            {
+                Log.Information("Window Running thread ID: {0}", Environment.CurrentManagedThreadId);
+                Window?.Run();
+            }, cancellationToken);
         }
         public virtual Task Stop(CancellationToken cancellationToken)
         {
             Log.Information("Window Closing...");
-            return Task.Run(() => Window?.Close(), cancellationToken);
+            return Task.Run(()=>
+            {
+                Log.Information("Window Closing thread ID: {0}", Environment.CurrentManagedThreadId);
+                Window?.Close();
+            }, cancellationToken);
         }
 
         public virtual void OnLoad()
@@ -57,6 +65,7 @@ namespace SilkDotNetLibrary.OpenGL.Window
         public virtual void OnClosing()
         {
             //trigger by closing Window
+            Log.Information("Window Closing thread ID: {0}", Environment.CurrentManagedThreadId);
             _openGLContext.Dispose();
             Window = null;
         }
@@ -72,6 +81,7 @@ namespace SilkDotNetLibrary.OpenGL.Window
 
         protected virtual void OnDispose()
         {
+            Log.Information("Window Dispose thread ID: {0}", Environment.CurrentManagedThreadId);
             Log.Information("Input Dispose...");
             Input?.Dispose();
             _openGLContext.Dispose();
