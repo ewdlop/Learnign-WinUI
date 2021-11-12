@@ -3,17 +3,18 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public class BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
+public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
     where TDataType : unmanaged
 {
     public readonly uint _bufferHandle;
     private readonly BufferTargetARB _bufferTargetARB;
     private readonly GL _gl;
-    protected bool disposedValue;
+    private bool disposedValue;
 
     public unsafe BufferObject(GL gl, Span<TDataType> span, BufferTargetARB bufferTargetARB)
     {
         //Setting the gl instance and storing our buffer type.
+        disposedValue = false;
         _gl = gl;
         _bufferTargetARB = bufferTargetARB;
 
@@ -35,11 +36,11 @@ public class BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
         _gl.BindBuffer(_bufferTargetARB, _bufferHandle);
     }
 
-    protected virtual void OnDipose()
+    private void OnDipose()
     {
         _gl.DeleteBuffer(_bufferHandle);
     }
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!disposedValue)
         {

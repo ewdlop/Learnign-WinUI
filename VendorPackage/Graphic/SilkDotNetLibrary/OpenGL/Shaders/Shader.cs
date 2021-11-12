@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public class Shader : IShader
+public struct Shader : IShader
 {
-    protected bool disposedValue;
+    private bool disposedValue;
 
     private readonly GL _gl;
     public uint ShaderProgramHandle { get; private set; }
     public Shader(GL gl)
     {
+        disposedValue = false;
         _gl = gl;
+        ShaderProgramHandle = _gl.CreateProgram();
     }
 
     public void Load(string vertexPath, string fragmentPath)
@@ -22,7 +24,6 @@ public class Shader : IShader
         uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
         uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
         //Create the shader program.
-        ShaderProgramHandle = _gl.CreateProgram();
         //Attach the individual shaders.
         _gl.AttachShader(ShaderProgramHandle, vertex);
         _gl.AttachShader(ShaderProgramHandle, fragment);
@@ -118,12 +119,12 @@ public class Shader : IShader
 
         return handle;
     }
-    protected virtual void OnDipose()
+    private void OnDipose()
     {
         _gl.DeleteProgram(ShaderProgramHandle);
     }
 
-    protected virtual void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!disposedValue)
         {

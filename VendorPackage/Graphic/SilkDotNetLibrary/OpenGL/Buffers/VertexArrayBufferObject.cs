@@ -3,7 +3,7 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public class VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
+public struct VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
    where TVertexType : unmanaged
    where TIndexType : unmanaged
 {
@@ -13,6 +13,7 @@ public class VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
 
     public VertexArrayBufferObject(GL gl, BufferObject<TVertexType> vbo, BufferObject<TIndexType> ebo)
     {
+        disposedValue = false;
         _gl = gl;
         //Setting out handle and binding the VBO and EBO to this VAO.
         _vertexArrayBufferObjectHandle = _gl.GenVertexArray();
@@ -37,18 +38,13 @@ public class VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
         _gl.EnableVertexAttribArray(index);
     }
 
-    public void Bind()
-    {
+    public void Bind() =>
         //Binding the vertex array.
         _gl.BindVertexArray(_vertexArrayBufferObjectHandle);
-    }
 
-    protected void OnDipose()
-    {
-        _gl.DeleteVertexArray(_vertexArrayBufferObjectHandle);
-    }
+    private void OnDipose() => _gl.DeleteVertexArray(_vertexArrayBufferObjectHandle);
 
-    protected void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!disposedValue)
         {

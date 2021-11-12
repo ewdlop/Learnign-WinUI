@@ -11,7 +11,7 @@ namespace SilkDotNetLibrary.OpenGL;
 public class OpenGLContext : IOpenGLContext
 {
     private readonly IWindow _window;
-    protected bool disposedValue;
+    private bool disposedValue;
     private GL GL { get; set; }
     public BufferObject<float> Vbo { get; private set; }
     public BufferObject<uint> Ebo { get; private set; }
@@ -26,6 +26,7 @@ public class OpenGLContext : IOpenGLContext
 
     public unsafe void OnLoad()
     {
+        disposedValue = false;
         GL = GL.GetApi(_window);
         Ebo = new BufferObject<uint>(GL, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
         Vbo = new BufferObject<float>(GL, Quad.Vertices, BufferTargetARB.ArrayBuffer);
@@ -56,7 +57,7 @@ public class OpenGLContext : IOpenGLContext
 
     }
 
-    protected virtual void OnDipose()
+    public void OnDipose()
     {
         Log.Information("OpnGLContext Diposing...");
         Vbo.Dispose();
@@ -65,7 +66,7 @@ public class OpenGLContext : IOpenGLContext
         Shader.Dispose();
     }
 
-    protected virtual void Dispose(bool disposing)
+    public void Dispose(bool disposing)
     {
         if (!disposedValue)
         {
