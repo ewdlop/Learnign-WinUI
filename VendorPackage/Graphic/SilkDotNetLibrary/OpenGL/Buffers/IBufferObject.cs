@@ -1,7 +1,6 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Buffers
+﻿namespace SilkDotNetLibrary.OpenGL.Buffers;
+
+public interface IBufferObject<TDataType> where TDataType : unmanaged
 {
-    public interface IBufferObject<TDataType> where TDataType : unmanaged
-    {
-        void Bind();
-    }
+    void Bind();
 }

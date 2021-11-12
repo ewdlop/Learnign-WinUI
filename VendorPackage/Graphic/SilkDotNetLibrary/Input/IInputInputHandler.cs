@@ -1,9 +1,8 @@
 ﻿using Silk.NET.Input;
 
-namespace SilkDotNetLibrary.Input
+namespace SilkDotNetLibrary.Input;
+
+public interface IInputInputHandler
 {
-    public interface IInputInputHandler
-    {
-        void OnKeyDown(IKeyboard arg1, Key arg2, int arg3);
-    }
+    void OnKeyDown(IKeyboard arg1, Key arg2, int arg3);
 }

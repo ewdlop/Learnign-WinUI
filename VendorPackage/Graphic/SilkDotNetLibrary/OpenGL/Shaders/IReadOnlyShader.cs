@@ -1,7 +1,6 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Shaders
+﻿namespace SilkDotNetLibrary.OpenGL.Shaders;
+
+public interface IReadOnlyShader
 {
-    public interface IReadOnlyShader
-    {
-        uint ShaderProgramHandle { get; }
-    }
+    uint ShaderProgramHandle { get; }
 }

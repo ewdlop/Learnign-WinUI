@@ -1,6 +1,5 @@
-﻿namespace SilkDotNetLibrary.OpenGL
+﻿namespace SilkDotNetLibrary.OpenGL;
+
+public interface IReadOnlyOpenGLContext
 {
-    public interface IReadOnlyOpenGLContext
-    {
-    }
 }

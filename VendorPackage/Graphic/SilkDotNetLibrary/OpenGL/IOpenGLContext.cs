@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace SilkDotNetLibrary.OpenGL
+namespace SilkDotNetLibrary.OpenGL;
+
+public interface IOpenGLContext : IDisposable, IReadOnlyOpenGLContext
 {
-    public interface IOpenGLContext : IDisposable, IReadOnlyOpenGLContext
-    {
-        unsafe void OnLoad();
-        unsafe void OnRender(double dt);
-        void OnUpdate(double dt);
-    }
+    unsafe void OnLoad();
+    unsafe void OnRender(double dt);
+    void OnUpdate(double dt);
 }
