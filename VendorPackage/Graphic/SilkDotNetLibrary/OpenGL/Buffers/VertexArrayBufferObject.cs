@@ -1,15 +1,25 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 
-namespace SilkDotNetLibrary.OpenGL.Buffer
+namespace SilkDotNetLibrary.OpenGL.Buffers
 {
-    public class VertexArrayObjectObject<TVertexType, TIndexType> : IDisposable
+    public class VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
        where TVertexType : unmanaged
        where TIndexType : unmanaged
     {
-        public readonly uint _vertexArrayObjectObjectHandle;
+        public readonly uint _vertexArrayBufferObjectHandle;
         private readonly GL _gl;
         private bool disposedValue;
+
+        public VertexArrayBufferObject(GL gl, BufferObject<TVertexType> vbo, BufferObject<TIndexType> ebo)
+        {
+            _gl = gl;
+            //Setting out handle and binding the VBO and EBO to this VAO.
+            _vertexArrayBufferObjectHandle = _gl.GenVertexArray();
+            Bind();
+            vbo.Bind();
+            ebo.Bind();
+        }
 
         public unsafe void VertexAttributePointer(uint index,
                                                   int count,
@@ -30,12 +40,12 @@ namespace SilkDotNetLibrary.OpenGL.Buffer
         public void Bind()
         {
             //Binding the vertex array.
-            _gl.BindVertexArray(_vertexArrayObjectObjectHandle);
+            _gl.BindVertexArray(_vertexArrayBufferObjectHandle);
         }
 
         protected void OnDipose()
         {
-            _gl.DeleteVertexArray(_vertexArrayObjectObjectHandle);
+            _gl.DeleteVertexArray(_vertexArrayBufferObjectHandle);
         }
 
         protected void Dispose(bool disposing)

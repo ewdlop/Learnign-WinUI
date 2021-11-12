@@ -1,7 +1,7 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 
-namespace SilkDotNetLibrary.OpenGL.Buffer
+namespace SilkDotNetLibrary.OpenGL.Buffers
 {
     public class BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
         where TDataType : unmanaged

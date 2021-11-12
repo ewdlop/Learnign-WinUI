@@ -1,4 +1,4 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Shader
+﻿namespace SilkDotNetLibrary.OpenGL.Shaders
 {
     public interface IReadOnlyShader
     {

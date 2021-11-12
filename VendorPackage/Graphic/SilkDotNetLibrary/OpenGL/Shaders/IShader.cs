@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SilkDotNetLibrary.OpenGL.Shader
+namespace SilkDotNetLibrary.OpenGL.Shaders
 {
     public interface IShader : IReadOnlyShader, IDisposable
     {

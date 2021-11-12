@@ -1,8 +1,12 @@
-﻿using SilkDotNetLibrary.OpenGL.Shader;
+﻿using SilkDotNetLibrary.OpenGL.Shaders;
 using Serilog;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using System;
+using SilkDotNetLibrary.OpenGL.Buffers;
+using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
+using System.IO;
+using System.Reflection;
 
 namespace SilkDotNetLibrary.OpenGL
 {
@@ -11,10 +15,10 @@ namespace SilkDotNetLibrary.OpenGL
         private readonly IWindow _window;
         protected bool disposedValue;
         private GL GL { get; set; }
-        public uint Vao { get; private set; }
-        public uint Vbo { get; private set; }
-        public uint Ebo { get; private set; }
-        public uint ShaderProgram { get; private set; }
+        public BufferObject<float> Vbo { get; private set; }
+        public BufferObject<uint> Ebo { get; private set; }
+        public VertexArrayBufferObject<float, uint> Vao { get; private set; }
+        public Shader Shader { get; private set; }
 
         public OpenGLContext(IWindow Window)
         {
@@ -25,81 +29,24 @@ namespace SilkDotNetLibrary.OpenGL
         public unsafe void OnLoad()
         {
             GL = GL.GetApi(_window);
-            Vao = GL.GenVertexArray();
-            GL.BindVertexArray(Vao);
+            Ebo = new BufferObject<uint>(GL, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
+            Vbo = new BufferObject<float>(GL, Quad.Vertices, BufferTargetARB.ArrayBuffer);
+            Vao = new VertexArrayBufferObject<float, uint>(GL, Vbo, Ebo);
 
-            Vbo = GL.GenBuffer();
-            GL.BindBuffer(BufferTargetARB.ArrayBuffer, Vbo);
-            fixed (void* vertice =&Quad.Vertices[0])
-            {
-                GL.BufferData(BufferTargetARB.ArrayBuffer,
-                              (nuint)(Quad.Vertices.Length * sizeof(uint)),
-                              vertice,
-                              BufferUsageARB.StaticDraw);
-            }
-
-            Ebo = GL.GenBuffer();
-            GL.BindBuffer(BufferTargetARB.ElementArrayBuffer, Ebo);
-            fixed(void* indices =&Quad.Indices[0])
-            {
-                GL.BufferData(BufferTargetARB.ElementArrayBuffer,
-                              (nuint)(Quad.Indices.Length * sizeof(uint)),
-                              indices,
-                              BufferUsageARB.StaticDraw);
-            }
-
-            uint vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, Quad.VertexShader);
-            GL.CompileShader(vertexShader);
-
-            string vertexShaderInfoLog = GL.GetShaderInfoLog(vertexShader);
-            if (!string.IsNullOrWhiteSpace(vertexShaderInfoLog))
-            {
-                Log.Error($"Error compling fragment shader {vertexShaderInfoLog}");
-            }
-
-            uint fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, Quad.FragmentShader);
-            GL.CompileShader(fragmentShader);
-
-            string fragmentShaderInfoLog = GL.GetShaderInfoLog(vertexShader);
-            if (!string.IsNullOrWhiteSpace(fragmentShaderInfoLog))
-            {
-                Log.Error($"Error compling fragment shader {fragmentShaderInfoLog}");
-            }
-
-            ShaderProgram = GL.CreateProgram();
-            GL.AttachShader(ShaderProgram, vertexShader);
-            GL.AttachShader(ShaderProgram, fragmentShader);
-            GL.LinkProgram(ShaderProgram);
-
-            GL.GetProgram(ShaderProgram, GLEnum.LinkStatus, out var linkStatus);
-            if(linkStatus == 0)
-            {
-                Log.Error($"Error linking shader {GL.GetProgramInfoLog(ShaderProgram)}");
-            }
-
-            GL.DetachShader(ShaderProgram, vertexShader);
-            GL.DetachShader(ShaderProgram, fragmentShader);
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
-
-            GL.VertexAttribPointer(0,
-                                   3,
-                                   VertexAttribPointerType.Float,
-                                   false,
-                                   3 * sizeof(float),
-                                   null);
-            GL.EnableVertexAttribArray(0);
+            //Telling the VAO object how to lay out the attribute pointers
+            Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 7, 0);
+            Vao.VertexAttributePointer(1, 4, VertexAttribPointerType.Float, 7, 3);
+            Shader = new Shader(GL);
+            Shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
         }
 
         public unsafe void OnRender(double dt)
         {
             GL.Clear((uint)ClearBufferMask.ColorBufferBit);
-
-            GL.BindVertexArray(Vao);
-            GL.UseProgram(ShaderProgram);
-
+            Vao.Bind();
+            Shader.Use();
+            //Setting a uniform.
+            Shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
             GL.DrawElements(PrimitiveType.Triangles,
                             (uint)Quad.Indices.Length,
                             DrawElementsType.UnsignedInt,
@@ -114,10 +61,10 @@ namespace SilkDotNetLibrary.OpenGL
         protected virtual void OnDipose()
         {
             Log.Information("OpnGLContext Diposing...");
-            GL.DeleteBuffer(Vbo);
-            GL.DeleteBuffer(Ebo);
-            GL.DeleteVertexArray(Vao);
-            GL.DeleteProgram(ShaderProgram);
+            Vbo.Dispose();
+            Ebo.Dispose();
+            Vao.Dispose();
+            Shader.Dispose();
         }
 
         protected virtual void Dispose(bool disposing)

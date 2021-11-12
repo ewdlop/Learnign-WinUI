@@ -1,4 +1,4 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Shader
+﻿namespace SilkDotNetLibrary.OpenGL.Shaders
 {
     public static class Quad
     {
@@ -22,11 +22,11 @@
         //Vertex data, uploaded to the VBO.
         internal static readonly float[] Vertices =
         {
-            //X    Y      Z
-             0.5f,  0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            -0.5f,  0.5f, 0.5f
+            //X    Y      Z     R  G  B  A
+             0.5f,  0.5f, 0.0f, 1, 0, 0, 1,
+             0.5f, -0.5f, 0.0f, 0, 0, 0, 1,
+            -0.5f, -0.5f, 0.0f, 0, 0, 1, 1,
+            -0.5f,  0.5f, 0.5f, 0, 0, 0, 1
         };
 
         internal static readonly uint[] Indices =

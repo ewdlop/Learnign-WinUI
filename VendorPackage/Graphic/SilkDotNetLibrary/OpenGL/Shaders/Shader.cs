@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace SilkDotNetLibrary.OpenGL.Shader
+namespace SilkDotNetLibrary.OpenGL.Shaders
 {
     public class Shader : IShader
     {
