@@ -5,8 +5,10 @@ using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 using SilkDotNetLibrary.OpenGL.Textures;
-using SilkDotNetLibrary.Transforms;
 using System.Numerics;
+using SharedLibrary.Transforms;
+using SharedLibrary.Math;
+using SilkDotNetLibrary.OpenGL.Primitive;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -14,6 +16,9 @@ public class OpenGLContext : IOpenGLContext
 {
     private bool disposedValue;
     private readonly IWindow _window;
+    private const int WIDTH = 800;
+    private const int HEIGHT = 700;
+
     private GL GL { get; set; }
     private BufferObject<float> Vbo { get; set; }
     private BufferObject<uint> Ebo { get; set; }
@@ -22,10 +27,20 @@ public class OpenGLContext : IOpenGLContext
     private Textures.Texture Texture { get; set; }
     private Transform[] Transforms { get; set; } = new Transform[4];
 
+    //Setup the camera's location, and relative up and right directions
+    private Vector3 CameraPosition { get; set; } = new Vector3(0.0f, 0.0f, 3.0f);
+    private Vector3 CameraTarget { get; set; } = Vector3.Zero;
+    private Vector3 CameraDirection { get; set; }
+    private Vector3 CameraRight { get; set; }
+    private Vector3 CameraUp { get; set; } 
+
     public OpenGLContext(IWindow Window)
     {
         Log.Information("Creating OpenGLContext...");
         _window = Window;
+        CameraDirection = Vector3.Normalize(CameraPosition - CameraTarget);
+        CameraRight = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, CameraDirection));
+        CameraUp = Vector3.Cross(CameraDirection, CameraRight);
     }
 
     public unsafe void OnLoad()
@@ -34,8 +49,8 @@ public class OpenGLContext : IOpenGLContext
 
         //_ebo = new BufferObject<uint>(_gl, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
         //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
-        Ebo = new BufferObject<uint>(GL, DefaultTexture.Indices, BufferTargetARB.ElementArrayBuffer);
-        Vbo = new BufferObject<float>(GL, DefaultTexture.Vertices, BufferTargetARB.ArrayBuffer);
+        Ebo = new BufferObject<uint>(GL, Cube.Indices, BufferTargetARB.ElementArrayBuffer);
+        Vbo = new BufferObject<float>(GL, Cube.Vertices, BufferTargetARB.ArrayBuffer);
         Vao = new VertexArrayBufferObject<float, uint>(GL, Vbo, Ebo);
         //Telling the VAO object how to lay out the attribute pointers
         //_vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 7, 0);
@@ -66,20 +81,37 @@ public class OpenGLContext : IOpenGLContext
 
     public unsafe void OnRender(double dt)
     {
-        GL.Clear((uint)ClearBufferMask.ColorBufferBit);
+        GL.Enable(EnableCap.DepthTest);
+        GL.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
         Vao.Bind();
         Texture.Bind();
         Shader.Use();
         //Setting a uniform.
         //_shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
         Shader.SetUniform("uTexture0", 0);
-        for (int i = 0; i < Transforms.Length; i++)
-        {
-            //Using the transformations.
-            Shader.SetUniform("uModel", Transforms[i].ViewMatrix);
 
-            GL.DrawElements(PrimitiveType.Triangles, (uint)DefaultTexture.Indices.Length, DrawElementsType.UnsignedInt, null);
-        }
+        //for (int i = 0; i < Transforms.Length; i++)
+        //{
+        //    //Using the transformations.
+        //    Shader.SetUniform("uModel", Transforms[i].ViewMatrix);
+
+        //    GL.DrawElements(PrimitiveType.Triangles, (uint)DefaultTexture.Indices.Length, DrawElementsType.UnsignedInt, null);
+        //}
+
+        //Use elapsed time to convert to radians to allow our cube to rotate over time
+        var difference = (float)(_window.Time * 100);
+
+        var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
+        var view = Matrix4x4.CreateLookAt(CameraPosition, CameraTarget, CameraUp);
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), WIDTH / HEIGHT, 0.1f, 100.0f);
+
+        Shader.SetUniform("uModel", model);
+        Shader.SetUniform("uView", view);
+        Shader.SetUniform("uProjection", projection);
+
+        //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
+        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
     }
 
     public void OnUpdate(double dt)

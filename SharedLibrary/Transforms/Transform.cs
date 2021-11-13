@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace SilkDotNetLibrary.Transforms;
+namespace SharedLibrary.Transforms;
 
 public struct Transform
 {

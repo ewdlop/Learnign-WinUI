@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace SilkDotNetLibrary.OpenGL.Textures;
 
@@ -21,6 +22,7 @@ public struct Texture : IDisposable
 
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
+        image.Mutate(x => x.Flip(FlipMode.Vertical));
 
         //// OpenGL has image origin in the bottom-left corner.
         fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
@@ -31,6 +33,19 @@ public struct Texture : IDisposable
 
         //Deleting the img from imagesharp.
         image.Dispose();
+    }
+
+    public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
+    {
+        disposedValue = false;
+        _gl = gl;
+        //Generating the opengl handle;
+        _texturehandle = _gl.GenTexture();
+
+        fixed (void* d = &data[0])
+        {
+            Load(d, width, height);
+        }
     }
 
     private unsafe void Load(void* data, uint width, uint height)
