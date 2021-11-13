@@ -9,7 +9,7 @@ namespace SilkDotNetLibrary.OpenGL.Windows;
 
 public class WindowEventHandler : IWindowEventHandler
 {
-    private readonly OpenGLContext _openGLContext;
+    private readonly OpenGLContext _openGLContext; //use event to break this out?
     protected bool disposedValue;
 
     private IInputContext Input { get; set; }
