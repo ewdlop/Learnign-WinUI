@@ -119,10 +119,7 @@ public struct Shader : IShader
 
         return handle;
     }
-    private void OnDipose()
-    {
-        _gl.DeleteProgram(ShaderProgramHandle);
-    }
+    private void OnDispose() => _gl.DeleteProgram(ShaderProgramHandle);
 
     private void Dispose(bool disposing)
     {
@@ -130,7 +127,7 @@ public struct Shader : IShader
         {
             if (disposing)
             {
-                OnDipose();
+                OnDispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\ImageSharpLibrary\ImageSharpLibrary.csproj" />
   </ItemGroup>
 
 </Project>

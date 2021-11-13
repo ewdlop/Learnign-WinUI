@@ -6,7 +6,7 @@ namespace SilkDotNetLibrary.OpenGL.Buffers;
 public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
     where TDataType : unmanaged
 {
-    public readonly uint _bufferHandle;
+    private readonly uint _bufferHandle;
     private readonly BufferTargetARB _bufferTargetARB;
     private readonly GL _gl;
     private bool disposedValue;
@@ -36,7 +36,7 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
         _gl.BindBuffer(_bufferTargetARB, _bufferHandle);
     }
 
-    private void OnDipose()
+    private void OnDispose()
     {
         _gl.DeleteBuffer(_bufferHandle);
     }
@@ -47,7 +47,7 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
             if (disposing)
             {
                 // TODO: dispose managed state (managed objects)
-                OnDipose();
+                OnDispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

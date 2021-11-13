@@ -5,18 +5,20 @@ using Silk.NET.Windowing;
 using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
+using SilkDotNetLibrary.OpenGL.Textures;
 
 namespace SilkDotNetLibrary.OpenGL;
 
 public class OpenGLContext : IOpenGLContext
 {
-    private readonly IWindow _window;
     private bool disposedValue;
+    private readonly IWindow _window;
     private GL GL { get; set; }
-    public BufferObject<float> Vbo { get; private set; }
-    public BufferObject<uint> Ebo { get; private set; }
-    public VertexArrayBufferObject<float, uint> Vao { get; private set; }
-    public Shader Shader { get; private set; }
+    private BufferObject<float> Vbo { get; set; }
+    private BufferObject<uint> Ebo { get; set; }
+    private VertexArrayBufferObject<float, uint> Vao { get; set; }
+    private Shader Shader { get; set; }
+    private Textures.Texture Texture { get; set; }
 
     public OpenGLContext(IWindow Window)
     {
@@ -26,17 +28,22 @@ public class OpenGLContext : IOpenGLContext
 
     public unsafe void OnLoad()
     {
-        disposedValue = false;
         GL = GL.GetApi(_window);
-        Ebo = new BufferObject<uint>(GL, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
-        Vbo = new BufferObject<float>(GL, Quad.Vertices, BufferTargetARB.ArrayBuffer);
-        Vao = new VertexArrayBufferObject<float, uint>(GL, Vbo, Ebo);
 
+        //_ebo = new BufferObject<uint>(_gl, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
+        //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
+        Ebo = new BufferObject<uint>(GL, DefaultTexture.Indices, BufferTargetARB.ElementArrayBuffer);
+        Vbo = new BufferObject<float>(GL, DefaultTexture.Vertices, BufferTargetARB.ArrayBuffer);
+        Vao = new VertexArrayBufferObject<float, uint>(GL, Vbo, Ebo);
         //Telling the VAO object how to lay out the attribute pointers
-        Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 7, 0);
-        Vao.VertexAttributePointer(1, 4, VertexAttribPointerType.Float, 7, 3);
+        //_vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 7, 0);
+        //_vao.VertexAttributePointer(1, 4, VertexAttribPointerType.Float, 7, 3);
+        Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
+        Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
         Shader = new Shader(GL);
-        Shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
+        Texture = new Textures.Texture(GL, "Textures/silk.png");
+        //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
+        Shader.Load("Shaders/texture.vert", "Shaders/texture.frag");
     }
 
     public unsafe void OnRender(double dt)
@@ -44,8 +51,13 @@ public class OpenGLContext : IOpenGLContext
         GL.Clear((uint)ClearBufferMask.ColorBufferBit);
         Vao.Bind();
         Shader.Use();
+
         //Setting a uniform.
-        Shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
+        //_shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
+
+        Texture.Bind(TextureUnit.Texture0);
+        Shader.SetUniform("uTexture0", 0);
+
         GL.DrawElements(PrimitiveType.Triangles,
                         (uint)Quad.Indices.Length,
                         DrawElementsType.UnsignedInt,
@@ -57,13 +69,14 @@ public class OpenGLContext : IOpenGLContext
 
     }
 
-    public void OnDipose()
+    public void OnDispose()
     {
         Log.Information("OpnGLContext Diposing...");
         Vbo.Dispose();
         Ebo.Dispose();
         Vao.Dispose();
         Shader.Dispose();
+        Texture.Dispose();
     }
 
     public void Dispose(bool disposing)
@@ -72,7 +85,7 @@ public class OpenGLContext : IOpenGLContext
         {
             if (disposing)
             {
-                OnDipose();
+                OnDispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

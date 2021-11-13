@@ -7,7 +7,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
    where TVertexType : unmanaged
    where TIndexType : unmanaged
 {
-    public readonly uint _vertexArrayBufferObjectHandle;
+    private readonly uint _vertexArrayBufferObjectHandle;
     private readonly GL _gl;
     private bool disposedValue;
 
@@ -42,7 +42,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
         //Binding the vertex array.
         _gl.BindVertexArray(_vertexArrayBufferObjectHandle);
 
-    private void OnDipose() => _gl.DeleteVertexArray(_vertexArrayBufferObjectHandle);
+    private void OnDispose() => _gl.DeleteVertexArray(_vertexArrayBufferObjectHandle);
 
     private void Dispose(bool disposing)
     {
@@ -50,7 +50,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType> : IDisposable
         {
             if (disposing)
             {
-                OnDipose();
+                OnDispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
