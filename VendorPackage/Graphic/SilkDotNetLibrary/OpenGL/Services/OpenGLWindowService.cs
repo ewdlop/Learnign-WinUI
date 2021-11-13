@@ -15,7 +15,7 @@ public static class OpenGLWindowService
         configure(windowOptions);
 
         return services.AddScoped(
-                (servicProvider) => Silk.NET.Windowing.Window.Create(windowOptions)
+                (servicProvider) => Window.Create(windowOptions)
             )
         .AddScoped<OpenGLContext>()
         .AddScoped<WindowEventHandler>()
