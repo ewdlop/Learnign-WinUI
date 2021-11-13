@@ -1,6 +1,7 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
@@ -80,14 +81,25 @@ public struct Shader : IShader
         _gl.Uniform1(unifromLocation, value);
     }
 
+    public unsafe void SetUniform(string name, Matrix4x4 value)
+    {
+        //A new overload has been created for setting a uniform so we can use the transform in our shader.
+        int unifromLocation = _gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (unifromLocation == -1)
+        {
+            throw new Exception($"{name} uniform not found on shader.");
+        }
+        _gl.UniformMatrix4(unifromLocation, 1, false, (float*)&value);
+    }
+
     public void SetUniform(string name, float value)
     {
-        int location = _gl.GetUniformLocation(ShaderProgramHandle, name);
-        if (location == -1)
+        int unifromLocation = _gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (unifromLocation == -1)
         {
             throw new Exception($"{name} uniform not found on shader {ShaderProgramHandle}.");
         }
-        _gl.Uniform1(location, value);
+        _gl.Uniform1(unifromLocation, value);
     }
 
     private uint LoadShader(ShaderType type, string path)

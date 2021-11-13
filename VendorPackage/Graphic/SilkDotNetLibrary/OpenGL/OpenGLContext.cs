@@ -1,11 +1,12 @@
-﻿using SilkDotNetLibrary.OpenGL.Shaders;
-using Serilog;
+﻿using Serilog;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 using SilkDotNetLibrary.OpenGL.Textures;
+using SilkDotNetLibrary.Transforms;
+using System.Numerics;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -19,6 +20,7 @@ public class OpenGLContext : IOpenGLContext
     private VertexArrayBufferObject<float, uint> Vao { get; set; }
     private Shader Shader { get; set; }
     private Textures.Texture Texture { get; set; }
+    private Transform[] Transforms { get; set; } = new Transform[4];
 
     public OpenGLContext(IWindow Window)
     {
@@ -44,24 +46,40 @@ public class OpenGLContext : IOpenGLContext
         Texture = new Textures.Texture(GL, "Textures/silk.png");
         //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
         Shader.Load("Shaders/texture.vert", "Shaders/texture.frag");
+
+        //Unlike in the transformation, because of our abstraction, order doesn't matter here.
+        //Translation.
+        Transforms[0] = new();
+        Transforms[0].Position = new Vector3(0.5f, 0.5f, 0f);
+        //Rotation.
+        Transforms[1] = new();
+        Transforms[1].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
+        //Scaling.
+        Transforms[2] = new();
+        Transforms[2].Scale = 0.5f;
+        //Mixed transformation.
+        Transforms[3] = new();
+        Transforms[3].Position = new Vector3(-0.5f, 0.5f, 0f);
+        Transforms[3].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
+        Transforms[3].Scale = 0.5f;
     }
 
     public unsafe void OnRender(double dt)
     {
         GL.Clear((uint)ClearBufferMask.ColorBufferBit);
         Vao.Bind();
+        Texture.Bind();
         Shader.Use();
-
         //Setting a uniform.
         //_shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
-
-        Texture.Bind(TextureUnit.Texture0);
         Shader.SetUniform("uTexture0", 0);
+        for (int i = 0; i < Transforms.Length; i++)
+        {
+            //Using the transformations.
+            Shader.SetUniform("uModel", Transforms[i].ViewMatrix);
 
-        GL.DrawElements(PrimitiveType.Triangles,
-                        (uint)Quad.Indices.Length,
-                        DrawElementsType.UnsignedInt,
-                        null);
+            GL.DrawElements(PrimitiveType.Triangles, (uint)DefaultTexture.Indices.Length, DrawElementsType.UnsignedInt, null);
+        }
     }
 
     public void OnUpdate(double dt)
