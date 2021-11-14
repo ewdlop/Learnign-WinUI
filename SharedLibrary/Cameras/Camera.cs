@@ -21,9 +21,9 @@ namespace SharedLibrary.Cameras
         public float CameraYaw => _cameraTransform.CameraYaw;
         public float CameraPitch => _cameraTransform.CameraPitch;
         public float CameraZoom => _cameraTransform.CameraZoom;
-        public Camera(CameraTransform cameraTransform, IEventHandler eventHandler)
+        public Camera(/*CameraTransform cameraTransform, */IEventHandler eventHandler)
         {
-            _cameraTransform = cameraTransform;
+            _cameraTransform = new CameraTransform();
             _eventHandler = eventHandler;
             _eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;

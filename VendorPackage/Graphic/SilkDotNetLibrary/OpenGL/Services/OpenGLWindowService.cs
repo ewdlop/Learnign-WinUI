@@ -20,7 +20,6 @@ public static class OpenGLWindowService
                 (servicProvider) => Window.Create(windowOptions)
             )
         .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
-        .AddScoped<CameraTransform>()
         .AddScoped<ICamera,Camera>()
         .AddScoped<OpenGLContext>()
         .AddScoped<WindowEventHandler>()
