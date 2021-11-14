@@ -2,7 +2,7 @@
 
 namespace SharedLibrary.Transforms;
 
-public interface IReadOnlyTransfrom
+public interface ITransfrom
 {
     Vector3 Position { get; }
 

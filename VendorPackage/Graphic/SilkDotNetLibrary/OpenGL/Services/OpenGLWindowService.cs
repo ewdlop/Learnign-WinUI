@@ -3,8 +3,9 @@ using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Windows;
 using SilkDotNetLibrary.OpenGL.Apps;
 using System;
-using SharedLibrary.Transforms;
 using SharedLibrary.Cameras;
+using System.Collections.Generic;
+using Silk.NET.Input;
 
 namespace SilkDotNetLibrary.OpenGL.Services;
 
@@ -16,13 +17,11 @@ public static class OpenGLWindowService
         var windowOptions = WindowOptions.Default;
         configure(windowOptions);
 
-        return services.AddScoped(
-                (servicProvider) => Window.Create(windowOptions)
-            )
-        .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
-        .AddScoped<ICamera,Camera>()
-        .AddScoped<OpenGLContext>()
-        .AddScoped<WindowEventHandler>()
-        .AddHostedService<App>();
+        return services.AddScoped((servicProvider) => Window.Create(windowOptions))
+            .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
+            .AddScoped<ICamera,Camera>()
+            .AddScoped<OpenGLContext>()
+            .AddScoped<WindowEventHandler>()
+            .AddHostedService<App>();
     }
 }

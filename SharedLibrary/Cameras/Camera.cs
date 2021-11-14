@@ -1,7 +1,6 @@
 ﻿using SharedLibrary.Event.EventArgs;
 using SharedLibrary.Event.Handler;
 using SharedLibrary.Event.Listener;
-using SharedLibrary.Math;
 using SharedLibrary.Transforms;
 using System;
 using System.Numerics;
@@ -21,47 +20,61 @@ namespace SharedLibrary.Cameras
         public float CameraYaw => _cameraTransform.CameraYaw;
         public float CameraPitch => _cameraTransform.CameraPitch;
         public float CameraZoom => _cameraTransform.CameraZoom;
-        public Camera(/*CameraTransform cameraTransform, */IEventHandler eventHandler)
+        public float Speed { get; private set; } = 5;
+
+        public Camera(IEventHandler eventHandler)
         {
             _cameraTransform = new CameraTransform();
             _eventHandler = eventHandler;
             _eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;
+            _eventHandler.OnKeyBoardKeyDown += (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
         }
 
         void IMouseEventListener.OnMouseMove(object sender, MouseMoveEventArgs e)
         {
-
             var xOffset = (e.Position.X - e.LastMousePosition.X) * _lookSensitivity;
-            var yOffset = (e.Position.Y - e.LastMousePosition.Y) * _lookSensitivity;
+            var yOffset = -1.0f * (e.Position.Y - e.LastMousePosition.Y) * _lookSensitivity;
 
-            _cameraTransform.CameraYaw += xOffset;
-            _cameraTransform.CameraPitch -= yOffset;
-
-            //We don't want to be able to look behind us by going over our head or under our feet so make sure it stays within these bounds
-            _cameraTransform.CameraPitch = System.Math.Clamp(_cameraTransform.CameraPitch, -89.0f, 89.0f);
-
-            float CameraDirectionX = MathF.Cos(MathHelper.DegreesToRadians(_cameraTransform.CameraYaw)) * MathF.Cos(MathHelper.DegreesToRadians(_cameraTransform.CameraPitch));
-            float CameraDirectionY = MathF.Sin(MathHelper.DegreesToRadians(_cameraTransform.CameraPitch));
-            float CameraDirectionZ = MathF.Sin(MathHelper.DegreesToRadians(_cameraTransform.CameraYaw)) * MathF.Cos(MathHelper.DegreesToRadians(_cameraTransform.CameraPitch));
-            Vector3 CameraDirection = new()
-            {
-                X = CameraDirectionX,
-                Y = CameraDirectionY,
-                Z = CameraDirectionZ
-            };
-            _cameraTransform.CameraDirection = CameraDirection;
-            _cameraTransform.CameraFront = Vector3.Normalize(CameraDirection);
+            _cameraTransform.RotateYaw(xOffset);
+            _cameraTransform.RotatePitch(yOffset);
+            _cameraTransform.SetDirection();
         }
 
         void IMouseEventListener.OnMouseWheel(object sender, MouseScrollWheelEventArgs e)
         {
-            _cameraTransform.CameraZoom = System.Math.Clamp(_cameraTransform.CameraZoom - e.Y, 1.0f, 45f);
+            _cameraTransform.ZoomIn(-1.0f * e.Y);
         }
+
+        void IKeyBoardEventListner.OnKeyBoardKeyDown(object sender, KeyBoardKeyDownEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case "W":
+                    _cameraTransform.MoveForward(Speed * 0.01f);
+                    break;
+                case "S":
+                    _cameraTransform.MoveBackward(Speed * 0.01f);
+                    break;
+                case "A":
+                    _cameraTransform.MoveLeft(Speed * 0.01f);
+                    break;
+                case "D":
+                    _cameraTransform.MoveRight(Speed * 0.01f);
+                    break;
+                default:
+                    break;
+            }
+        }
+        public void Move() => throw new NotImplementedException();
+
+        public void Reset() => throw new NotImplementedException();
+
         private void OnDipose()
         {
             _eventHandler.OnMouseMove -= (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel -= (this as IMouseEventListener).OnMouseWheel;
+            _eventHandler.OnKeyBoardKeyDown -= (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
         }
         private void Dispose(bool disposing)
         {

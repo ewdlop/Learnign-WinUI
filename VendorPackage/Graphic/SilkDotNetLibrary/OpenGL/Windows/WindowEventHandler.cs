@@ -3,6 +3,7 @@ using SharedLibrary.Event.Handler;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -15,17 +16,27 @@ public class WindowEventHandler : IWindowEventHandler
     protected bool disposedValue;
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
+    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap; 
     private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext Input { get; set; }
     private IWindow Window { get; set; }
     private Vector2 LastMousePosition { get; set; }
 
     //private EventHandler<>
-    public WindowEventHandler(IWindow window, OpenGLContext openGLContext, IEventHandler eventHandler)
+    public WindowEventHandler(IWindow window,
+                              OpenGLContext openGLContext,
+                              IEventHandler eventHandler)
     {
         Window = window;
         _openGLContext = openGLContext;
         _eventHandler = eventHandler;
+        _keyBoardKeyMap = new Dictionary<Key, string>()
+        {
+            {Key.W, "W"},
+            {Key.S, "S" },
+            {Key.A, "A" },
+            {Key.D, "D" }
+        };
     }
 
     public virtual Task Start(CancellationToken cancellationToken)
@@ -50,7 +61,7 @@ public class WindowEventHandler : IWindowEventHandler
         }, cancellationToken);
     }
 
-    public virtual void OnLoad()
+    public void OnLoad()
     {
         Input = Window.CreateInput();
         PrimaryKeyboard = Input.Keyboards.FirstOrDefault();
@@ -67,36 +78,21 @@ public class WindowEventHandler : IWindowEventHandler
         _openGLContext.OnLoad();
     }
 
-    public virtual void OnRender(double dt) => _openGLContext.OnRender(dt);
+    public void OnRender(double dt) => _openGLContext.OnRender(dt);
 
-    public virtual void OnStop()
+    public void OnStop()
     {
 
     }
 
-    public virtual void OnUpdate(double dt)
+    public void OnUpdate(double dt)
     {
-        var moveSpeed = 2.5f * (float)dt;
-
-        if (PrimaryKeyboard.IsKeyPressed(Key.W))
+        foreach (var keyValue in _keyBoardKeyMap)
         {
-            //Move forwards
-            //CameraPosition += moveSpeed * CameraFront;
-        }
-        if (PrimaryKeyboard.IsKeyPressed(Key.S))
-        {
-            //Move backwards
-            //CameraPosition -= moveSpeed * CameraFront;
-        }
-        if (PrimaryKeyboard.IsKeyPressed(Key.A))
-        {
-            //Move left
-            //CameraPosition -= Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
-        }
-        if (PrimaryKeyboard.IsKeyPressed(Key.D))
-        {
-            //Move right
-            //CameraPosition += Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
+            if (PrimaryKeyboard.IsKeyPressed(keyValue.Key))
+            {
+                _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs() { KeyCode = keyValue.Value });
+            }
         }
         _openGLContext.OnUpdate(dt);
     }
@@ -110,7 +106,15 @@ public class WindowEventHandler : IWindowEventHandler
 
     public virtual void OnKeyDown(IKeyboard arg1, Key arg2, int arg3)
     {
-        Log.Information("Escpae Key Pressed...");
+        //Log.Information("Escpae Key Pressed...");
+        //if(_keyBoardKeyMap.TryGetValue(arg2, out string keycode))
+        //{
+        //    _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs()
+        //    {
+        //        KeyCode = keycode
+        //    });
+        //}
+
         if (arg2 == Key.Escape)
         {
             OnDispose();
