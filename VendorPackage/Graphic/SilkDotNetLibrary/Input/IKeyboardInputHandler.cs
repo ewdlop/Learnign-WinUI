@@ -2,7 +2,7 @@
 
 namespace SilkDotNetLibrary.Input;
 
-public interface IInputInputHandler
+public interface IKeyboardInputHandler
 {
     void OnKeyDown(IKeyboard arg1, Key arg2, int arg3);
 }

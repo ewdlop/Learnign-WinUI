@@ -1,7 +1,10 @@
 ﻿using Serilog;
+using SharedLibrary.Event.Handler;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
 using System;
+using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,16 +12,20 @@ namespace SilkDotNetLibrary.OpenGL.Windows;
 
 public class WindowEventHandler : IWindowEventHandler
 {
-    private readonly OpenGLContext _openGLContext; //use event to break this out?
     protected bool disposedValue;
-
+    private readonly OpenGLContext _openGLContext;
+    private readonly IEventHandler _eventHandler;
+    private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext Input { get; set; }
     private IWindow Window { get; set; }
+    private Vector2 LastMousePosition { get; set; }
 
-    public WindowEventHandler(IWindow window, OpenGLContext openGLContext)
+    //private EventHandler<>
+    public WindowEventHandler(IWindow window, OpenGLContext openGLContext, IEventHandler eventHandler)
     {
         Window = window;
         _openGLContext = openGLContext;
+        _eventHandler = eventHandler;
     }
 
     public virtual Task Start(CancellationToken cancellationToken)
@@ -46,9 +53,16 @@ public class WindowEventHandler : IWindowEventHandler
     public virtual void OnLoad()
     {
         Input = Window.CreateInput();
-        for (int i = 0; i < Input.Keyboards.Count; i++)
+        PrimaryKeyboard = Input.Keyboards.FirstOrDefault();
+        if (PrimaryKeyboard != null)
         {
-            Input.Keyboards[i].KeyDown += OnKeyDown;
+            PrimaryKeyboard.KeyDown += OnKeyDown;
+        }
+        for (int i = 0; i < Input.Mice.Count; i++)
+        {
+            Input.Mice[i].Cursor.CursorMode = CursorMode.Raw;
+            Input.Mice[i].MouseMove += OnMouseMove;
+            Input.Mice[i].Scroll += OnMouseWheel;
         }
         _openGLContext.OnLoad();
     }
@@ -60,8 +74,32 @@ public class WindowEventHandler : IWindowEventHandler
 
     }
 
-    public virtual void OnUpdate(double dt) => _openGLContext.OnUpdate(dt);
+    public virtual void OnUpdate(double dt)
+    {
+        var moveSpeed = 2.5f * (float)dt;
 
+        if (PrimaryKeyboard.IsKeyPressed(Key.W))
+        {
+            //Move forwards
+            //CameraPosition += moveSpeed * CameraFront;
+        }
+        if (PrimaryKeyboard.IsKeyPressed(Key.S))
+        {
+            //Move backwards
+            //CameraPosition -= moveSpeed * CameraFront;
+        }
+        if (PrimaryKeyboard.IsKeyPressed(Key.A))
+        {
+            //Move left
+            //CameraPosition -= Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
+        }
+        if (PrimaryKeyboard.IsKeyPressed(Key.D))
+        {
+            //Move right
+            //CameraPosition += Vector3.Normalize(Vector3.Cross(CameraFront, CameraUp)) * moveSpeed;
+        }
+        _openGLContext.OnUpdate(dt);
+    }
     public virtual void OnClosing()
     {
         //trigger by closing Window
@@ -77,6 +115,31 @@ public class WindowEventHandler : IWindowEventHandler
         {
             OnDispose();
         }
+    }
+    public void OnMouseMove(IMouse mouse, Vector2 position)
+    {
+        if (LastMousePosition == default)
+        { 
+            LastMousePosition = position; 
+        }
+        else
+        {
+            _eventHandler.OnMouseMoveHandler(new()
+            {
+                LastMousePosition = LastMousePosition,
+                Position = position
+            });
+            LastMousePosition = position;
+        }
+    }
+
+    public void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
+    {
+        _eventHandler.OnMouseScrollWheelHandler(new()
+        {
+            X = scrollWheel.X,
+            Y = scrollWheel.Y
+        });
     }
 
     protected virtual void OnDispose()
@@ -103,7 +166,6 @@ public class WindowEventHandler : IWindowEventHandler
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
                 OnDispose();
             }
 

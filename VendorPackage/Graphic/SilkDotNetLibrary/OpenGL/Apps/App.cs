@@ -30,7 +30,7 @@ public class App : IApp
         Log.Information("Window App Stopping thread ID: {0}", Environment.CurrentManagedThreadId);
         await _windowEventHandler.Stop(cancellationToken);
     }
-    protected virtual void OnDispose()
+    protected virtual void OnDipose()
     {
         _windowEventHandler.Dispose();
     }
@@ -40,7 +40,7 @@ public class App : IApp
         {
             if (disposing)
             {
-                OnDispose();
+                OnDipose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

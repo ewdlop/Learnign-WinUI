@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Windows;
 
-public interface IWindowEventHandler : IInputInputHandler, IDisposable
+public interface IWindowEventHandler : IKeyboardInputHandler, IMouseInputHandler,IDisposable
 {
     Task Start(CancellationToken cancellationToken);
     Task Stop(CancellationToken cancellationToken);

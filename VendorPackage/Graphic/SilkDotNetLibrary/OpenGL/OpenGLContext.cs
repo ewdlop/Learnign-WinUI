@@ -9,6 +9,7 @@ using System.Numerics;
 using SharedLibrary.Transforms;
 using SharedLibrary.Math;
 using SilkDotNetLibrary.OpenGL.Primitive;
+using SharedLibrary.Cameras;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -16,6 +17,8 @@ public class OpenGLContext : IOpenGLContext
 {
     private bool disposedValue;
     private readonly IWindow _window;
+    private readonly Camera _camera;
+    private readonly Transform[] Transforms = new Transform[4];
     private const int WIDTH = 800;
     private const int HEIGHT = 700;
 
@@ -25,22 +28,13 @@ public class OpenGLContext : IOpenGLContext
     private VertexArrayBufferObject<float, uint> Vao { get; set; }
     private Shader Shader { get; set; }
     private Textures.Texture Texture { get; set; }
-    private Transform[] Transforms { get; set; } = new Transform[4];
 
     //Setup the camera's location, and relative up and right directions
-    private Vector3 CameraPosition { get; set; } = new Vector3(0.0f, 0.0f, 3.0f);
-    private Vector3 CameraTarget { get; set; } = Vector3.Zero;
-    private Vector3 CameraDirection { get; set; }
-    private Vector3 CameraRight { get; set; }
-    private Vector3 CameraUp { get; set; } 
-
-    public OpenGLContext(IWindow Window)
+    public OpenGLContext(IWindow Window, Camera camera)
     {
         Log.Information("Creating OpenGLContext...");
         _window = Window;
-        CameraDirection = Vector3.Normalize(CameraPosition - CameraTarget);
-        CameraRight = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, CameraDirection));
-        CameraUp = Vector3.Cross(CameraDirection, CameraRight);
+        _camera = camera;
     }
 
     public unsafe void OnLoad()
@@ -103,8 +97,8 @@ public class OpenGLContext : IOpenGLContext
         var difference = (float)(_window.Time * 100);
 
         var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
-        var view = Matrix4x4.CreateLookAt(CameraPosition, CameraTarget, CameraUp);
-        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), WIDTH / HEIGHT, 0.1f, 100.0f);
+        var view = Matrix4x4.CreateLookAt(_camera.CameraPosition, _camera.CameraPosition + _camera.CameraFront, _camera.CameraUp);
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.CameraZoom), WIDTH / HEIGHT, 0.1f, 100.0f);
 
         Shader.SetUniform("uModel", model);
         Shader.SetUniform("uView", view);

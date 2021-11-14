@@ -46,7 +46,6 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
         {
             if (disposing)
             {
-                // TODO: dispose managed state (managed objects)
                 OnDispose();
             }
 
