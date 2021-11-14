@@ -4,12 +4,12 @@ namespace SharedLibrary.Transforms;
 
 public interface ICameraTransform : IReadOnlyCameraTransform
 {
-    public void SetCameraPosition(Vector3 position);
-    public void SetCameraFront(Vector3 front);
-    public void SetCameraUp(Vector3 up);
-    public void SetCameraDirection(Vector3 direction);
-    public float SetCameraYaw(float yaw);
-    public float SetCameraPitch(float pitch);
-    public float SetCameraZoom(float zoom);
+    void SetCameraPosition(Vector3 position);
+    void SetCameraFront(Vector3 front);
+    void SetCameraUp(Vector3 up);
+    void SetCameraDirection(Vector3 direction);
+    void SetCameraYaw(float yaw);
+    void SetCameraPitch(float pitch);
+    void SetCameraZoom(float zoom);
 
 }
