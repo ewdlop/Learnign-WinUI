@@ -11,7 +11,7 @@ public struct Shader : IShader
     private bool disposedValue;
 
     private readonly GL _gl;
-    public uint ShaderProgramHandle { get; private set; }
+    public uint ShaderProgramHandle { get;  private set; }
     public Shader(GL gl)
     {
         disposedValue = false;

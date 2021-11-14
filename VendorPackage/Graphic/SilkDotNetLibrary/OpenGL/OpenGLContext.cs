@@ -17,7 +17,7 @@ public class OpenGLContext : IOpenGLContext
 {
     private bool disposedValue;
     private readonly IWindow _window;
-    private readonly Camera _camera;
+    private readonly ICamera _camera;
     private readonly Transform[] Transforms = new Transform[4];
     private const int WIDTH = 800;
     private const int HEIGHT = 700;
@@ -30,7 +30,7 @@ public class OpenGLContext : IOpenGLContext
     private Textures.Texture Texture { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow Window, Camera camera)
+    public OpenGLContext(IWindow Window, ICamera camera)
     {
         Log.Information("Creating OpenGLContext...");
         _window = Window;

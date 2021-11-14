@@ -8,7 +8,17 @@ using System.Numerics;
 
 namespace SharedLibrary.Cameras
 {
-    public class Camera : IMouseEventListener, IDisposable
+    public interface ICamera : IMouseEventListener
+    {
+        public Vector3 CameraPosition { get; }
+        public Vector3 CameraFront { get; }
+        public Vector3 CameraUp { get; }
+        public Vector3 CameraDirection { get; }
+        public float CameraYaw { get; }
+        public float CameraPitch { get; }
+        public float CameraZoom { get; }
+    }
+    public class Camera : ICamera, IDisposable
     {
         private float _lookSensitivity = 0.1f;
         private bool disposedValue;

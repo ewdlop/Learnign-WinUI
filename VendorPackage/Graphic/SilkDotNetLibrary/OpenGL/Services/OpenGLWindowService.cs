@@ -21,7 +21,7 @@ public static class OpenGLWindowService
             )
         .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
         .AddScoped<CameraTransform>()
-        .AddScoped<Camera>()
+        .AddScoped<ICamera,Camera>()
         .AddScoped<OpenGLContext>()
         .AddScoped<WindowEventHandler>()
         .AddHostedService<App>();
