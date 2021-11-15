@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace SharedLibrary.Transforms
 {
-    public class CameraTransform : ICameraTransform
+    public struct CameraTransform : ICameraTransform
     {
         public Vector3 CameraPosition { get; set; } = new Vector3(0.0f, 0.0f, 3.0f);
         public Vector3 CameraFront { get; set; } = new Vector3(0.0f, 0.0f, -1.0f);

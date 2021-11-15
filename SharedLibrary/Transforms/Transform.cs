@@ -2,7 +2,7 @@
 
 namespace SharedLibrary.Transforms;
 
-public class Transform : ITransfrom
+public struct Transform : ITransfrom
 {
     public Vector3 Position { get; set; } = new Vector3(0, 0, 0);
 
