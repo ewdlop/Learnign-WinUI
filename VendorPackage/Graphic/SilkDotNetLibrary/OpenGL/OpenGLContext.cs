@@ -13,7 +13,7 @@ using SharedLibrary.Cameras;
 
 namespace SilkDotNetLibrary.OpenGL;
 
-public class OpenGLContext : IOpenGLContext
+public class OpenGLContext : IOpenGLContext,IDisposable
 {
     private bool disposedValue;
     private readonly IWindow _window;
@@ -22,9 +22,9 @@ public class OpenGLContext : IOpenGLContext
     private const int WIDTH = 800;
     private const int HEIGHT = 700;
 
-    private GL GL { get; set; }
-    private BufferObject<float> Vbo { get; set; }
-    private BufferObject<uint> Ebo { get; set; }
+    private GL _gl;
+    private BufferObject<float> _vbo;
+    private BufferObject<uint> _ebo;
     private VertexArrayBufferObject<float, uint> Vao { get; set; }
     private Shader Shader { get; set; }
     private Textures.Texture Texture { get; set; }
@@ -39,22 +39,21 @@ public class OpenGLContext : IOpenGLContext
 
     public unsafe void OnLoad()
     {
-        GL = GL.GetApi(_window);
+        _gl = GL.GetApi(_window);
 
         //_ebo = new BufferObject<uint>(_gl, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
         //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
-        Ebo = new BufferObject<uint>(GL, Cube.Indices, BufferTargetARB.ElementArrayBuffer);
-        Vbo = new BufferObject<float>(GL, Cube.Vertices, BufferTargetARB.ArrayBuffer);
-        Vao = new VertexArrayBufferObject<float, uint>(GL, Vbo, Ebo);
+        _ebo = new BufferObject<uint>(_gl, Cube.Indices, BufferTargetARB.ElementArrayBuffer);
+        _vbo = new BufferObject<float>(_gl, Cube.Vertices, BufferTargetARB.ArrayBuffer);
+        Vao = new VertexArrayBufferObject<float, uint>(in _gl, in _vbo, in _ebo);
+
         //Telling the VAO object how to lay out the attribute pointers
-        //_vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 7, 0);
-        //_vao.VertexAttributePointer(1, 4, VertexAttribPointerType.Float, 7, 3);
-        Vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
-        Vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
-        Shader = new Shader(GL);
-        Texture = new Textures.Texture(GL, "Textures/silk.png");
+        Vao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 5, 0);
+        Vao.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, 5, 3);
+
+        Texture = new Textures.Texture(_gl, "Textures/silk.png");
+        Shader = new Shader(_gl, "Shaders/texture.vert", "Shaders/texture.frag");
         //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
-        Shader.Load("Shaders/texture.vert", "Shaders/texture.frag");
 
         //Unlike in the transformation, because of our abstraction, order doesn't matter here.
         //Translation.
@@ -75,15 +74,16 @@ public class OpenGLContext : IOpenGLContext
 
     public unsafe void OnRender(double dt)
     {
-        GL.Enable(EnableCap.DepthTest);
-        GL.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+        _gl.Enable(EnableCap.DepthTest);
+        _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-        Vao.Bind();
-        Texture.Bind();
-        Shader.Use();
+        Vao.BindBy(_gl);
+
+        Texture.BindBy(_gl);
+        Shader.UseBy(_gl);
         //Setting a uniform.
         //_shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
-        Shader.SetUniform("uTexture0", 0);
+        Shader.SetUniformBy(_gl, "uTexture0", 0);
 
         //for (int i = 0; i < Transforms.Length; i++)
         //{
@@ -100,12 +100,12 @@ public class OpenGLContext : IOpenGLContext
         var view = Matrix4x4.CreateLookAt(_camera.CameraPosition, _camera.CameraPosition + _camera.CameraFront, _camera.CameraUp);
         var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.CameraZoom), WIDTH / HEIGHT, 0.1f, 100.0f);
 
-        Shader.SetUniform("uModel", model);
-        Shader.SetUniform("uView", view);
-        Shader.SetUniform("uProjection", projection);
+        Shader.SetUniformBy(_gl,"uModel", model);
+        Shader.SetUniformBy(_gl, "uView", view);
+        Shader.SetUniformBy(_gl, "uProjection", projection);
 
         //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
-        GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
     }
 
     public void OnUpdate(double dt)
@@ -116,11 +116,11 @@ public class OpenGLContext : IOpenGLContext
     public void OnDispose()
     {
         Log.Information("OpnGLContext Diposing...");
-        Vbo.Dispose();
-        Ebo.Dispose();
-        Vao.Dispose();
-        Shader.Dispose();
-        Texture.Dispose();
+        _vbo.DisposeBy(_gl);
+        _ebo.DisposeBy(_gl);
+        Vao.DisposeBy(_gl);
+        Shader.DisposeBy(_gl);
+        Texture.DisposeBy(_gl);
     }
 
     public void Dispose(bool disposing)

@@ -3,50 +3,46 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
+public struct BufferObject<TDataType> : IBufferObject<TDataType>
     where TDataType : unmanaged
 {
-    private readonly uint _bufferHandle;
-    private readonly BufferTargetARB _bufferTargetARB;
-    private readonly GL _gl;
     private bool disposedValue;
+    public uint BufferHandle { get; init; }
+    public BufferTargetARB BufferTargetARB { get; init; }
 
-    public unsafe BufferObject(GL gl, Span<TDataType> span, BufferTargetARB bufferTargetARB)
+    public unsafe BufferObject(in GL gl, Span<TDataType> span, in BufferTargetARB bufferTargetARB)
     {
         //Setting the gl instance and storing our buffer type.
         disposedValue = false;
-        _gl = gl;
-        _bufferTargetARB = bufferTargetARB;
-
-        //Getting the handle, and then uploading the data to said handle.
-        _bufferHandle = _gl.GenBuffer();
-        Bind();
+        BufferHandle = gl.GenBuffer();
+        BufferTargetARB = bufferTargetARB;
+        Bind(gl);
         fixed (void* data = span)
         {
-            _gl.BufferData(_bufferTargetARB,
+            gl.BufferData(BufferTargetARB,
                            (nuint)(span.Length * sizeof(TDataType)),
                            data,
                            BufferUsageARB.StaticDraw);
         }
     }
 
-    public void Bind()
+    public void Bind(in GL gl)
     {
         //Binding the buffer object, with the correct buffer type.
-        _gl.BindBuffer(_bufferTargetARB, _bufferHandle);
+        gl.BindBuffer(BufferTargetARB, BufferHandle);
     }
 
-    private void OnDispose()
+    private void OnDispose(in GL gl)
     {
-        _gl.DeleteBuffer(_bufferHandle);
+        gl.DeleteBuffer(BufferHandle);
     }
-    private void Dispose(bool disposing)
+    private void Dispose(bool disposing, in GL gl)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                OnDispose();
+                OnDispose(gl);
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -62,10 +58,10 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>, IDisposable
     //     Dispose(disposing: false);
     // }
 
-    public void Dispose()
+    public void DisposeBy(in GL gl)
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
+        Dispose(disposing: true, gl);
         GC.SuppressFinalize(this);
     }
 }

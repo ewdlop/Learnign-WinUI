@@ -7,51 +7,44 @@ using SixLabors.ImageSharp.Processing;
 
 namespace SilkDotNetLibrary.OpenGL.Textures;
 
-public struct Texture : IDisposable
+public struct Texture
 {
     private bool disposedValue;
-    private readonly uint _texturehandle;
-    private readonly GL _gl;
-
-    public unsafe Texture(GL gl, string imagePath)
+    public uint Texturehandle { get; init; }
+    public unsafe Texture(in GL gl, in string imagePath)
     {
         disposedValue = false;
-        _gl = gl;
-        //Generating the opengl handle;
-        _texturehandle = _gl.GenTexture();
-
+        Texturehandle = gl.GenTexture();
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
         image.Mutate(x => x.Flip(FlipMode.Vertical));
-
+        uint imageWidth = (uint)image.Width;
+        uint imageHeight = (uint)image.Height;
         //// OpenGL has image origin in the bottom-left corner.
         fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
         {
             //Loading the actual image.
-            Load(data, (uint)image.Width, (uint)image.Height);
+            Load(gl, data, imageWidth, imageHeight);
         }
 
         //Deleting the img from imagesharp.
         image.Dispose();
     }
 
-    public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
+    public unsafe Texture(in GL gl, Span<byte> data, in uint width, in uint height)
     {
         disposedValue = false;
-        _gl = gl;
-        //Generating the opengl handle;
-        _texturehandle = _gl.GenTexture();
-
+        Texturehandle = gl.GenTexture();
         fixed (void* d = &data[0])
         {
-            Load(d, width, height);
+            Load(gl, d, width, height);
         }
     }
 
-    private unsafe void Load(void* data, uint width, uint height)
+    private unsafe void Load(in GL gl, void* data, in uint width, in uint height)
     {
-        Bind();
-        _gl.TexImage2D(GLEnum.Texture2D,
+        BindBy(gl);
+        gl.TexImage2D(GLEnum.Texture2D,
                        0,
                        (int)InternalFormat.Rgba,
                        width,
@@ -61,30 +54,30 @@ public struct Texture : IDisposable
                        PixelType.UnsignedByte,
                        data);
         //Setting some texture perameters so the texture behaves as expected.
-        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
-        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
-        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
-        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
 
         //Generating mipmaps.
-        _gl.GenerateMipmap(TextureTarget.Texture2D);
+        gl.GenerateMipmap(TextureTarget.Texture2D);
     }
 
-    public void Bind(TextureUnit textureUnit = TextureUnit.Texture0)
+    public void BindBy(in GL gl, TextureUnit textureUnit = TextureUnit.Texture0)
     {
         //When we bind a texture we can choose which textureslot we can bind it to.
-        _gl.ActiveTexture(textureUnit);
-        _gl.BindTexture(TextureTarget.Texture2D, _texturehandle);
+        gl.ActiveTexture(textureUnit);
+        gl.BindTexture(TextureTarget.Texture2D, Texturehandle);
     }
-    private void OnDispose() => _gl.DeleteTexture(_texturehandle);
+    private void OnDispose(in GL gl) => gl.DeleteTexture(Texturehandle);
 
-    private void Dispose(bool disposing)
+    private void Dispose(bool disposing, in GL gl)
     {
         if (!disposedValue)
         {
             if (disposing)
             {
-                OnDispose();
+                OnDispose(gl);
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -100,10 +93,10 @@ public struct Texture : IDisposable
     //     Dispose(disposing: false);
     // }
 
-    public void Dispose()
+    public void DisposeBy(in GL gl)
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
+        Dispose(disposing: true, gl);
         GC.SuppressFinalize(this);
     }
 }

@@ -4,8 +4,6 @@ using SilkDotNetLibrary.OpenGL.Windows;
 using SilkDotNetLibrary.OpenGL.Apps;
 using System;
 using SharedLibrary.Cameras;
-using System.Collections.Generic;
-using Silk.NET.Input;
 
 namespace SilkDotNetLibrary.OpenGL.Services;
 

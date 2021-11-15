@@ -11,7 +11,7 @@ namespace SharedLibrary.Cameras
     {
         private float _lookSensitivity = 0.1f;
         private bool disposedValue;
-        private readonly CameraTransform _cameraTransform;
+        private readonly ICameraTransform _cameraTransform;
         private readonly IEventHandler _eventHandler;
         public Vector3 CameraPosition => _cameraTransform.CameraPosition;
         public Vector3 CameraFront => _cameraTransform.CameraFront;
@@ -24,6 +24,7 @@ namespace SharedLibrary.Cameras
 
         public Camera(IEventHandler eventHandler)
         {
+            disposedValue = false;
             _cameraTransform = new CameraTransform();
             _eventHandler = eventHandler;
             _eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;

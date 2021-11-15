@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace SilkDotNetLibrary.OpenGL;
 
-namespace SilkDotNetLibrary.OpenGL;
-
-public interface IOpenGLContext : IDisposable, IReadOnlyOpenGLContext
+public interface IOpenGLContext : IReadOnlyOpenGLContext
 {
     unsafe void OnLoad();
     unsafe void OnRender(double dt);

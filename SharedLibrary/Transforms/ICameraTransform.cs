@@ -2,15 +2,8 @@
 
 namespace SharedLibrary.Transforms;
 
-public interface ICameraTransform
+public interface ICameraTransform : IReadOnlyTransfrom
 {
-    Vector3 CameraPosition { get; }
-    Vector3 CameraFront { get; }
-    Vector3 CameraUp { get; }
-    Vector3 CameraDirection { get; }
-    float CameraYaw { get; }
-    float CameraPitch { get; }
-    float CameraZoom { get; }
     void MoveForward(float speed);
     void MoveBackward(float speed);
     void MoveLeft(float speed);
@@ -19,4 +12,15 @@ public interface ICameraTransform
     void RotatePitch(float angle);
     void SetDirection();
     void ZoomIn(float speed);
+}
+
+public interface IReadOnlyTransfrom
+{
+    Vector3 CameraPosition { get; }
+    Vector3 CameraFront { get; }
+    Vector3 CameraUp { get; }
+    Vector3 CameraDirection { get; }
+    float CameraYaw { get; }
+    float CameraPitch { get; }
+    float CameraZoom { get; }
 }

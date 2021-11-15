@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Silk.NET.OpenGL;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public interface IShader : IReadOnlyShader, IDisposable
+public interface IShader: IReadOnlyShader
 {
-    void Use();
+    void UseBy(in GL gl);
 }
