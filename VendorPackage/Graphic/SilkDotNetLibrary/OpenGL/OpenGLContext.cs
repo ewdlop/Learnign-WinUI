@@ -25,7 +25,7 @@ public class OpenGLContext : IOpenGLContext,IDisposable
     private GL _gl;
     private BufferObject<float> _vbo;
     private BufferObject<uint> _ebo;
-    private VertexArrayBufferObject<float, uint> Vao { get; set; }
+    private VertexArrayBufferObject<float, uint> VaoCube { get; set; }
     private Shader Shader { get; set; }
     private Textures.Texture Texture { get; set; }
 
@@ -45,11 +45,11 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
         _ebo = new BufferObject<uint>(_gl, Cube.Indices, BufferTargetARB.ElementArrayBuffer);
         _vbo = new BufferObject<float>(_gl, Cube.Vertices, BufferTargetARB.ArrayBuffer);
-        Vao = new VertexArrayBufferObject<float, uint>(in _gl, in _vbo, in _ebo);
+        VaoCube = new VertexArrayBufferObject<float, uint>(in _gl, in _vbo, in _ebo);
 
         //Telling the VAO object how to lay out the attribute pointers
-        Vao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 5, 0);
-        Vao.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, 5, 3);
+        VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 5, 0);
+        VaoCube.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, 5, 3);
 
         Texture = new Textures.Texture(_gl, "Textures/silk.png");
         Shader = new Shader(_gl, "Shaders/texture.vert", "Shaders/texture.frag");
@@ -77,7 +77,7 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         _gl.Enable(EnableCap.DepthTest);
         _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
-        Vao.BindBy(_gl);
+        VaoCube.BindBy(_gl);
 
         Texture.BindBy(_gl);
         Shader.UseBy(_gl);
@@ -97,8 +97,8 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         var difference = (float)(_window.Time * 100);
 
         var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
-        var view = Matrix4x4.CreateLookAt(_camera.CameraPosition, _camera.CameraPosition + _camera.CameraFront, _camera.CameraUp);
-        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.CameraZoom), WIDTH / HEIGHT, 0.1f, 100.0f);
+        var view = Matrix4x4.CreateLookAt(_camera.Position, _camera.Position + _camera.Front, _camera.Up);
+        var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.Zoom), WIDTH / HEIGHT, 0.1f, 100.0f);
 
         Shader.SetUniformBy(_gl,"uModel", model);
         Shader.SetUniformBy(_gl, "uView", view);
@@ -118,7 +118,7 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         Log.Information("OpnGLContext Diposing...");
         _vbo.DisposeBy(_gl);
         _ebo.DisposeBy(_gl);
-        Vao.DisposeBy(_gl);
+        VaoCube.DisposeBy(_gl);
         Shader.DisposeBy(_gl);
         Texture.DisposeBy(_gl);
     }

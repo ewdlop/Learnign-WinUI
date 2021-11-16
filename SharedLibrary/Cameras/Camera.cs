@@ -1,6 +1,7 @@
 ﻿using SharedLibrary.Event.EventArgs;
 using SharedLibrary.Event.Handler;
 using SharedLibrary.Event.Listener;
+using SharedLibrary.Math;
 using SharedLibrary.Transforms;
 using System;
 using System.Numerics;
@@ -13,15 +14,15 @@ namespace SharedLibrary.Cameras
         private bool disposedValue;
         private readonly ICameraTransform _cameraTransform;
         private readonly IEventHandler _eventHandler;
-        public Vector3 CameraPosition => _cameraTransform.CameraPosition;
-        public Vector3 CameraFront => _cameraTransform.CameraFront;
-        public Vector3 CameraUp => _cameraTransform.CameraUp;
-        public Vector3 CameraDirection => _cameraTransform.CameraDirection;
-        public float CameraYaw => _cameraTransform.CameraYaw;
-        public float CameraPitch => _cameraTransform.CameraPitch;
-        public float CameraZoom => _cameraTransform.CameraZoom;
+        public Vector3 Position => _cameraTransform.CameraPosition;
+        public Vector3 Front => _cameraTransform.CameraFront;
+        public Vector3 Up => _cameraTransform.CameraUp;
+        public Vector3 Direction => _cameraTransform.CameraDirection;
+        public float Yaw => _cameraTransform.CameraYaw;
+        public float Pitch => _cameraTransform.CameraPitch;
+        public float Zoom => _cameraTransform.CameraZoom;
         public float Speed { get; private set; } = 5;
-
+        public float AspectRatio { get; private set; } = 11 / 9;
         public Camera(IEventHandler eventHandler)
         {
             disposedValue = false;
@@ -71,11 +72,22 @@ namespace SharedLibrary.Cameras
 
         public void Reset() => throw new NotImplementedException();
 
+        public Matrix4x4 GetViewMatrix()
+        {
+            return Matrix4x4.CreateLookAt(Position, Position + Front, Up);
+        }
+
+        public Matrix4x4 GetProjectionMatrix()
+        {
+            return Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(Zoom), AspectRatio, 0.1f, 100.0f);
+        }
+
         private void OnDipose()
         {
             _eventHandler.OnMouseMove -= (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel -= (this as IMouseEventListener).OnMouseWheel;
             _eventHandler.OnKeyBoardKeyDown -= (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
+            //_cameraTransform.Dipose();
         }
         private void Dispose(bool disposing)
         {
@@ -99,7 +111,7 @@ namespace SharedLibrary.Cameras
         //     Dispose(disposing: false);
         // }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
