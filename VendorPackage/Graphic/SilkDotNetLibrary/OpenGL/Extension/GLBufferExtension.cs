@@ -5,7 +5,7 @@ namespace SilkDotNetLibrary.OpenGL.Extension
 {
     public static class GLBufferExtension
     {
-        public static unsafe uint GenBuffer(in GL gl, Span<float> span, in BufferTargetARB bufferTargetARB)
+        public static unsafe uint GenBuffer(this GL gl, Span<float> span, in BufferTargetARB bufferTargetARB)
         {
             //Setting the gl instance and storing our buffer type.
             uint bufferHandle = gl.GenBuffer();

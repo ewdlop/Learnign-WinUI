@@ -3,6 +3,8 @@ using Serilog.Events;
 using Serilog;
 using System;
 using CoreLibrary.Services;
+using Microsoft.Extensions.Configuration;
+using CoreLibrary.Options;
 
 namespace SilkDotNetWindowApp;
 
@@ -38,7 +40,14 @@ public static class Program
             .UseSerilog()
             .ConfigureServices((context, services) =>
             {
+                IConfiguration configuration = context.Configuration;
+                //WindowOptions windowOption = configuration.GetSection(nameof(WindowOptions)).Get<WindowOptions>();
                 Log.Information("Configuring Service Provider...");
-                services.UseVeryMiniEngine();
+                services.UseVeryMiniEngine(options =>
+                {
+                    options.Title = "LearnOpenGL with Silk.NET";
+                    options.Width = 800;
+                    options.Height = 600;
+                });
             });
 }
