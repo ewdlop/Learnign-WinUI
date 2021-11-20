@@ -1,23 +1,20 @@
-﻿//Here we specify the version of our shader.
-#version 330 core
-//These lines specify the location and type of our attributes,
-//the attributes here are prefixed with a "v" as they are our inputs to the vertex shader
-//this isn't strictly necessary though, but a good habit.
+﻿#version 330 core
 layout (location = 0) in vec3 vPos;
-layout (location = 1) in vec4 vColor;
+layout (location = 1) in vec3 vNormal;
 
-//This is how we declare a uniform, they can be used in all our shaders and share the same name.
-//This is prefixed with a u as it's our uniform.
-uniform float uBlue;
+uniform mat4 uModel;
+uniform mat4 uView;
+uniform mat4 uProjection;
 
-//This is our output variable, notice that this is prefixed with an f as it's the input of our fragment shader.
-out vec4 fColor;
+out vec3 fNormal;
+out vec3 fPos;
 
 void main()
 {
-    //gl_Position, is a built-in variable on all vertex shaders that will specify the position of our vertex.
-    gl_Position = vec4(vPos, 1.0);
-    //The rest of this code looks like plain old c (almost c#)
-    vec4 color = vec4(vColor.rb / 2, uBlue, vColor.a); //Swizzling and constructors in glsl.
-    fColor = color;
+    //Multiplying our uniform with the vertex position, the multiplication order here does matter.
+    gl_Position = uProjection * uView * uModel * vec4(vPos, 1.0);
+    //We want to know the fragment's position in World space, so we multiply ONLY by uModel and not uView or uProjection
+    fPos = vec3(uModel * vec4(vPos, 1.0));
+    //The Normal needs to be in World space too, but needs to account for Scaling of the object
+    fNormal = mat3(transpose(inverse(uModel))) * vPos;
 }

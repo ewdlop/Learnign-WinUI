@@ -1,6 +1,6 @@
 ﻿namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-internal static class Quad
+internal static class ColoredQuad
 {
     internal static readonly string VertexShader = @"
         #version 330 core //Using version GLSL version 3.3

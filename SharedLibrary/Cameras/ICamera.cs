@@ -12,5 +12,8 @@ namespace SharedLibrary.Cameras
         public float Yaw { get; }
         public float Pitch { get; }
         public float Zoom { get; }
+
+        Matrix4x4 GetProjectionMatrix();
+        Matrix4x4 GetViewMatrix();
     }
 }

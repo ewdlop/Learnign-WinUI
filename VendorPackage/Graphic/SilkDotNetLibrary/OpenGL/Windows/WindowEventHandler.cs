@@ -71,7 +71,7 @@ public class WindowEventHandler : IWindowEventHandler
         }
         for (int i = 0; i < Input.Mice.Count; i++)
         {
-            Input.Mice[i].Cursor.CursorMode = CursorMode.Raw;
+            Input.Mice[i].Cursor.CursorMode = CursorMode.Normal;
             Input.Mice[i].MouseMove += OnMouseMove;
             Input.Mice[i].Scroll += OnMouseWheel;
         }

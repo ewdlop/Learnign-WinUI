@@ -21,8 +21,8 @@ namespace SharedLibrary.Cameras
         public float Yaw => _cameraTransform.CameraYaw;
         public float Pitch => _cameraTransform.CameraPitch;
         public float Zoom => _cameraTransform.CameraZoom;
-        public float Speed { get; private set; } = 5;
-        public float AspectRatio { get; private set; } = 11 / 9;
+        public float Speed { get; private set; } = 5.0f;
+        public float AspectRatio { get; private set; } = 8f / 6;
         public Camera(IEventHandler eventHandler)
         {
             disposedValue = false;
@@ -36,10 +36,10 @@ namespace SharedLibrary.Cameras
         void IMouseEventListener.OnMouseMove(object sender, MouseMoveEventArgs e)
         {
             var xOffset = (e.Position.X - e.LastMousePosition.X) * _lookSensitivity;
-            var yOffset = -1.0f * (e.Position.Y - e.LastMousePosition.Y) * _lookSensitivity;
+            var yOffset = (e.Position.Y - e.LastMousePosition.Y) * _lookSensitivity;
 
             _cameraTransform.RotateYaw(xOffset);
-            _cameraTransform.RotatePitch(yOffset);
+            _cameraTransform.RotatePitch(-1 * yOffset);
             _cameraTransform.SetDirection();
         }
 

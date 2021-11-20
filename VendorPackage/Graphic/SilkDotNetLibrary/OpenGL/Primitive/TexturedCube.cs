@@ -1,6 +1,6 @@
 ﻿namespace SilkDotNetLibrary.OpenGL.Primitive;
 
-internal static class Cube
+internal static class TexturedCube
 {
     internal static readonly float[] Vertices =
     {

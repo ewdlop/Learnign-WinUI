@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public struct Shader : IShader
+public class Shader : IShader
 {
     private bool disposedValue;
     public uint ShaderProgramHandle { get; init; }
@@ -101,7 +101,17 @@ public struct Shader : IShader
         gl.Uniform1(unifromLocation, value);
     }
 
-    private uint LoadShader(in GL gl,ShaderType type, string path)
+    public void SetUniformBy(in GL gl, string name, Vector3 value)
+    {
+        int location = gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (location == -1)
+        {
+            throw new Exception($"{name} uniform not found on shader.");
+        }
+        gl.Uniform3(location, value.X, value.Y, value.Z);
+    }
+
+    private static uint LoadShader(in GL gl,ShaderType type, string path)
     {
         string src = File.ReadAllText(path);
         uint handle = gl.CreateShader(type);
