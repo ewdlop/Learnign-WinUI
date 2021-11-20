@@ -51,8 +51,8 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 5, 0);
         VaoCube.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, 5, 3);
 
-        Texture = new Textures.Texture(_gl, "Textures/silk.png");
-        Shader = new Shader(_gl, "Shaders/texture.vert", "Shaders/texture.frag");
+        Texture = new Textures.Texture(_gl, "../../../Textures/silk.png");
+        Shader = new Shader(_gl, "../../../Shaders/texture.vert", "../../../Shaders/texture.frag");
         //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
 
         //Unlike in the transformation, because of our abstraction, order doesn't matter here.
