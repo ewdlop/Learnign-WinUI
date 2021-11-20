@@ -7,7 +7,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
    where TVertexType : unmanaged
    where TIndexType : unmanaged
 {
-    public  uint VertexArrayBufferObjectHandle { get; init; }
+    public uint VertexArrayBufferObjectHandle { get; init; }
     private bool disposedValue;
 
     public VertexArrayBufferObject(in GL gl, in BufferObject<TVertexType> vbo, in BufferObject<TIndexType> ebo)

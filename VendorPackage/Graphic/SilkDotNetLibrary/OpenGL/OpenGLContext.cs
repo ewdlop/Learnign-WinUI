@@ -4,7 +4,6 @@ using Silk.NET.Windowing;
 using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
-using SilkDotNetLibrary.OpenGL.Textures;
 using System.Numerics;
 using SharedLibrary.Transforms;
 using SharedLibrary.Math;
@@ -19,19 +18,18 @@ public class OpenGLContext : IOpenGLContext,IDisposable
     private readonly IWindow _window;
     private readonly ICamera _camera;
     private readonly Transform[] Transforms = new Transform[4];
-    private const int WIDTH = 800;
-    private const int HEIGHT = 700;
-
     private GL _gl;
     private BufferObject<float> _vbo;
     private BufferObject<uint> _ebo;
     private VertexArrayBufferObject<float, uint> VaoCube { get; set; }
-    private Shader Shader { get; set; }
     private Shader LightingShader { get; set; }
     private Shader LampShader { get; set; }
-    private Textures.Texture Texture { get; set; }
+    //private Textures.Texture Texture { get; set; }
+    private Textures.Texture DiffuseMap { get; set; }
+    private Textures.Texture SpecularMap { get; set; }
 
     private Vector3 LampPosition = new Vector3(1.2f, 1.0f, 2.0f);
+    private DateTime StartTime { get; set; }
 
     //Setup the camera's location, and relative up and right directions
     public OpenGLContext(IWindow Window, ICamera camera)
@@ -43,31 +41,31 @@ public class OpenGLContext : IOpenGLContext,IDisposable
 
     public unsafe void OnLoad()
     {
+        StartTime = DateTime.UtcNow;
         _gl = GL.GetApi(_window);
-
         //_ebo = new BufferObject<uint>(_gl, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
         //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
-        _ebo = new BufferObject<uint>(_gl, NormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
-        _vbo = new BufferObject<float>(_gl, NormaledCube.Vertices, BufferTargetARB.ArrayBuffer);
+        _ebo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
+        _vbo = new BufferObject<float>(_gl, TexturedNormaledCube.Vertices, BufferTargetARB.ArrayBuffer);
         VaoCube = new VertexArrayBufferObject<float, uint>(in _gl, in _vbo, in _ebo);
 
         //Telling the VAO object how to lay out the attribute pointers
         //VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 5, 0);
         //VaoCube.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, 5, 3);
         //VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3, 0);
-        VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 6, 0);
-        VaoCube.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, 6, 3);
+        //VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 6, 0);
+        //VaoCube.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, 6, 3);
+        VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 8, 0);
+        VaoCube.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, 8, 3);
+        VaoCube.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, 8, 6);
 
-
-        //Texture = new Textures.Texture(_gl, "../../../Textures/silk.png");
-        //Shader = new Shader(_gl, "../../../Shaders/texture.vert", "../../../Shaders/texture.frag")
-
-
-        LightingShader = new Shader(_gl, "../../../Shaders/shader.vert", "../../../Shaders/diffuse_lighting.frag");
+        LightingShader = new Shader(_gl, "../../../Shaders/basic.vert", "../../../Shaders/material.frag");
         //The Lamp shader uses a fragment shader that just colours it solid white so that we know it is the light source
-        LampShader = new Shader(_gl, "../../../Shaders/shader.vert", "../../../Shaders/shader.frag"); ;
+        LampShader = new Shader(_gl, "../../../Shaders/basic.vert", "../../../Shaders/white.frag"); ;
 
         //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
+        DiffuseMap = new Textures.Texture(_gl, "../../../Textures/silkBoxed.png");
+        SpecularMap = new Textures.Texture(_gl, "../../../Textures/silkSpecular.png");
 
         //Unlike in the transformation, because of our abstraction, order doesn't matter here.
         //Translation.
@@ -88,16 +86,16 @@ public class OpenGLContext : IOpenGLContext,IDisposable
 
     public unsafe void OnRender(double dt)
     {
+        Log.Information($"{1.0f / dt}");
         _gl.Enable(EnableCap.DepthTest);
         _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
         VaoCube.BindBy(_gl);
+        DiffuseMap.BindBy(_gl, TextureUnit.Texture0);
+        SpecularMap.BindBy(_gl, TextureUnit.Texture1);
 
-        //Texture.BindBy(_gl);
-        //Shader.UseBy(_gl);
         //Setting a uniform.
         //_shader.SetUniform("uBlue", (float)Math.Sin(DateTime.Now.Millisecond / 1000f * Math.PI));
-        //Shader.SetUniformBy(_gl, "uTexture0", 0);
 
         //for (int i = 0; i < Transforms.Length; i++)
         //{
@@ -108,7 +106,8 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         //}
 
         //Use elapsed time to convert to radians to allow our cube to rotate over time
-        //var difference = (float)(_window.Time * 100);
+        
+        var difference = (float)(_window.Time * 100);
 
         //var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
         //var view = Matrix4x4.CreateLookAt(_camera.Position, _camera.Position + _camera.Front, _camera.Up);
@@ -117,16 +116,40 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         //Shader.SetUniformBy(_gl, "uView", view);
         //Shader.SetUniformBy(_gl, "uProjection", projection);
 
-
         //Slightly rotate the cube to give it an angled face to look at
         LightingShader.UseBy(_gl);
 
-        LightingShader.SetUniformBy(_gl, "uModel", Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(25f)));
+        LightingShader.SetUniformBy(_gl, "uModel", Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference)));
         LightingShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LightingShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
-        LightingShader.SetUniformBy(_gl, "objectColor", new Vector3(1.0f, 0.5f, 0.31f));
-        LightingShader.SetUniformBy(_gl, "lightColor", Vector3.One);
-        LightingShader.SetUniformBy(_gl, "lightPos", LampPosition);
+        //LightingShader.SetUniformBy(_gl, "objectColor", new Vector3(1.0f, 0.5f, 0.31f));
+        //LightingShader.SetUniformBy(_gl, "lightColor", Vector3.One);
+        //LightingShader.SetUniformBy(_gl, "lightPos", LampPosition);
+        LightingShader.SetUniformBy(_gl, "viewPos", _camera.Position);
+        //LightingShader.SetUniformBy(_gl, "material.ambient", new Vector3(1.0f, 0.5f, 0.31f));
+        //LightingShader.SetUniformBy(_gl, "material.diffuse", new Vector3(1.0f, 0.5f, 0.31f));
+        //LightingShader.SetUniformBy(_gl, "material.specular", new Vector3(0.5f, 0.5f, 0.5f));
+        LightingShader.SetUniformBy(_gl, "material.diffuse", 0);
+        //Specular is set to 1 because our diffuseMap is bound to Texture1
+        LightingShader.SetUniformBy(_gl, "material.specular", 1);
+        LightingShader.SetUniformBy(_gl, "material.shininess", 32.0f);
+
+        //var difference = (float)(DateTime.UtcNow - StartTime).TotalSeconds;
+        //var lightColor = Vector3.Zero;
+        //lightColor.X = MathF.Sin(difference * 2.0f);
+        //lightColor.Y = MathF.Sin(difference * 0.7f);
+        //lightColor.Z = MathF.Sin(difference * 1.3f);
+
+        //var diffuseColor = lightColor * new Vector3(0.5f);
+        //var ambientColor = diffuseColor * new Vector3(0.2f);
+
+        var diffuseColor = new Vector3(0.5f);
+        var ambientColor = diffuseColor * new Vector3(0.2f);
+
+        LightingShader.SetUniformBy(_gl, "light.ambient", ambientColor);
+        LightingShader.SetUniformBy(_gl, "light.diffuse", diffuseColor); // darkened
+        LightingShader.SetUniformBy(_gl, "light.specular", new Vector3(1.0f, 1.0f, 1.0f));
+        LightingShader.SetUniformBy(_gl, "light.position", LampPosition);
 
         //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
@@ -135,9 +158,10 @@ public class OpenGLContext : IOpenGLContext,IDisposable
 
         var lampMatrix = Matrix4x4.Identity
                          * Matrix4x4.CreateScale(0.2f)
-                         * Matrix4x4.CreateTranslation(new Vector3(1.2f, 1.0f, 2.0f));
+                         * Matrix4x4.CreateTranslation(LampPosition);
+                         //* Matrix4x4.CreateTranslation(new Vector3(1.2f, 1.0f, 2.0f));
 
-        LampShader.SetUniformBy(_gl,"uModel", lampMatrix);
+        LampShader.SetUniformBy(_gl, "uModel", lampMatrix);
         LampShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LampShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
 
@@ -156,10 +180,10 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         _vbo.DisposeBy(_gl);
         _ebo.DisposeBy(_gl);
         VaoCube.DisposeBy(_gl);
-        //Shader.DisposeBy(_gl);
-        //Texture.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);
+        DiffuseMap.DisposeBy(_gl);
+        SpecularMap.DisposeBy(_gl);
     }
 
     public void Dispose(bool disposing)
