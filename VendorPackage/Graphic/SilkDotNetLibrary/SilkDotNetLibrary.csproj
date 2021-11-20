@@ -15,10 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Silk.NET.Core" Version="2.9.0" />
-    <PackageReference Include="Silk.NET.Input" Version="2.9.0" />
-    <PackageReference Include="Silk.NET.OpenGL" Version="2.9.0" />
-    <PackageReference Include="Silk.NET.Windowing" Version="2.9.0" />
+    <PackageReference Include="Silk.NET.Core" Version="2.10.1" />
+    <PackageReference Include="Silk.NET.Input" Version="2.10.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.10.1" />
+    <PackageReference Include="Silk.NET.OpenGL.Extensions.ImGui" Version="2.10.1" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.10.1" />
   </ItemGroup>
 
   <ItemGroup>

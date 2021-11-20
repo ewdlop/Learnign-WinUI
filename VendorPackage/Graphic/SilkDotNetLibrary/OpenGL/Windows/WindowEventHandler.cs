@@ -1,6 +1,9 @@
 ﻿using Serilog;
 using SharedLibrary.Event.Handler;
 using Silk.NET.Input;
+using Silk.NET.Maths;
+using Silk.NET.OpenGL;
+using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using System;
 using System.Collections.Generic;
@@ -14,11 +17,13 @@ namespace SilkDotNetLibrary.OpenGL.Windows;
 public class WindowEventHandler : IWindowEventHandler
 {
     protected bool disposedValue;
+    private GL GL { get; set; }
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
-    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap; 
+    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
     private IKeyboard PrimaryKeyboard { get; set; }
-    private IInputContext Input { get; set; }
+    private IInputContext InputContext { get; set; }
+    private ImGuiController ImGuiController { get; set; }
     private IWindow Window { get; set; }
     private Vector2 LastMousePosition { get; set; }
 
@@ -45,6 +50,7 @@ public class WindowEventHandler : IWindowEventHandler
         Window.Update += OnUpdate;
         Window.Render += OnRender;
         Window.Closing += OnClosing;
+        Window.FramebufferResize += OnFramebufferResize;
         return Task.Run(() =>
         {
             Log.Information("Window Running thread ID: {0}", Environment.CurrentManagedThreadId);
@@ -63,26 +69,43 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnLoad()
     {
-        Input = Window.CreateInput();
-        PrimaryKeyboard = Input.Keyboards.FirstOrDefault();
+        InputContext = Window.CreateInput();
+        PrimaryKeyboard = InputContext.Keyboards.FirstOrDefault();
         if (PrimaryKeyboard != null)
         {
             PrimaryKeyboard.KeyDown += OnKeyDown;
         }
-        for (int i = 0; i < Input.Mice.Count; i++)
+        for (int i = 0; i < InputContext.Mice.Count; i++)
         {
-            Input.Mice[i].Cursor.CursorMode = CursorMode.Normal;
-            Input.Mice[i].MouseMove += OnMouseMove;
-            Input.Mice[i].Scroll += OnMouseWheel;
+            //InputContext.Mice[i].Cursor.CursorMode = CursorMode.Normal;
+            InputContext.Mice[i].MouseMove += OnMouseMove;
+            InputContext.Mice[i].Scroll += OnMouseWheel;
         }
         _openGLContext.OnLoad();
+        //need to think of a better way to do this;
+        //and it didnt work
+        GL = _openGLContext.OnLoad();
+        ImGuiController = new ImGuiController(GL, Window, InputContext);
     }
 
-    public void OnRender(double dt) => _openGLContext.OnRender(dt);
+    public void OnRender(double dt)
+    {
+        ImGuiController.Update((float)dt);
+        _openGLContext.OnRender(dt);
+        //doesnt work rip
+        ImGuiNET.ImGui.ShowDemoWindow();
+        // Make sure ImGui renders too!
+        ImGuiController.Render();
+    }
 
     public void OnStop()
     {
 
+    }
+
+    public void OnFramebufferResize(Vector2D<int> resize)
+    {
+        _openGLContext.OnWindowFrameBufferResize(in resize);
     }
 
     public void OnUpdate(double dt)
@@ -100,8 +123,14 @@ public class WindowEventHandler : IWindowEventHandler
     {
         //trigger by closing Window
         Log.Information("Window Closing thread ID: {0}", Environment.CurrentManagedThreadId);
-        _openGLContext.Dispose();
-        Window = null;
+        //mabye a onclose for this?
+        //Window.Close();
+        //ImGuiController?.Dispose();
+        //_openGLContext?.Dispose();
+        //Window?.Dispose();
+        //Window = null;
+        //Window.Close();
+        Dispose();
     }
 
     public virtual void OnKeyDown(IKeyboard arg1, Key arg2, int arg3)
@@ -117,7 +146,7 @@ public class WindowEventHandler : IWindowEventHandler
 
         if (arg2 == Key.Escape)
         {
-            OnDispose();
+            OnClosing();
         }
     }
     public void OnMouseMove(IMouse mouse, Vector2 position)
@@ -149,19 +178,24 @@ public class WindowEventHandler : IWindowEventHandler
     protected virtual void OnDispose()
     {
         Log.Information("Window Dispose thread ID: {0}", Environment.CurrentManagedThreadId);
-        Log.Information("Input Dispose...");
-        Input?.Dispose();
+        Log.Information("ImGui Disposing...");
+        ImGuiController?.Dispose();
+        Log.Information("Input Disposing...");
+        InputContext?.Dispose();
+        Log.Information("GL Disposing...");
         _openGLContext.Dispose();
-        Log.Information("Window Disposing...");
-        if (Window is not null)
-        {
-            Window.Dispose();
-            Log.Information("Window Disposed...");
-        }
-        else
-        {
-            Log.Information("Window could not be found...");
-        }
+        Log.Information("Window Disposes...");
+        //if (Window is not null)
+        //{
+        //    Window.Dispose();
+        //    Log.Information("Window Disposed...");
+        //}
+        //else
+        //{
+        //    Log.Information("Window could not be found...");
+        //}
+        Window.Dispose();
+        Log.Information("Window Disposed...");
     }
 
     protected virtual void Dispose(bool disposing)

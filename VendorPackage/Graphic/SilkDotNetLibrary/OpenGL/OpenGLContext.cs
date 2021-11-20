@@ -9,10 +9,11 @@ using SharedLibrary.Transforms;
 using SharedLibrary.Math;
 using SilkDotNetLibrary.OpenGL.Primitive;
 using SharedLibrary.Cameras;
+using Silk.NET.Maths;
 
 namespace SilkDotNetLibrary.OpenGL;
 
-public class OpenGLContext : IOpenGLContext,IDisposable
+public class OpenGLContext : IOpenGLContext, IDisposable
 {
     private bool disposedValue;
     private readonly IWindow _window;
@@ -21,6 +22,7 @@ public class OpenGLContext : IOpenGLContext,IDisposable
     private GL _gl;
     private BufferObject<float> _vbo;
     private BufferObject<uint> _ebo;
+    //private ImGuiController _ImGuiController;
     private VertexArrayBufferObject<float, uint> VaoCube { get; set; }
     private Shader LightingShader { get; set; }
     private Shader LampShader { get; set; }
@@ -39,10 +41,11 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         _camera = camera;
     }
 
-    public unsafe void OnLoad()
+    public unsafe GL OnLoad()
     {
         StartTime = DateTime.UtcNow;
-        _gl = GL.GetApi(_window);
+        _gl = _window.CreateOpenGL();
+        //_gl = GL.GetApi(_window);
         //_ebo = new BufferObject<uint>(_gl, Quad.Indices, BufferTargetARB.ElementArrayBuffer);
         //_vbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
         _ebo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
@@ -82,12 +85,14 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         //Transforms[3].Position = new Vector3(-0.5f, 0.5f, 0f);
         //Transforms[3].Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, 1f);
         //Transforms[3].Scale = 0.5f;
+        return _gl;
     }
 
     public unsafe void OnRender(double dt)
     {
-        Log.Information($"{1.0f / dt}");
+        //Log.Information($"{1.0f / dt}");
         _gl.Enable(EnableCap.DepthTest);
+        //_gl.ClearColor(Color.FromArgb(255, (int)(.45f * 255), (int)(.55f * 255), (int)(.60f * 255)));
         _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
         VaoCube.BindBy(_gl);
@@ -112,6 +117,7 @@ public class OpenGLContext : IOpenGLContext,IDisposable
         //var model = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference));
         //var view = Matrix4x4.CreateLookAt(_camera.Position, _camera.Position + _camera.Front, _camera.Up);
         //var projection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.Zoom), WIDTH / HEIGHT, 0.1f, 100.0f);
+        
         //Shader.SetUniformBy(_gl, "uModel", model);
         //Shader.SetUniformBy(_gl, "uView", view);
         //Shader.SetUniformBy(_gl, "uProjection", projection);
@@ -172,6 +178,11 @@ public class OpenGLContext : IOpenGLContext,IDisposable
     public void OnUpdate(double dt)
     {
 
+    }
+
+    public void OnWindowFrameBufferResize(in Vector2D<int> resize)
+    {
+        _gl.Viewport(resize);
     }
 
     public void OnDispose()
