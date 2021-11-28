@@ -8,7 +8,7 @@ namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
-    private VkInstance VkInstance;
+    private readonly VkInstance VkInstance;
     private ImmutableArray<string> VkValidationLayerNames { get; init; } = ImmutableArray.Create(new string[] 
     { 
         "VK_LAYER_KHRONOS_validation" 

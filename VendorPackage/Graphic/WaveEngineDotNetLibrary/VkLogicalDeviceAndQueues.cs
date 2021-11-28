@@ -16,6 +16,11 @@ namespace WaveEngineDotNetLibrary
 
         private void CreateLogicalDevice()
         {
+            List<VkDeviceQueueCreateInfo> queueCreateInfos = new List<VkDeviceQueueCreateInfo>();
+            //HashSet<uint> uniqueQueueFamilies = new HashSet<uint>() { indices.graphicsFamily.Value, indices.presentFamily.Value };
+            //ImmutableHashSet
+            float queuePriority = 1.0f;
+            
         }
     }
 }
