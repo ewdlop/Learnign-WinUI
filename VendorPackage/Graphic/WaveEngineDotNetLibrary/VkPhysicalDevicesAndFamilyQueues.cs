@@ -89,7 +89,7 @@ public unsafe partial class VkContext
             }
 
             VkBool32 presentSupport = false;
-            //VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &presentSupport));
+            VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, VkWindowSurface, &presentSupport));
 
             if (presentSupport)
             {
