@@ -5,59 +5,59 @@ namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
-    private VkPhysicalDevice physicalDevice;
-
+    private VkPhysicalDevice vkphysicalDevice; //strange
+    
     private void PickPhysicalDevice()
     {
         uint deviceCount = 0;
-        VkHelper.CheckErrors(VulkanNative.vkEnumeratePhysicalDevices(VkInstance, &deviceCount, null));
+        VkHelper.CheckErrors(VulkanNative.vkEnumeratePhysicalDevices(vkInstance, &deviceCount, null));
         if (deviceCount == 0)
         {
             throw new Exception("Failed to find GPUs with Vulkan support!");
         }
 
         VkPhysicalDevice* devices = stackalloc VkPhysicalDevice[(int)deviceCount];
-        VkHelper.CheckErrors(VulkanNative.vkEnumeratePhysicalDevices(VkInstance, &deviceCount, devices));
+        VkHelper.CheckErrors(VulkanNative.vkEnumeratePhysicalDevices(vkInstance, &deviceCount, devices));
 
         for (int i = 0; i < deviceCount; i++)
         {
             var device = devices[i];
             if (IsPhysicalDeviceSuitable(device))
             {
-                physicalDevice = device;
+                vkphysicalDevice = device;
                 break;
             }
         }
 
-        if (physicalDevice == default)
+        if (vkphysicalDevice == default)
         {
             throw new Exception("failed to find a suitable GPU!");
         }
     }
 
-    private bool IsPhysicalDeviceSuitable(VkPhysicalDevice physicalDevice)
+    private bool IsPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
     {
-        QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+        QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
 
-        bool extensionsSupported = CheckPhysicalDeviceExtensionSupport(physicalDevice);
+        bool extensionsSupported = CheckPhysicalDeviceExtensionSupport(vkPhysicalDevice);
 
         bool swapChainAdequate = false;
-        //if (extensionsSupported)
-        //{
-        //    SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice);
-        //    swapChainAdequate = (swapChainSupport.formats.Length != 0 && swapChainSupport.presentModes.Length != 0);
-        //}
+        if (extensionsSupported)
+        {
+            VkSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkPhysicalDevice);
+            swapChainAdequate = (swapChainSupport.surfaceFormats.Length != 0 && swapChainSupport.presentModes.Length != 0);
+        }
 
         return indices.IsComplete() && extensionsSupported && swapChainAdequate;
     }
 
-    private bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice physicalDevice)
+    private bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice)
     {
         uint extensionCount;
-        VkHelper.CheckErrors(VulkanNative.vkEnumerateDeviceExtensionProperties(physicalDevice, null, &extensionCount, null));
+        VkHelper.CheckErrors(VulkanNative.vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, null, &extensionCount, null));
 
         VkExtensionProperties* availableExtensions = stackalloc VkExtensionProperties[(int)extensionCount];
-        VkHelper.CheckErrors(VulkanNative.vkEnumerateDeviceExtensionProperties(physicalDevice, null, &extensionCount, availableExtensions));
+        VkHelper.CheckErrors(VulkanNative.vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, null, &extensionCount, availableExtensions));
 
         HashSet<string> requiredExtensions = new (VkDeviceExtensionNames);
 
@@ -70,15 +70,15 @@ public unsafe partial class VkContext
         return requiredExtensions.Count == 0;
     }
 
-    private QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice physicalDevice)
+    private QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice)
     {
         QueueFamilyIndices queueFamilyIndices = default;
 
         uint queueFamilyCount = 0;
-        VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, null);
+        VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, null);
 
         VkQueueFamilyProperties* queueFamilies = stackalloc VkQueueFamilyProperties[(int)queueFamilyCount];
-        VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies);
+        VulkanNative.vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueFamilyCount, queueFamilies);
 
         for (uint i = 0; i < queueFamilyCount; i++)
         {
@@ -89,7 +89,7 @@ public unsafe partial class VkContext
             }
 
             VkBool32 presentSupport = false;
-            VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, VkWindowSurface, &presentSupport));
+            VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, vkSurfaceKHR, &presentSupport));
 
             if (presentSupport)
             {
@@ -105,9 +105,9 @@ public unsafe partial class VkContext
         return queueFamilyIndices;
     }
 
-    private bool IsDeviceSuitable(VkPhysicalDevice physicalDevice)
+    private bool IsDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
     {
-        QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+        QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
 
         return indices.IsComplete();
     }

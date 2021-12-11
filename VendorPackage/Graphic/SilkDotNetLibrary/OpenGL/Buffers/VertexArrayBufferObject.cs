@@ -7,7 +7,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
    where TVertexType : unmanaged
    where TIndexType : unmanaged
 {
-    public uint VertexArrayBufferObjectHandle { get; init; }
+    public uint VertexArrayBufferObjectHandle { get; }
     private bool disposedValue;
 
     public VertexArrayBufferObject(in GL gl, in BufferObject<TVertexType> vbo, in BufferObject<TIndexType> ebo)
@@ -16,8 +16,8 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
         //Setting out handle and binding the VBO and EBO to this VAO.
         VertexArrayBufferObjectHandle = gl.GenVertexArray();
         BindBy(gl);
-        vbo.Bind(gl);
-        ebo.Bind(gl);
+        vbo.BindBy(gl);
+        ebo.BindBy(gl);
     }
 
     public unsafe void VertexAttributePointer(in GL gl,

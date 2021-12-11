@@ -1,7 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-using WaveEngineDotNetLibrary;
-using System.Windows.Forms;
+﻿using WaveEngineDotNetLibrary;
 using System.Diagnostics;
+using WaveEngineDotNetLibrary.Window;
 
 const uint WIDTH = 800;
 const uint HEIGHT = 600;
@@ -9,10 +8,12 @@ const uint HEIGHT = 600;
 Form window = new Form()
 {
     Text = "Vulkan Triangle Rasterization",
-    Size = new System.Drawing.Size((int)WIDTH, (int)HEIGHT),
+    Size = new Size((int)WIDTH, (int)HEIGHT),
     FormBorderStyle = FormBorderStyle.FixedToolWindow
 };
 window.Show();
 IntPtr hInstance = Process.GetCurrentProcess().Handle;
-VkContext vkContext = new VkContext(window.Handle, hInstance);
-vkContext.CreateInstance();
+
+IVkSurface vkWindowSurface = new VkWindowSurface(new VkWindowHandle(window.Handle, hInstance));
+VkContext vkContext = new VkContext(WIDTH, HEIGHT, vkWindowSurface);
+vkContext.Init();

@@ -1,11 +1,41 @@
 ﻿using Serilog;
 using SharedLibrary.Helpers;
+using System.Runtime.InteropServices;
 using WaveEngine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
+    private delegate VkBool32 DebugCallbackDelegate(VkDebugUtilsMessageSeverityFlagsEXT messageSeverity,
+                                                    VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                    VkDebugUtilsMessengerCallbackDataEXT pCallbackData,
+                                                    void* pUserData);
+    private static DebugCallbackDelegate debugCallbackDelegate = new DebugCallbackDelegate(DebugCallback);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    private delegate VkResult vkCreateDebugUtilsMessengerEXTDelegate(VkInstance instance,
+                                                                     VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                                     VkAllocationCallbacks* pAllocator,
+                                                                     VkDebugUtilsMessengerEXT* pMessenger);
+    private static vkCreateDebugUtilsMessengerEXTDelegate? vkCreateDebugUtilsMessengerEXT_ptr;
+    private static VkResult vkCreateDebugUtilsMessengerEXT(VkInstance instance,
+                                                          VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                                          VkAllocationCallbacks* pAllocator,
+                                                          VkDebugUtilsMessengerEXT* pMessenger)
+      => vkCreateDebugUtilsMessengerEXT_ptr(instance, pCreateInfo, pAllocator, pMessenger);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    private delegate void vkDestroyDebugUtilsMessengerEXTDelegate(VkInstance instance,
+                                                                  VkDebugUtilsMessengerEXT messenger,
+                                                                  VkAllocationCallbacks* pAllocator);
+    private static vkDestroyDebugUtilsMessengerEXTDelegate? vkDestroyDebugUtilsMessengerEXT_ptr;
+    private static void vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, VkAllocationCallbacks* pAllocator)
+        => vkDestroyDebugUtilsMessengerEXT_ptr(instance, messenger, pAllocator);
+
+
+    private readonly VkDebugUtilsMessengerEXT vkDebugMessenger;
+
     public bool CheckValidationLayerSupport()
     {
         uint layerCount;
@@ -15,7 +45,7 @@ public unsafe partial class VkContext
 
         for (int i = 0; i < layerCount; i++)
         {
-            Log.Information($"ValidationLayer: {Helper.GetString(availableLayers[i].layerName)} version: {availableLayers[i].specVersion} description: {Helper.GetString(availableLayers[i].description)}");
+            Log.Debug($"ValidationLayer: {Helper.GetString(availableLayers[i].layerName)} version: {availableLayers[i].specVersion} description: {Helper.GetString(availableLayers[i].description)}");
         }
 
         //Return
@@ -54,5 +84,55 @@ public unsafe partial class VkContext
         }
 
         return true;
+    }
+
+    public void SetupDebugMessenger()
+    {
+        #if DEBUG
+        fixed (VkDebugUtilsMessengerEXT* debugMessengerPtr = &vkDebugMessenger)
+        {
+            var funcPtr = VulkanNative.vkGetInstanceProcAddr(vkInstance, "vkCreateDebugUtilsMessengerEXT".ToPointer());
+            if (funcPtr != IntPtr.Zero)
+            {
+                vkCreateDebugUtilsMessengerEXT_ptr = Marshal.GetDelegateForFunctionPointer<vkCreateDebugUtilsMessengerEXTDelegate>(funcPtr);
+
+                VkDebugUtilsMessengerCreateInfoEXT createInfo;
+                PopulateDebugMessengerCreateInfo(out createInfo);
+                VkHelper.CheckErrors(vkCreateDebugUtilsMessengerEXT(vkInstance, &createInfo, null, debugMessengerPtr));
+            }
+        }
+        #endif
+    }
+
+    public static VkBool32 DebugCallback(VkDebugUtilsMessageSeverityFlagsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, VkDebugUtilsMessengerCallbackDataEXT pCallbackData, void* pUserData)
+    {
+        Log.Debug($"<<Vulkan Validation Layer>> {Helper.GetString(pCallbackData.pMessage)}");
+        return false;
+    }
+
+    private void PopulateDebugMessengerCreateInfo(out VkDebugUtilsMessengerCreateInfoEXT createInfo)
+    {
+        createInfo = default;
+        createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        createInfo.messageSeverity = VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+                                     | VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+                                     | VkDebugUtilsMessageSeverityFlagsEXT.VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        createInfo.messageType = VkDebugUtilsMessageTypeFlagsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+                                 | VkDebugUtilsMessageTypeFlagsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT
+                                 | VkDebugUtilsMessageTypeFlagsEXT.VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+        createInfo.pfnUserCallback = Marshal.GetFunctionPointerForDelegate(debugCallbackDelegate);
+        createInfo.pUserData = null;
+    }
+
+    private void DestroyDebugMessenger()
+    {
+        #if DEBUG
+        var funcPtr = VulkanNative.vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT".ToPointer());
+        if (funcPtr != IntPtr.Zero)
+        {
+            vkDestroyDebugUtilsMessengerEXT_ptr = Marshal.GetDelegateForFunctionPointer<vkDestroyDebugUtilsMessengerEXTDelegate>(funcPtr);
+            vkDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugMessenger, null);
+        }
+        #endif
     }
 }

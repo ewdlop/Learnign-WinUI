@@ -8,9 +8,9 @@ namespace SilkDotNetLibrary.OpenGL.Shaders;
 public class Shader : IShader
 {
     private bool disposedValue;
-    public uint ShaderProgramHandle { get; init; }
-    public string VertexPath { get; init; } = string.Empty;
-    public string FragmentPath { get; init; } = string.Empty;
+    public uint ShaderProgramHandle { get; }
+    public string VertexPath { get; }
+    public string FragmentPath { get; }
     public Shader(in GL gl, in string vertexPath, in string fragmentPath)
     {
         disposedValue = false;

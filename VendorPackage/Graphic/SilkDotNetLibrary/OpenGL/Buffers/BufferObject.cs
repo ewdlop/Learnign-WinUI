@@ -16,7 +16,7 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>
         disposedValue = false;
         BufferHandle = gl.GenBuffer();
         BufferTargetARB = bufferTargetARB;
-        Bind(gl);
+        BindBy(gl);
         fixed (void* data = span)
         {
             gl.BufferData(BufferTargetARB,
@@ -26,7 +26,7 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>
         }
     }
 
-    public void Bind(in GL gl)
+    public void BindBy(in GL gl)
     {
         //Binding the buffer object, with the correct buffer type.
         gl.BindBuffer(BufferTargetARB, BufferHandle);

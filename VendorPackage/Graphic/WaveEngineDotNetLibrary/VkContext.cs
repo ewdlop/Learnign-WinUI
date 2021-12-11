@@ -8,7 +8,19 @@ namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
-    private readonly VkInstance VkInstance;
+    private readonly IVkSurface _vkSurface;
+    private readonly VkSurfaceKHR vkSurfaceKHR;
+    private readonly uint _width;
+    private readonly uint _height;
+    private VkInstance vkInstance;
+
+    public VkContext(uint width, uint height, IVkSurface vkSurface)
+    {
+        _width = width;
+        _height = height;
+        _vkSurface = vkSurface;
+        vkSurfaceKHR = vkSurface.SurfaceKHR;
+    }
     private ImmutableArray<string> VkValidationLayerNames { get; init; } = ImmutableArray.Create(new string[] 
     { 
         "VK_LAYER_KHRONOS_validation" 
@@ -69,10 +81,21 @@ public unsafe partial class VkContext
             createInfo.enabledLayerCount = 0;
             createInfo.pNext = null;
         #endif
-        fixed (VkInstance* instancePtr = &VkInstance)
+        fixed (VkInstance* instancePtr = &vkInstance)
         {
             VkHelper.CheckErrors(VulkanNative.vkCreateInstance(&createInfo, null, instancePtr));
         }
+    }
+
+    public void Init()
+    {
+        CreateInstance();
+        _vkSurface.CreateSurface(vkInstance);
+        #if DEBUG
+            SetupDebugMessenger();
+        #endif
+        PickPhysicalDevice();
+        CreateLogicalDevice();
     }
 
     private void GetAllInstanceExtensionsAvailables()

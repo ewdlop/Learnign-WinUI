@@ -10,7 +10,7 @@ namespace SilkDotNetLibrary.OpenGL.Textures;
 public struct Texture
 {
     private bool disposedValue;
-    public uint Texturehandle { get; init; }
+    public uint Texturehandle { get; }
     public unsafe Texture(in GL gl, in string imagePath)
     {
         disposedValue = false;
