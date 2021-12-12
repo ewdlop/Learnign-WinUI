@@ -62,13 +62,13 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         VaoCube.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, 8, 3);
         VaoCube.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, 8, 6);
 
-        LightingShader = new Shader(_gl, "../../../Shaders/basic.vert", "../../../Shaders/material.frag");
+        LightingShader = new Shader(_gl, "Shaders/Raw/basic.vert", "Shaders/Raw/material.frag");
         //The Lamp shader uses a fragment shader that just colours it solid white so that we know it is the light source
-        LampShader = new Shader(_gl, "../../../Shaders/basic.vert", "../../../Shaders/white.frag"); ;
+        LampShader = new Shader(_gl, "Shaders/Raw/basic.vert", "Shaders/Raw/white.frag"); ;
 
         //_shader.Load("Shaders/shader.vert", "Shaders/shader.frag");
-        DiffuseMap = new Textures.Texture(_gl, "../../../Textures/silkBoxed.png");
-        SpecularMap = new Textures.Texture(_gl, "../../../Textures/silkSpecular.png");
+        DiffuseMap = new Textures.Texture(_gl, "Textures/Raw/silkBoxed.png");
+        SpecularMap = new Textures.Texture(_gl, "Textures/Raw/silkSpecular.png");
 
         //Unlike in the transformation, because of our abstraction, order doesn't matter here.
         //Translation.

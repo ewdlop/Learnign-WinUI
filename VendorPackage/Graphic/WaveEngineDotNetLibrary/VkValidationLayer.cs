@@ -124,7 +124,7 @@ public unsafe partial class VkContext
         createInfo.pUserData = null;
     }
 
-    private void DestroyDebugMessenger()
+    public void DestroyDebugMessenger()
     {
         #if DEBUG
         var funcPtr = VulkanNative.vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT".ToPointer());

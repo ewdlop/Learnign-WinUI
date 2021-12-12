@@ -14,31 +14,31 @@ public unsafe partial class VkContext
         VkSwapChainSupportDetails details = default;
 
         // Capabilities
-        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, vkSurfaceKHR, &details.surfaceCapabilities));
+        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &details.surfaceCapabilities));
 
         // Formats
         uint surfaceFormatCount;
-        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurfaceKHR, &surfaceFormatCount, null));
+        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &surfaceFormatCount, null));
 
         if (surfaceFormatCount != 0)
         {
             details.surfaceFormats = new VkSurfaceFormatKHR[surfaceFormatCount];
             fixed (VkSurfaceFormatKHR* surfaceformatsPtr = &details.surfaceFormats[0])
             {
-                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, vkSurfaceKHR, &surfaceFormatCount, surfaceformatsPtr));
+                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &surfaceFormatCount, surfaceformatsPtr));
             }
         }
 
         // Present Modes
         uint presentModeCount;
-        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurfaceKHR, &presentModeCount, null));
+        VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &presentModeCount, null));
 
         if (presentModeCount != 0)
         {
             details.presentModes = new VkPresentModeKHR[presentModeCount];
             fixed (VkPresentModeKHR* presentModesPtr = &details.presentModes[0])
             {
-                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, vkSurfaceKHR, &presentModeCount, presentModesPtr));
+                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &presentModeCount, presentModesPtr));
             }
         }
 
@@ -91,7 +91,7 @@ public unsafe partial class VkContext
     private void CreateSwapChain()
     {
         // Create SwapChain
-        VkSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkphysicalDevice);
+        VkSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkPhysicalDevice);
         VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.surfaceFormats);
         VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
         VkExtent2D extent = this.ChooseSwapExtent(swapChainSupport.surfaceCapabilities);
@@ -104,7 +104,7 @@ public unsafe partial class VkContext
 
         VkSwapchainCreateInfoKHR createInfo = new VkSwapchainCreateInfoKHR();
         createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = vkSurfaceKHR;
+        createInfo.surface = _vkSurface.SurfaceKHR;
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -112,7 +112,7 @@ public unsafe partial class VkContext
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VkImageUsageFlags.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = FindQueueFamilies(vkphysicalDevice);
+        QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
         uint* queueFamilyIndices = stackalloc uint[] { indices.graphicsFamily.Value, indices.presentFamily.Value };
 
         if (indices.graphicsFamily != indices.presentFamily)
@@ -136,15 +136,15 @@ public unsafe partial class VkContext
 
         fixed (VkSwapchainKHR* swapChainPtr = &vkSwapChain)
         {
-            VkHelper.CheckErrors(VulkanNative.vkCreateSwapchainKHR(VkDevice, &createInfo, null, swapChainPtr));
+            VkHelper.CheckErrors(VulkanNative.vkCreateSwapchainKHR(vkDevice, &createInfo, null, swapChainPtr));
         }
 
         // SwapChain Images
-        VulkanNative.vkGetSwapchainImagesKHR(VkDevice, vkSwapChain, &imageCount, null);
+        VulkanNative.vkGetSwapchainImagesKHR(vkDevice, vkSwapChain, &imageCount, null);
         vkSwapChainImages = new VkImage[imageCount];
         fixed (VkImage* swapChainImagesPtr = &vkSwapChainImages[0])
         {
-            VulkanNative.vkGetSwapchainImagesKHR(VkDevice, vkSwapChain, &imageCount, swapChainImagesPtr);
+            VulkanNative.vkGetSwapchainImagesKHR(vkDevice, vkSwapChain, &imageCount, swapChainImagesPtr);
         }
 
         vkSwapChainImageFormat = surfaceFormat.format;

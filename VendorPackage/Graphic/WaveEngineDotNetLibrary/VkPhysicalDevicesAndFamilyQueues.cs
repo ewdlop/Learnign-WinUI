@@ -5,8 +5,7 @@ namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
-    private VkPhysicalDevice vkphysicalDevice; //strange
-    
+    private VkPhysicalDevice vkPhysicalDevice; //strange
     private void PickPhysicalDevice()
     {
         uint deviceCount = 0;
@@ -24,12 +23,12 @@ public unsafe partial class VkContext
             var device = devices[i];
             if (IsPhysicalDeviceSuitable(device))
             {
-                vkphysicalDevice = device;
+                vkPhysicalDevice = device;
                 break;
             }
         }
 
-        if (vkphysicalDevice == default)
+        if (vkPhysicalDevice == default)
         {
             throw new Exception("failed to find a suitable GPU!");
         }
@@ -87,9 +86,8 @@ public unsafe partial class VkContext
             {
                 queueFamilyIndices.graphicsFamily = i;
             }
-
             VkBool32 presentSupport = false;
-            VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, vkSurfaceKHR, &presentSupport));
+            VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, _vkSurface.SurfaceKHR, &presentSupport));
 
             if (presentSupport)
             {

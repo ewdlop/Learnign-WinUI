@@ -7,8 +7,8 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>
     where TDataType : unmanaged
 {
     private bool disposedValue;
-    public uint BufferHandle { get; init; }
-    public BufferTargetARB BufferTargetARB { get; init; }
+    public uint BufferHandle { get; }
+    public BufferTargetARB BufferTargetARB { get; }
 
     public unsafe BufferObject(in GL gl, ReadOnlySpan<TDataType> span, in BufferTargetARB bufferTargetARB)
     {

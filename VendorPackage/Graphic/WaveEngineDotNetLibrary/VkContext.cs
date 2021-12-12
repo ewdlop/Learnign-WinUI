@@ -9,7 +9,6 @@ namespace WaveEngineDotNetLibrary;
 public unsafe partial class VkContext
 {
     private readonly IVkSurface _vkSurface;
-    private readonly VkSurfaceKHR vkSurfaceKHR;
     private readonly uint _width;
     private readonly uint _height;
     private VkInstance vkInstance;
@@ -19,8 +18,8 @@ public unsafe partial class VkContext
         _width = width;
         _height = height;
         _vkSurface = vkSurface;
-        vkSurfaceKHR = vkSurface.SurfaceKHR;
     }
+
     private ImmutableArray<string> VkValidationLayerNames { get; init; } = ImmutableArray.Create(new string[] 
     { 
         "VK_LAYER_KHRONOS_validation" 
@@ -90,12 +89,25 @@ public unsafe partial class VkContext
     public void Init()
     {
         CreateInstance();
-        _vkSurface.CreateSurface(vkInstance);
+
         #if DEBUG
-            SetupDebugMessenger();
+                SetupDebugMessenger();
         #endif
+
+        _vkSurface.CreateSurface(vkInstance);
+
         PickPhysicalDevice();
         CreateLogicalDevice();
+
+        CreateSwapChain();
+        CreateImageViews();
+        CreateRenderPass();
+
+        CreateGraphicsPipeline();
+        CreateFramebuffers();
+        CreateCommandPool();
+        CreateCommandBuffers();
+        CreateSemaphores();
     }
 
     private void GetAllInstanceExtensionsAvailables()
@@ -124,5 +136,44 @@ public unsafe partial class VkContext
         //Extension: VK_EXT_debug_utils version: 2
         //Extension: VK_EXT_swapchain_colorspace version: 4
         //Extension: VK_NV_external_memory_capabilities version: 1
+    }
+
+    public void CleanUp()
+    {
+        VulkanNative.vkDestroySemaphore(vkDevice, vkRenderFinishedSemaphore, null);
+        VulkanNative.vkDestroySemaphore(vkDevice, vkImageAvailableSemaphore, null);
+
+        VulkanNative.vkDestroyCommandPool(vkDevice, vkCommandPool, null);
+
+        foreach (var framebuffer in vkSwapChainFramebuffers)
+        {
+            VulkanNative.vkDestroyFramebuffer(vkDevice, framebuffer, null);
+        }
+
+        VulkanNative.vkDestroyPipeline(vkDevice, vkGraphicsPipeline, null);
+
+        VulkanNative.vkDestroyPipelineLayout(vkDevice, vkPipelineLayout, null);
+
+        VulkanNative.vkDestroyRenderPass(vkDevice, vkRenderPass, null);
+
+        foreach (var imageView in vkSwapChainImageViews)
+        {
+            VulkanNative.vkDestroyImageView(vkDevice, imageView, null);
+        }
+
+        VulkanNative.vkDestroySwapchainKHR(vkDevice, vkSwapChain, null);
+
+        VulkanNative.vkDestroyDevice(vkDevice, null);
+
+        DestroyDebugMessenger();
+
+        VulkanNative.vkDestroySurfaceKHR(vkInstance, _vkSurface.SurfaceKHR, null);
+
+        VulkanNative.vkDestroyInstance(vkInstance, null);
+    }
+
+    public void CheckDeviceWaitIdleError()
+    {
+        VkHelper.CheckErrors(VulkanNative.vkDeviceWaitIdle(vkDevice));
     }
 }

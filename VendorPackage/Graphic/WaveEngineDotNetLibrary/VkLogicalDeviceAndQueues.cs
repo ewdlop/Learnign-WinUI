@@ -6,9 +6,9 @@ namespace WaveEngineDotNetLibrary;
 
 public unsafe partial class VkContext
 {
-    private VkDevice VkDevice;
-    private VkQueue VkGraphicsQueue;
-    private VkQueue VkPresentQueue;
+    private VkDevice vkDevice;
+    private VkQueue vkGraphicsQueue;
+    private VkQueue vkPresentQueue;
 
     private ImmutableArray<string> VkDeviceExtensionNames { get; init; } = ImmutableArray.Create(new string[]
     {
@@ -19,7 +19,7 @@ public unsafe partial class VkContext
     {
         float queuePriority = 1.0f;
 
-        QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkphysicalDevice);
+        QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice);
         VkDeviceQueueCreateInfo[] queueCreateInfos = new VkDeviceQueueCreateInfo[]
         {
             new VkDeviceQueueCreateInfo()
@@ -61,19 +61,19 @@ public unsafe partial class VkContext
         createInfo.enabledExtensionCount = (uint)VkDeviceExtensionNames.Length;
         createInfo.ppEnabledExtensionNames = (byte**)deviceExtensionsArray;
 
-        fixed (VkDevice* devicePtr = &VkDevice)
+        fixed (VkDevice* devicePtr = &vkDevice)
         {
-            VkHelper.CheckErrors(VulkanNative.vkCreateDevice(vkphysicalDevice, &createInfo, null, devicePtr));
+            VkHelper.CheckErrors(VulkanNative.vkCreateDevice(vkPhysicalDevice, &createInfo, null, devicePtr));
         }
 
-        fixed (VkQueue* graphicsQueuePtr = &VkGraphicsQueue)
+        fixed (VkQueue* graphicsQueuePtr = &vkGraphicsQueue)
         {
-            VulkanNative.vkGetDeviceQueue(VkDevice, queueFamilyIndices.graphicsFamily.Value, 0, graphicsQueuePtr);
+            VulkanNative.vkGetDeviceQueue(vkDevice, queueFamilyIndices.graphicsFamily.Value, 0, graphicsQueuePtr);
         }
 
-        fixed (VkQueue* presentQueuePtr = &VkPresentQueue)
+        fixed (VkQueue* presentQueuePtr = &vkPresentQueue)
         {
-            VulkanNative.vkGetDeviceQueue(VkDevice, queueFamilyIndices.presentFamily.Value, 0, presentQueuePtr); // TODO queue index 0 ?¿?¿
+            VulkanNative.vkGetDeviceQueue(vkDevice, queueFamilyIndices.presentFamily.Value, 0, presentQueuePtr); // TODO queue index 0 ?¿?¿
         }
     }
 }

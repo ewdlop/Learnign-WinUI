@@ -1,19 +1,12 @@
-﻿using WaveEngineDotNetLibrary;
-using System.Diagnostics;
-using WaveEngineDotNetLibrary.Window;
+﻿using System.Diagnostics;
+using WaveEngineVulkanWindowApp;
 
-const uint WIDTH = 800;
-const uint HEIGHT = 600;
-
-Form window = new Form()
+App app = new App();
+try
 {
-    Text = "Vulkan Triangle Rasterization",
-    Size = new Size((int)WIDTH, (int)HEIGHT),
-    FormBorderStyle = FormBorderStyle.FixedToolWindow
-};
-window.Show();
-IntPtr hInstance = Process.GetCurrentProcess().Handle;
-
-IVkSurface vkWindowSurface = new VkWindowSurface(new VkWindowHandle(window.Handle, hInstance));
-VkContext vkContext = new VkContext(WIDTH, HEIGHT, vkWindowSurface);
-vkContext.Init();
+    app.Run();
+}
+catch (Exception ex)
+{
+    Debug.WriteLine(ex.StackTrace);
+}
