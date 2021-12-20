@@ -1,9 +1,54 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Textures\Raw\silk.png" Link="Textures\Raw\silk.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Textures\Raw\silkBoxed.png" Link="Textures\Raw\silkBoxed.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Textures\Raw\silkSpecular.png" Link="Textures\Raw\silkSpecular.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\ambient_lighting.frag" Link="Shaders\Raw\ambient_lighting.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\basic.vert" Link="Shaders\Raw\basic.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\color.frag" Link="Shaders\Raw\color.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\color.vert" Link="Shaders\Raw\color.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\diffuse_lighting.frag" Link="Shaders\Raw\diffuse_lighting.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\material.frag" Link="Shaders\Raw\material.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\specular_lighting.frag" Link="Shaders\Raw\specular_lighting.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\texture.frag" Link="Shaders\Raw\texture.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\texture.vert" Link="Shaders\Raw\texture.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\VendorPackage\Graphic\SilkDotNetLibrary\OpenGL\Shaders\Raw\white.frag" Link="Shaders\Raw\white.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
