@@ -4,7 +4,6 @@ using Serilog;
 using System;
 using CoreLibrary.Services;
 using Microsoft.Extensions.Configuration;
-using CoreLibrary.Options;
 
 namespace SilkDotNetWindowApp;
 
@@ -13,9 +12,15 @@ public static class Program
     public static int Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()
-           .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+           .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
            .Enrich.FromLogContext()
            .WriteTo.Console()
+           .WriteTo.Async(configuration => configuration.File("Logs/log.txt",
+                fileSizeLimitBytes: 1_000_000,
+                rollOnFileSizeLimit: true,
+                shared: true,
+                flushToDiskInterval: TimeSpan.FromSeconds(1),
+                rollingInterval: RollingInterval.Day))
            .CreateLogger();
 
         try
@@ -37,11 +42,12 @@ public static class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .UseSerilog()
+            //.UseSerilog((context, services, configuration) => configuration
+            //        .ReadFrom.Configuration(context.Configuration)
+            //        .ReadFrom.Services(services))
             .ConfigureServices((context, services) =>
             {
                 IConfiguration configuration = context.Configuration;
-                //WindowOptions windowOption = configuration.GetSection(nameof(WindowOptions)).Get<WindowOptions>();
                 Log.Information("Configuring Service Provider...");
                 services.UseVeryMiniEngine(options =>
                 {

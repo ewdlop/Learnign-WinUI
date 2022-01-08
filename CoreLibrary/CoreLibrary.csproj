@@ -17,4 +17,8 @@
     <ProjectReference Include="..\VendorPackage\Graphic\SilkDotNetLibrary\SilkDotNetLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Options\" />
+  </ItemGroup>
+
 </Project>

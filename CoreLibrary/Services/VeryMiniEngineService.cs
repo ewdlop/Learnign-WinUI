@@ -1,6 +1,6 @@
-﻿using CoreLibrary.Options;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SharedLibrary.Options;
 using Silk.NET.Maths;
 using SilkDotNetLibrary.OpenGL.Services;
 using System;

@@ -53,7 +53,6 @@ public class WindowEventHandler : IWindowEventHandler
         Window.FramebufferResize += OnFramebufferResize;
         return Task.Run(() =>
         {
-            Log.Information("Window Running thread ID: {0}", Environment.CurrentManagedThreadId);
             Window?.Run();
         }, cancellationToken);
     }
@@ -62,7 +61,6 @@ public class WindowEventHandler : IWindowEventHandler
         Log.Information("Window Closing...");
         return Task.Run(() =>
         {
-            Log.Information("Window Closing thread ID: {0}", Environment.CurrentManagedThreadId);
             Window?.Close();
         }, cancellationToken);
     }
@@ -122,7 +120,6 @@ public class WindowEventHandler : IWindowEventHandler
     public virtual void OnClosing()
     {
         //trigger by closing Window
-        Log.Information("Window Closing thread ID: {0}", Environment.CurrentManagedThreadId);
         //mabye a onclose for this?
         //Window.Close();
         //ImGuiController?.Dispose();
@@ -177,7 +174,6 @@ public class WindowEventHandler : IWindowEventHandler
 
     protected virtual void OnDispose()
     {
-        Log.Information("Window Dispose thread ID: {0}", Environment.CurrentManagedThreadId);
         Log.Information("ImGui Disposing...");
         ImGuiController?.Dispose();
         Log.Information("Input Disposing...");
