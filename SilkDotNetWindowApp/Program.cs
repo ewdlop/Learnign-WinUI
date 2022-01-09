@@ -32,7 +32,7 @@ builder.UseSerilog(/*(context, services, configuration) => configuration
         {
             IConfiguration configuration = context.Configuration;
             Log.Information("Configuring Service Provider...");
-            services.UseVeryMiniEngine(options =>
+            services.AddVeryMiniEngine(options =>
             {
                 options.Title = "LearnOpenGL with Silk.NET";
                 options.Width = 800;

@@ -10,7 +10,7 @@ namespace SilkDotNetLibrary.OpenGL.Services;
 
 public static class OpenGLWindowService
 {
-    public static IServiceCollection UseSilkDotNetOpenGLWindow(this IServiceCollection services,
+    public static IServiceCollection AddSilkDotNetOpenGLWindow(this IServiceCollection services,
                                                                  Action<WindowOptions> configure)
     {
         var windowOptions = WindowOptions.Default;

@@ -11,7 +11,7 @@ namespace CoreLibrary.Services;
 
 public static class VeryMiniEngineService
 {
-    public static IServiceCollection UseVeryMiniEngine(this IServiceCollection services, Action<WindowOptions> configure)
+    public static IServiceCollection AddVeryMiniEngine(this IServiceCollection services, Action<WindowOptions> configure)
     {
         AssemblyInformationalVersionAttribute assemblyInformation = ((AssemblyInformationalVersionAttribute[])typeof(object).Assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false))[0];
         string[] informationalVersionSplit = assemblyInformation.InformationalVersion.Split('+');
@@ -32,7 +32,7 @@ public static class VeryMiniEngineService
 
         WindowOptions windowOptions = new();
         configure(windowOptions);
-        return services.UseSilkDotNetOpenGLWindow(options =>
+        return services.AddSilkDotNetOpenGLWindow(options =>
         {
             options.Title = windowOptions.Title;
             options.Size = new Vector2D<int>(windowOptions.Width, windowOptions.Height);
