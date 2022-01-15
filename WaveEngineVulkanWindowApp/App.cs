@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using WaveEngineDotNetLibrary;
+using WaveEngineDotNetLibrary.Vulkan;
 using WaveEngineDotNetLibrary.Window;
 
 namespace WaveEngineVulkanWindowApp;

@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using WaveEngine.Bindings.Vulkan;
 
-namespace WaveEngineDotNetLibrary;
+namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
@@ -20,16 +20,17 @@ public unsafe partial class VkContext
         _vkSurface = vkSurface;
     }
 
-    private ImmutableArray<string> VkValidationLayerNames { get; init; } = ImmutableArray.Create(new string[] 
-    { 
-        "VK_LAYER_KHRONOS_validation" 
-    });
-    private ImmutableArray<string> VkExtensionNames { get; init; } = ImmutableArray.Create(new string[] 
+    private ImmutableArray<string> VkValidationLayerNames { get; init; } = new string[]
+    {
+        "VK_LAYER_KHRONOS_validation"
+    }.ToImmutableArray();
+
+    private ImmutableArray<string> VkExtensionNames { get; init; } = new string[]
     {
         "VK_KHR_surface",
         "VK_KHR_win32_surface",
         "VK_EXT_debug_utils",
-    });
+    }.ToImmutableArray();
 
     public void CreateInstance()
     {
@@ -37,7 +38,7 @@ public unsafe partial class VkContext
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             pApplicationName = "Hello Triangle".ToPointer(),
-            applicationVersion = Helper.Version(1,0,0),
+            applicationVersion = Helper.Version(1, 0, 0),
             pEngineName = "No Engine".ToPointer(),
             engineVersion = Helper.Version(1, 0, 0),
             apiVersion = Helper.Version(1, 2, 0)
@@ -59,7 +60,7 @@ public unsafe partial class VkContext
         createInfo.ppEnabledExtensionNames = (byte**)extensionsToBytesArray;
 
         // Validation layers
-        #if DEBUG
+#if DEBUG
         if (CheckValidationLayerSupport())
         {
             IntPtr* layersToBytesArray = stackalloc IntPtr[VkValidationLayerNames.Length];
@@ -76,10 +77,10 @@ public unsafe partial class VkContext
             createInfo.enabledLayerCount = 0;
             createInfo.pNext = null;
         }
-        #else
+#else
             createInfo.enabledLayerCount = 0;
             createInfo.pNext = null;
-        #endif
+#endif
         fixed (VkInstance* instancePtr = &vkInstance)
         {
             VkHelper.CheckErrors(VulkanNative.vkCreateInstance(&createInfo, null, instancePtr));
@@ -90,9 +91,9 @@ public unsafe partial class VkContext
     {
         CreateInstance();
 
-        #if DEBUG
-                SetupDebugMessenger();
-        #endif
+#if DEBUG
+        SetupDebugMessenger();
+#endif
 
         _vkSurface.CreateSurface(vkInstance);
 

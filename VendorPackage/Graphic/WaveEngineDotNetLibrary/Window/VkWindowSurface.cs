@@ -1,4 +1,5 @@
 ﻿using WaveEngine.Bindings.Vulkan;
+using WaveEngineDotNetLibrary.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Window;
 

@@ -1,27 +1,75 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<EnableDefaultCompileItems>False</EnableDefaultCompileItems>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.11.1.13" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.11.1.13" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Shaders\shader.frag">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Shaders\shader.vert">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
+	<ItemGroup>
+		<None Update="Shaders\shader.frag">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Shaders\shader.vert">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="Vulkan\IVkSurface.cs" />
+		<Compile Include="Vulkan\VkContext.cs" />
+		<Compile Include="Vulkan\VkContext.VkCommandBuffers.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkFrameBuffer.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkHelper.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkLogicalDeviceAndQueues.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkPhysicalDevicesAndFamilyQueues.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkQueueFamilyIndices.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkRenderingAndPresentation.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkRenderPass.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkShaderModule.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkSwapchain.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkSwapchain.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkSwapChainImageViews.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkSwapChainSupportDetails.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Vulkan\VkContext.VkValidationLayer.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
+		<Compile Include="Window\VkWindowHandle.cs" />
+		<Compile Include="Window\VkWindowSurface.cs" />
+	</ItemGroup>
 </Project>

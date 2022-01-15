@@ -1,4 +1,4 @@
-﻿namespace WaveEngineDotNetLibrary;
+﻿namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {

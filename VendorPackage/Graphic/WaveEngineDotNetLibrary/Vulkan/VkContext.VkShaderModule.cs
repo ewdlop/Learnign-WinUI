@@ -1,7 +1,7 @@
 ﻿using SharedLibrary.Helpers;
 using WaveEngine.Bindings.Vulkan;
 
-namespace WaveEngineDotNetLibrary;
+namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {

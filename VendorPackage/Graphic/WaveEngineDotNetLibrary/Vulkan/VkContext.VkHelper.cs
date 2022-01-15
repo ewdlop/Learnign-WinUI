@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using WaveEngine.Bindings.Vulkan;
 
-namespace WaveEngineDotNetLibrary;
+namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe static class VkHelper
 {
