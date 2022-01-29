@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\VendorPackage\ECS\Leopotam.EcsLite\Leopotam.EcsLite.csproj" />
     <ProjectReference Include="..\VendorPackage\Graphic\SilkDotNetLibrary\SilkDotNetLibrary.csproj" />
   </ItemGroup>
 

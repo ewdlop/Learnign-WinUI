@@ -1,25 +1,24 @@
 using Serilog;
+using Leopotam.EcsLite;
 
-namespace Leopotam.EcsLite;
+namespace ECS;
 
-public class EcsSystem : IDisposable
+public class EntitySystem : IDisposable
 {
     private bool _disposedValue;
-    private EcsWorld _ecsWorld;
-    private EcsSystems _ecsSystems;
+    private readonly EcsWorld _ecsWorld;
     private readonly ILogger _logger;
-    public EcsSystem(ILogger logger)
+    public EntitySystem(EcsWorld ecsWorld, ILogger logger)
     {
-        _ecsWorld = new();
-        _ecsSystems = new EcsSystems(_ecsWorld);
+        _ecsWorld = ecsWorld;
         _logger = logger;
-        _ecsSystems.Init();
-        _logger.Information("Creating EcsSystems...");
+        //_ecsSystems.Init();
+        _logger.Information("Creating EntitySystem...");
     }
 
     public void OnUpdate(double dt)
     {
-        _ecsSystems.Run();
+        //_ecsSystems.Run();
     }
 
     public EcsPackedEntityWithWorld CreateEntity()
@@ -28,6 +27,19 @@ public class EcsSystem : IDisposable
         return _ecsWorld.PackEntityWithWorld(entity);
     }
 
+    public bool TryRemoveEntity(EcsPackedEntityWithWorld entity)
+    {
+        try
+        {
+            _ecsWorld.DelEntity(entity.Id);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Information(ex.Message);
+            return false;
+        }
+    }
     public bool TryAddComponent<T>(EcsPackedEntityWithWorld entity, ref T component) where T : struct
     {
         try
@@ -75,10 +87,9 @@ public class EcsSystem : IDisposable
 
     private void OnDispose()
     {
-        _ecsSystems.Destroy();
-        _ecsSystems = null;
+        //_ecsSystems.Destroy();
         _ecsWorld.Destroy();
-        _ecsWorld = null;
+        //_ecsWorld = null;
     }
 
     protected virtual void Dispose(bool disposing)
@@ -94,14 +105,14 @@ public class EcsSystem : IDisposable
             // TODO: set large fields to null
             _disposedValue = true;
         }
-        _logger.Information("EcsSystem Already Disposed...");
+        _logger.Information("EntitySystem Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose
 
     public void Dispose()
     {
-        _logger.Information("EcsSystem Disposing...");
+        _logger.Information("EntitySystem Disposing...");
         Dispose(true);
         GC.SuppressFinalize(this);
     }

@@ -4,11 +4,10 @@ using SilkDotNetLibrary.OpenGL.Windows;
 using SilkDotNetLibrary.OpenGL.Apps;
 using System;
 using SharedLibrary.Cameras;
-using Silk.NET.OpenGL;
 
 namespace SilkDotNetLibrary.OpenGL.Services;
 
-public static class OpenGLWindowService
+public static class SilkDotNetOpenGLWindowServiceExtension
 {
     public static IServiceCollection AddSilkDotNetOpenGLWindow(this IServiceCollection services,
                                                                  Action<WindowOptions> configure)

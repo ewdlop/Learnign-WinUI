@@ -6,10 +6,11 @@ using SilkDotNetLibrary.OpenGL.Services;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using ECS;
 
 namespace CoreLibrary.Services;
 
-public static class VeryMiniEngineService
+public static class VeryMiniEngineServiceExtension
 {
     public static IServiceCollection AddVeryMiniEngine(this IServiceCollection services, Action<WindowOptions> configure)
     {
@@ -32,10 +33,12 @@ public static class VeryMiniEngineService
 
         WindowOptions windowOptions = new();
         configure(windowOptions);
-        return services.AddSilkDotNetOpenGLWindow(options =>
+        services.AddSilkDotNetOpenGLWindow(options =>
         {
             options.Title = windowOptions.Title;
             options.Size = new Vector2D<int>(windowOptions.Width, windowOptions.Height);
         });
+        services.AddEcs();
+        return services;
     }
 }

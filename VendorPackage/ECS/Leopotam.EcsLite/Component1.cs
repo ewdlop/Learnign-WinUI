@@ -1,4 +1,4 @@
-namespace Leopotam.EcsLite;
+namespace ECS;
 
 struct Component1
 {
