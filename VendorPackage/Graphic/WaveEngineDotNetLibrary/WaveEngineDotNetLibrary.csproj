@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.11.1.13" />
+		<PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.12.1.14" />
 	</ItemGroup>
 
 	<ItemGroup>

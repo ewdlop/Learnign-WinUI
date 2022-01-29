@@ -16,16 +16,11 @@ public static class OpenGLWindowService
         var windowOptions = WindowOptions.Default;
         configure(windowOptions);
 
-        return services.AddScoped((servicProvider) => Window.Create(windowOptions))
+        return services.AddScoped(_ => Window.Create(windowOptions))
             .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
             .AddScoped<ICamera, Camera>()
-            //.AddScoped((servicProvider) =>
-            //{
-            //    var window = servicProvider.GetService<IWindow>();
-            //    return window.CreateOpenGL();
-            //})
             .AddScoped<OpenGLContext>()
-            .AddScoped<WindowEventHandler>()
+            .AddScoped<IWindowEventHandler,WindowEventHandler>()
             .AddHostedService<App>();
     }
 }

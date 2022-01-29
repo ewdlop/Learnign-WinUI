@@ -18,7 +18,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private bool disposedValue;
     private readonly IWindow _window;
     private readonly ICamera _camera;
+    private readonly ILogger _logger;
     private readonly Transform[] Transforms = new Transform[4];
+
     private GL _gl;
     private BufferObject<float> _vbo;
     private BufferObject<uint> _ebo;
@@ -34,14 +36,15 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private DateTime StartTime { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow Window, ICamera camera)
+    public OpenGLContext(IWindow window, ICamera camera, ILogger logger)
     {
-        Log.Information("Creating OpenGLContext...");
-        _window = Window;
+        _window = window;
         _camera = camera;
+        _logger = logger;
+        _logger.Information("Creating OpenGLContext...");
     }
 
-    public unsafe GL OnLoad()
+    public GL OnLoad()
     {
         StartTime = DateTime.UtcNow;
         _gl = _window.CreateOpenGL();
@@ -88,7 +91,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         return _gl;
     }
 
-    public unsafe void OnRender(double dt)
+    public void OnRender(double dt)
     {
         //Log.Information($"{1.0f / dt}");
         _gl.Enable(EnableCap.DepthTest);
@@ -187,7 +190,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     public void OnDispose()
     {
-        Log.Information("OpnGLContext Diposing...");
+        _logger.Information("OpnGLContext Disposing...");
         _vbo.DisposeBy(_gl);
         _ebo.DisposeBy(_gl);
         VaoCube.DisposeBy(_gl);
@@ -210,7 +213,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
             // TODO: set large fields to null
             disposedValue = true;
         }
-        Log.Information("OpnGLContext Already Diposed...");
+        _logger.Information("OpnGLContext Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

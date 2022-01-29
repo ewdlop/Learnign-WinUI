@@ -1,5 +1,5 @@
-﻿using SilkDotNetLibrary.OpenGL.Windows;
-using Serilog;
+﻿using Serilog;
+using SilkDotNetLibrary.OpenGL.Windows;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,46 +8,48 @@ namespace SilkDotNetLibrary.OpenGL.Apps;
 
 public class App : IApp
 {
+    private readonly ILogger _logger;
     private readonly IWindowEventHandler _windowEventHandler;
-    protected bool disposedValue;
+    protected bool _disposedValue;
 
-    public App(WindowEventHandler windowEventHandler)
+    public App(IWindowEventHandler windowEventHandler, ILogger logger)
     {
-        Log.Information("Creating App...");
+        _logger = logger;
+        _logger.Information("Creating App...");
         _windowEventHandler = windowEventHandler;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        Log.Information("App Starting...");
-        Log.Information("App Starting thread ID: {0}", Environment.CurrentManagedThreadId);
+        _logger.Information("App Starting...");
+        _logger.Information("App Starting thread ID: {0}", Environment.CurrentManagedThreadId);
         await _windowEventHandler.Start(cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        Log.Information("Window App Stopping...");
-        Log.Information("Window App Stopping thread ID: {0}", Environment.CurrentManagedThreadId);
+        _logger.Information("Window App Stopping...");
+        _logger.Information("Window App Stopping thread ID: {0}", Environment.CurrentManagedThreadId);
         await _windowEventHandler.Stop(cancellationToken);
     }
-    protected virtual void OnDipose()
+    protected virtual void OnDispose()
     {
         _windowEventHandler.Dispose();
     }
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
-                OnDipose();
+                OnDispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
-        Log.Information("App Already Diposed...");
+        _logger.Information("App Already Diposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -60,7 +62,7 @@ public class App : IApp
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Log.Information("App Disposing...");
+        _logger.Information("App Disposing...");
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }

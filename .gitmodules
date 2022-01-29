@@ -1,3 +1,0 @@
-[submodule "VendorSubmodule/ECS/ecslite"]
-	path = VendorSubmodule/ECS/ecslite
-	url = https://github.com/Leopotam/ecslite.git

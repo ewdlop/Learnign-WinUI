@@ -9,38 +9,37 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = Host.CreateDefaultBuilder(args);
 
-string loggerOutputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {SourceContext} [{Level:u3}] {Message:lj} <{ThreadId}><{ThreadName}>{NewLine}{Exception}";
-
 Log.Logger = new LoggerConfiguration()
-   .MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
-   .Enrich.FromLogContext()
-   .Enrich.WithEnvironmentUserName()
-   .Enrich.WithThreadId()
-   .WriteTo.Console(theme: SystemConsoleTheme.Literate)
-   .WriteTo.Async(configuration => configuration.File("Logs/log.txt",
-        fileSizeLimitBytes: 1_000_000,
-        rollOnFileSizeLimit: true,
-        shared: true,
-        flushToDiskInterval: TimeSpan.FromSeconds(1),
-        rollingInterval: RollingInterval.Day))
-   .CreateLogger();
+    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+    .CreateBootstrapLogger();
 
-builder.UseSerilog(/*(context, services, configuration) => configuration
-                   .ReadFrom.Configuration(context.Configuration)
-                   .ReadFrom.Services(services)*/)
-        .ConfigureServices((context, services) =>
-        {
-            IConfiguration configuration = context.Configuration;
-            Log.Information("Configuring Service Provider...");
-            services.AddVeryMiniEngine(options =>
-            {
-                options.Title = "LearnOpenGL with Silk.NET";
-                options.Width = 800;
-                options.Height = 600;
-            });
-            services.AddApplicationInsightsTelemetryWorkerService();
-        });
-        //.UseConsoleLifetime();
+builder.UseSerilog((context, services, configuration) =>
+{
+        configuration.MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
+                    .Enrich.FromLogContext()
+                    .Enrich.WithEnvironmentUserName()
+                    .Enrich.WithThreadId()
+                    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+                    .WriteTo.Async(configure => configure.File("Logs/log.txt",
+                        fileSizeLimitBytes: 1_000_000,
+                        rollOnFileSizeLimit: true,
+                        shared: true,
+                        flushToDiskInterval: TimeSpan.FromSeconds(1),
+                        rollingInterval: RollingInterval.Day));
+})
+.ConfigureServices((context, services) =>
+{
+    IConfiguration configuration = context.Configuration;
+    Log.Information("Configuring Service Provider...");
+    services.AddVeryMiniEngine(options =>
+    {
+        options.Title = "LearnOpenGL with Silk.NET";
+        options.Width = 800;
+        options.Height = 600;
+    });
+    services.AddApplicationInsightsTelemetryWorkerService();
+});
+//.UseConsoleLifetime();
 
 IHost host = builder.Build();
 try

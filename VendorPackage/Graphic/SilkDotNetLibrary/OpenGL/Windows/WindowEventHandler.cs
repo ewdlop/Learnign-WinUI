@@ -7,7 +7,6 @@ using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,11 +15,12 @@ namespace SilkDotNetLibrary.OpenGL.Windows;
 
 public class WindowEventHandler : IWindowEventHandler
 {
-    protected bool disposedValue;
+    protected bool _disposedValue;
     private GL GL { get; set; }
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
     private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
+    private readonly ILogger _logger;
     private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext InputContext { get; set; }
     private ImGuiController ImGuiController { get; set; }
@@ -30,7 +30,8 @@ public class WindowEventHandler : IWindowEventHandler
     //private EventHandler<>
     public WindowEventHandler(IWindow window,
                               OpenGLContext openGLContext,
-                              IEventHandler eventHandler)
+                              IEventHandler eventHandler,
+                              ILogger logger)
     {
         Window = window;
         _openGLContext = openGLContext;
@@ -42,6 +43,7 @@ public class WindowEventHandler : IWindowEventHandler
             {Key.A, "A" },
             {Key.D, "D" }
         };
+        _logger = logger;
     }
 
     public virtual Task Start(CancellationToken cancellationToken)
@@ -50,7 +52,7 @@ public class WindowEventHandler : IWindowEventHandler
         Window.Update += OnUpdate;
         Window.Render += OnRender;
         Window.Closing += OnClosing;
-        Window.FramebufferResize += OnFramebufferResize;
+        Window.FramebufferResize += OnFrameBufferResize;
         return Task.Run(() =>
         {
             Window?.Run();
@@ -58,7 +60,7 @@ public class WindowEventHandler : IWindowEventHandler
     }
     public virtual Task Stop(CancellationToken cancellationToken)
     {
-        Log.Information("Window Closing...");
+        _logger.Information("Window Closing...");
         return Task.Run(() =>
         {
             Window?.Close();
@@ -68,20 +70,21 @@ public class WindowEventHandler : IWindowEventHandler
     public void OnLoad()
     {
         InputContext = Window.CreateInput();
-        PrimaryKeyboard = InputContext.Keyboards.FirstOrDefault();
-        if (PrimaryKeyboard != null)
+        foreach (IKeyboard inputContextKeyboard in InputContext.Keyboards)
         {
-            PrimaryKeyboard.KeyDown += OnKeyDown;
+            PrimaryKeyboard = inputContextKeyboard;
+            inputContextKeyboard.KeyDown += OnKeyDown;
+            break;
         }
-        for (int i = 0; i < InputContext.Mice.Count; i++)
+        foreach (IMouse mice in InputContext.Mice)
         {
             //InputContext.Mice[i].Cursor.CursorMode = CursorMode.Normal;
-            InputContext.Mice[i].MouseMove += OnMouseMove;
-            InputContext.Mice[i].Scroll += OnMouseWheel;
+            mice.MouseMove += OnMouseMove;
+            mice.Scroll += OnMouseWheel;
         }
         _openGLContext.OnLoad();
         //need to think of a better way to do this;
-        //and it didnt work
+        //and it didn't work
         GL = _openGLContext.OnLoad();
         ImGuiController = new ImGuiController(GL, Window, InputContext);
     }
@@ -90,7 +93,7 @@ public class WindowEventHandler : IWindowEventHandler
     {
         ImGuiController.Update((float)dt);
         _openGLContext.OnRender(dt);
-        //doesnt work rip
+        //doesn't work rip
         ImGuiNET.ImGui.ShowDemoWindow();
         // Make sure ImGui renders too!
         ImGuiController.Render();
@@ -101,18 +104,18 @@ public class WindowEventHandler : IWindowEventHandler
 
     }
 
-    public void OnFramebufferResize(Vector2D<int> resize)
+    public void OnFrameBufferResize(Vector2D<int> resize)
     {
         _openGLContext.OnWindowFrameBufferResize(in resize);
     }
 
     public void OnUpdate(double dt)
     {
-        foreach (var keyValue in _keyBoardKeyMap)
+        foreach ((Key key, string value) in _keyBoardKeyMap)
         {
-            if (PrimaryKeyboard.IsKeyPressed(keyValue.Key))
+            if (PrimaryKeyboard.IsKeyPressed(key))
             {
-                _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs() { KeyCode = keyValue.Value });
+                _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs { KeyCode = value });
             }
         }
         _openGLContext.OnUpdate(dt);
@@ -174,13 +177,13 @@ public class WindowEventHandler : IWindowEventHandler
 
     protected virtual void OnDispose()
     {
-        Log.Information("ImGui Disposing...");
+        _logger.Information("ImGui Disposing...");
         ImGuiController?.Dispose();
-        Log.Information("Input Disposing...");
+        _logger.Information("Input Disposing...");
         InputContext?.Dispose();
-        Log.Information("GL Disposing...");
+        _logger.Information("GL Disposing...");
         _openGLContext.Dispose();
-        Log.Information("Window Disposes...");
+        _logger.Information("Window Disposes...");
         //if (Window is not null)
         //{
         //    Window.Dispose();
@@ -191,12 +194,12 @@ public class WindowEventHandler : IWindowEventHandler
         //    Log.Information("Window could not be found...");
         //}
         Window.Dispose();
-        Log.Information("Window Disposed...");
+        _logger.Information("Window Disposed...");
     }
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -205,9 +208,9 @@ public class WindowEventHandler : IWindowEventHandler
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
-        Log.Information("WindowEventHandler Already Diposed...");
+        _logger.Information("WindowEventHandler Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -220,7 +223,7 @@ public class WindowEventHandler : IWindowEventHandler
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Log.Information("WindowEventHandler Disposing...");
+        _logger.Information("WindowEventHandler Disposing...");
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
