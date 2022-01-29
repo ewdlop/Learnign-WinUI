@@ -1,24 +1,24 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
+using SharedLibrary.Cameras;
+using SharedLibrary.Math;
+using SharedLibrary.Transforms;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
-using System;
 using SilkDotNetLibrary.OpenGL.Buffers;
-using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
-using System.Numerics;
-using SharedLibrary.Transforms;
-using SharedLibrary.Math;
 using SilkDotNetLibrary.OpenGL.Primitive;
-using SharedLibrary.Cameras;
-using Silk.NET.Maths;
+using System;
+using System.Numerics;
+using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 
 namespace SilkDotNetLibrary.OpenGL;
 
 public class OpenGLContext : IOpenGLContext, IDisposable
 {
-    private bool disposedValue;
+    private bool _disposedValue;
     private readonly IWindow _window;
     private readonly ICamera _camera;
-    private readonly ILogger _logger;
+    private readonly Microsoft.Extensions.Logging.ILogger _logger;
     private readonly Transform[] Transforms = new Transform[4];
 
     private GL _gl;
@@ -36,12 +36,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private DateTime StartTime { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow window, ICamera camera, ILogger logger)
+    public OpenGLContext(IWindow window, ICamera camera, ILogger<OpenGLContext> logger)
     {
         _window = window;
         _camera = camera;
         _logger = logger;
-        _logger.Information("Creating OpenGLContext...");
+        _logger.LogInformation("Creating OpenGLContext...");
     }
 
     public GL OnLoad()
@@ -190,7 +190,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     public void OnDispose()
     {
-        _logger.Information("OpnGLContext Disposing...");
+        _logger.LogInformation("OpnGLContext Disposing...");
         _vbo.DisposeBy(_gl);
         _ebo.DisposeBy(_gl);
         VaoCube.DisposeBy(_gl);
@@ -202,7 +202,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     public void Dispose(bool disposing)
     {
-        if (!disposedValue)
+        if (!_disposedValue)
         {
             if (disposing)
             {
@@ -211,9 +211,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
-        _logger.Information("OpnGLContext Already Disposed...");
+        _logger.LogInformation("OpnGLContext Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using SharedLibrary.Event.Handler;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -31,7 +31,7 @@ public class WindowEventHandler : IWindowEventHandler
     public WindowEventHandler(IWindow window,
                               OpenGLContext openGLContext,
                               IEventHandler eventHandler,
-                              ILogger logger)
+                              ILogger<WindowEventHandler> logger)
     {
         Window = window;
         _openGLContext = openGLContext;
@@ -60,7 +60,7 @@ public class WindowEventHandler : IWindowEventHandler
     }
     public virtual Task Stop(CancellationToken cancellationToken)
     {
-        _logger.Information("Window Closing...");
+        _logger.LogInformation("Window Closing...");
         return Task.Run(() =>
         {
             Window?.Close();
@@ -177,13 +177,13 @@ public class WindowEventHandler : IWindowEventHandler
 
     protected virtual void OnDispose()
     {
-        _logger.Information("ImGui Disposing...");
+        _logger.LogInformation("ImGui Disposing...");
         ImGuiController?.Dispose();
-        _logger.Information("Input Disposing...");
+        _logger.LogInformation("Input Disposing...");
         InputContext?.Dispose();
-        _logger.Information("GL Disposing...");
+        _logger.LogInformation("GL Disposing...");
         _openGLContext.Dispose();
-        _logger.Information("Window Disposes...");
+        _logger.LogInformation("Window Disposes...");
         //if (Window is not null)
         //{
         //    Window.Dispose();
@@ -194,7 +194,7 @@ public class WindowEventHandler : IWindowEventHandler
         //    Log.Information("Window could not be found...");
         //}
         Window.Dispose();
-        _logger.Information("Window Disposed...");
+        _logger.LogInformation("Window Disposed...");
     }
 
     protected virtual void Dispose(bool disposing)
@@ -210,7 +210,7 @@ public class WindowEventHandler : IWindowEventHandler
             // TODO: set large fields to null
             _disposedValue = true;
         }
-        _logger.Information("WindowEventHandler Already Disposed...");
+        _logger.LogInformation("WindowEventHandler Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -223,7 +223,7 @@ public class WindowEventHandler : IWindowEventHandler
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        _logger.Information("WindowEventHandler Disposing...");
+        _logger.LogInformation("WindowEventHandler Disposing...");
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }

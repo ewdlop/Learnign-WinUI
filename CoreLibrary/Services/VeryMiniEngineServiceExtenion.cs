@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ECS;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SharedLibrary.Options;
 using Silk.NET.Maths;
@@ -6,13 +7,12 @@ using SilkDotNetLibrary.OpenGL.Services;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using ECS;
 
 namespace CoreLibrary.Services;
 
 public static class VeryMiniEngineServiceExtension
 {
-    public static IServiceCollection AddVeryMiniEngine(this IServiceCollection services, Action<WindowOptions> configure)
+    public static IServiceCollection AddVeryMiniEngine(this IServiceCollection services, Action<WindowOptions> configure=null)
     {
         AssemblyInformationalVersionAttribute assemblyInformation = ((AssemblyInformationalVersionAttribute[])typeof(object).Assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false))[0];
         string[] informationalVersionSplit = assemblyInformation.InformationalVersion.Split('+');
@@ -31,8 +31,10 @@ public static class VeryMiniEngineServiceExtension
         Log.Information("**");
         Log.Information("");
 
+
         WindowOptions windowOptions = new();
-        configure(windowOptions);
+        configure?.Invoke(windowOptions);
+
         services.AddSilkDotNetOpenGLWindow(options =>
         {
             options.Title = windowOptions.Title;

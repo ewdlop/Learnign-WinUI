@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using SilkDotNetLibrary.OpenGL.Windows;
 using System;
 using System.Threading;
@@ -12,24 +12,24 @@ public class App : IApp
     private readonly IWindowEventHandler _windowEventHandler;
     protected bool _disposedValue;
 
-    public App(IWindowEventHandler windowEventHandler, ILogger logger)
+    public App(IWindowEventHandler windowEventHandler, ILogger<App> logger)
     {
         _logger = logger;
-        _logger.Information("Creating App...");
+        _logger.LogInformation("Creating App...");
         _windowEventHandler = windowEventHandler;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.Information("App Starting...");
-        _logger.Information("App Starting thread ID: {0}", Environment.CurrentManagedThreadId);
+        _logger.LogInformation("App Starting...");
+        _logger.LogInformation("App Starting thread ID: {threadId}", Environment.CurrentManagedThreadId);
         await _windowEventHandler.Start(cancellationToken);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.Information("Window App Stopping...");
-        _logger.Information("Window App Stopping thread ID: {0}", Environment.CurrentManagedThreadId);
+        _logger.LogInformation("Window App Stopping...");
+        _logger.LogInformation("Window App Stopping thread ID: {threadId}", Environment.CurrentManagedThreadId);
         await _windowEventHandler.Stop(cancellationToken);
     }
     protected virtual void OnDispose()
@@ -49,7 +49,7 @@ public class App : IApp
             // TODO: set large fields to null
             _disposedValue = true;
         }
-        _logger.Information("App Already Diposed...");
+        _logger.LogInformation("App Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -62,7 +62,7 @@ public class App : IApp
     public void Dispose()
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        _logger.Information("App Disposing...");
+        _logger.LogInformation("App Disposing...");
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }

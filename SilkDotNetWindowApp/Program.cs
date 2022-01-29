@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Hosting;
-using Serilog.Events;
-using Serilog;
-using System;
-using CoreLibrary.Services;
-using Microsoft.Extensions.Configuration;
-using Serilog.Sinks.SystemConsole.Themes;
+﻿using CoreLibrary.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
+using SharedLibrary.Extensions;
+using System;
 
 var builder = Host.CreateDefaultBuilder(args);
 
@@ -13,24 +12,10 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(theme: SystemConsoleTheme.Literate)
     .CreateBootstrapLogger();
 
-builder.UseSerilog((context, services, configuration) =>
+builder.ConfigureServices((context, services) =>
 {
-        configuration.MinimumLevel.Override("Microsoft", LogEventLevel.Debug)
-                    .Enrich.FromLogContext()
-                    .Enrich.WithEnvironmentUserName()
-                    .Enrich.WithThreadId()
-                    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
-                    .WriteTo.Async(configure => configure.File("Logs/log.txt",
-                        fileSizeLimitBytes: 1_000_000,
-                        rollOnFileSizeLimit: true,
-                        shared: true,
-                        flushToDiskInterval: TimeSpan.FromSeconds(1),
-                        rollingInterval: RollingInterval.Day));
-})
-.ConfigureServices((context, services) =>
-{
-    IConfiguration configuration = context.Configuration;
     Log.Information("Configuring Service Provider...");
+    services.AddSerilog();
     services.AddVeryMiniEngine(options =>
     {
         options.Title = "LearnOpenGL with Silk.NET";
