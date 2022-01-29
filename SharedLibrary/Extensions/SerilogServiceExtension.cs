@@ -4,6 +4,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace SharedLibrary.Extensions
 {
@@ -12,6 +13,7 @@ namespace SharedLibrary.Extensions
         public static IServiceCollection AddSerilog(this IServiceCollection services)
         {
             Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .Enrich.WithEnvironmentUserName()
@@ -23,13 +25,17 @@ namespace SharedLibrary.Extensions
                     shared: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1),
                     rollingInterval: RollingInterval.Day)).CreateLogger();
-            services.AddLogging(builder => builder.AddSerilog(Log.Logger));
+            services.AddLogging(builder => builder.AddSerilog(dispose:true));
             return services;
         }
         public static IServiceCollection AddSerilog(this IServiceCollection services, IConfiguration configuration)
         {
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
-            services.AddLogging(builder => builder.AddSerilog(Log.Logger));
+            services.AddLogging(builder =>
+            {
+                builder.ClearProviders();
+                builder.AddSerilog(dispose: true);
+            });
             return services;
         }
     }

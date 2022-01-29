@@ -18,7 +18,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private bool _disposedValue;
     private readonly IWindow _window;
     private readonly ICamera _camera;
-    private readonly Microsoft.Extensions.Logging.ILogger _logger;
+    private readonly ILogger _logger;
     private readonly Transform[] Transforms = new Transform[4];
 
     private GL _gl;

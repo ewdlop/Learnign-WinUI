@@ -16,8 +16,6 @@ public static class VeryMiniEngineServiceExtension
     {
         AssemblyInformationalVersionAttribute assemblyInformation = ((AssemblyInformationalVersionAttribute[])typeof(object).Assembly.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false))[0];
         string[] informationalVersionSplit = assemblyInformation.InformationalVersion.Split('+');
-
-        Log.Information("**.NET information**");
         Log.Information($"{nameof(Environment.Version)}: {Environment.Version}");
         Log.Information($"{nameof(RuntimeInformation.FrameworkDescription)}: {RuntimeInformation.FrameworkDescription}");
         Log.Information($"Libraries version: {informationalVersionSplit[0]}");

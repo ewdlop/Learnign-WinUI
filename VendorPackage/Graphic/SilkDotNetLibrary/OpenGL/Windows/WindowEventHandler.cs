@@ -36,7 +36,7 @@ public class WindowEventHandler : IWindowEventHandler
         Window = window;
         _openGLContext = openGLContext;
         _eventHandler = eventHandler;
-        _keyBoardKeyMap = new Dictionary<Key, string>()
+        _keyBoardKeyMap = new Dictionary<Key, string>
         {
             {Key.W, "W"},
             {Key.S, "S" },
