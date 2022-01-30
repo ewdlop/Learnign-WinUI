@@ -3,6 +3,7 @@ using BepuPhysics;
 using BepuUtilities;
 using BepuUtilities.Memory;
 using Serilog;
+using SharedLibrary.Cameras;
 
 namespace BepuPhysicsLibrary;
 
@@ -13,6 +14,7 @@ public abstract class PhysicsSystem : IDisposable
     private readonly BufferPool _bufferPool;
     private readonly IThreadDispatcher ThreadDispatcher;
     private readonly ILogger _logger;
+    private readonly Camera _camera;
     public Simulation Simulation { get; protected set; }
 
     protected PhysicsSystem(ILogger logger)
@@ -24,6 +26,11 @@ public abstract class PhysicsSystem : IDisposable
         //ThreadDispatcher = new ThreadDispatcher(targetThreadCount);
     }
 
+    public virtual void LoadGraphicalContent(ContentArchive content, RenderSurface surface)
+    {
+    }
+
+    public abstract void Initialize(ContentArchive content, Camera camera);
     public virtual void Update(float dt)
     {
         Simulation.Timestep(TIMESTEP_DURATION);
@@ -57,4 +64,13 @@ public abstract class PhysicsSystem : IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+}
+
+public class ContentArchive
+{
+
+}
+public class RenderSurface
+{
+
 }
