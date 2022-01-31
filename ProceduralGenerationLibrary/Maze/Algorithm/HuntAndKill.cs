@@ -1,6 +1,7 @@
 ﻿namespace ProceduralGenerationLibrary.Maze.Algorithm;
 
-public static class HuntAndKill {
+public static class HuntAndKill
+{
     public static void On(this Grid grid)
     {
         Cell? current = grid.GetRandomCell();
