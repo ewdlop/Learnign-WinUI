@@ -25,10 +25,8 @@ public static class Wilson
                 List<Cell?> random = new List<Cell?>();
                 foreach (Cell? neighborCell in cell?.Neighbors.Values?? Enumerable.Empty<Cell>())
                 {
-                    if (neighborCell is null)
-                    {
-                        random.Add(neighborCell);
-                    }
+                    if (neighborCell is null) continue;
+                    random.Add(neighborCell);
                 }
                 if (random.Count > 0)
                 {
@@ -43,16 +41,16 @@ public static class Wilson
                     {
                         path.Add(cell);
                     }
-                    for (int index = 0; index <= path.Count - 2; index++)
-                    {
-                        path[index]?.Link(path[index + 1] ?? throw new InvalidOperationException(), true);
-                        unvisited.Remove(cell);
-                    }
                 }
                 else
                 {
                     unvisited.Remove(cell);
                 }
+            }
+            for (int index = 0; path.Count >= 2 && index <= path.Count - 2; index++)
+            {
+                path[index]?.Link(path[index + 1] ?? throw new InvalidOperationException(), true);
+                unvisited.Remove(cell);
             }
         }
     }

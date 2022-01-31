@@ -14,10 +14,8 @@ public static class RecursiveBackTracker
 
             foreach (Cell? neighborCell in current?.Neighbors.Values?? Enumerable.Empty<Cell>())
             {
-                if (neighborCell is not null && neighborCell._links.Count == 0)
-                {
-                    neighbors.Add(neighborCell);
-                }
+                if (neighborCell is null || neighborCell._links.Count != 0) continue;
+                neighbors.Add(neighborCell);
             }
 
             if (neighbors.Count == 0)
