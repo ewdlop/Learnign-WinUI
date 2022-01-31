@@ -23,28 +23,35 @@ public static class Wilson
             while (unvisited.Contains(cell))
             {
                 List<Cell?> random = new List<Cell?>();
-                foreach (Cell? neighborCell in cell?.Neighbors.Values)
+                foreach (Cell? neighborCell in cell?.Neighbors.Values?? Enumerable.Empty<Cell>())
                 {
                     if (neighborCell is null)
                     {
                         random.Add(neighborCell);
                     }
                 }
-                int sample = new Random().Next(0, random.Count);
-                cell = random[sample];
-                if (path.Contains(cell))
+                if (random.Count > 0)
                 {
-                    var position = path.IndexOf(cell);
-                    path = path.GetRange(0, position + 1);
+                    int sample = new Random().Next(0, random.Count);
+                    cell = random[sample];
+                    if (path.Contains(cell))
+                    {
+                        var position = path.IndexOf(cell);
+                        path = path.GetRange(0, position + 1);
+                    }
+                    else
+                    {
+                        path.Add(cell);
+                    }
+                    for (int index = 0; index <= path.Count - 2; index++)
+                    {
+                        path[index]?.Link(path[index + 1] ?? throw new InvalidOperationException(), true);
+                        unvisited.Remove(cell);
+                    }
                 }
                 else
                 {
-                    path.Add(cell);
-                }
-                for (int index = 0; index <= path.Count - 2; index++)
-                {
-                    path[index]?.Link(path[index + 1] ?? throw new InvalidOperationException(), true);
-                    unvisited.Remove(path[index]);
+                    unvisited.Remove(cell);
                 }
             }
         }
