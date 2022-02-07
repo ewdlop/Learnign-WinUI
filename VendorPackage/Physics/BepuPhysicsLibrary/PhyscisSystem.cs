@@ -4,10 +4,11 @@ using BepuUtilities;
 using BepuUtilities.Memory;
 using Serilog;
 using SharedLibrary.Cameras;
+using SharedLibrary.Systems;
 
 namespace BepuPhysicsLibrary;
 
-public abstract class PhysicsSystem : IDisposable
+public abstract class PhysicsSystem : ISystem, IDisposable
 {
     public const float TIMESTEP_DURATION = 1 / 60f;
     private bool _disposedValue;
@@ -31,7 +32,7 @@ public abstract class PhysicsSystem : IDisposable
     }
 
     public abstract void Initialize(ContentArchive content, Camera camera);
-    public virtual void Update(float dt)
+    public virtual void OnUpdate(double dt)
     {
         Simulation.Timestep(TIMESTEP_DURATION);
     }
@@ -63,6 +64,21 @@ public abstract class PhysicsSystem : IDisposable
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    public void OnLoad()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnRender(double dt)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnStop()
+    {
+        throw new NotImplementedException();
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using ECS;
+﻿using Leopotam.EcsLite;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using SharedLibrary.Options;
@@ -7,6 +7,8 @@ using SilkDotNetLibrary.OpenGL.Services;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using SharedLibrary.Cameras;
+using SilkDotNetLibrary.OpenGL.Windows;
 
 namespace CoreLibrary.Services;
 
@@ -39,6 +41,7 @@ public static class VeryMiniEngineServiceExtension
             options.Size = new Vector2D<int>(windowOptions.Width, windowOptions.Height);
         });
         services.AddEcs();
+        services.AddScoped<IGame, Game>();
         return services;
     }
 }

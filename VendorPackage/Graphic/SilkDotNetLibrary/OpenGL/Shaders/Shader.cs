@@ -111,6 +111,16 @@ public class Shader : IShader
         gl.Uniform3(location, value.X, value.Y, value.Z);
     }
 
+    public void SetUniformBy(in GL gl, string name, Vector4 value)
+    {
+        int location = gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (location == -1)
+        {
+            throw new Exception($"{name} uniform not found on shader.");
+        }
+        gl.Uniform4(location, value.X, value.Y, value.Z, value.W);
+    }
+
     private static uint LoadShader(in GL gl,ShaderType type, string path)
     {
         string src = File.ReadAllText(path);

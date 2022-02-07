@@ -25,9 +25,10 @@ namespace SharedLibrary.Extensions
                     shared: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1),
                     rollingInterval: RollingInterval.Day)).CreateLogger();
-            services.AddLogging(builder => builder.AddSerilog(dispose:true));
+            services.AddLogging(builder => builder.AddSerilog(dispose: true));
             return services;
         }
+
         public static IServiceCollection AddSerilog(this IServiceCollection services, IConfiguration configuration)
         {
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();

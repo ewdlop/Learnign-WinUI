@@ -1,19 +1,20 @@
-using Serilog;
-using Leopotam.EcsLite;
+using Microsoft.Extensions.Logging;
+using SharedLibrary.Components;
 
-namespace ECS;
+namespace Leopotam.EcsLite;
 
 public class EntitySystem : IDisposable
 {
     private bool _disposedValue;
     private readonly EcsWorld _ecsWorld;
-    private readonly ILogger _logger;
-    public EntitySystem(EcsWorld ecsWorld, ILogger logger)
+    private readonly ILogger<EntitySystem> _logger;
+
+    public EntitySystem(EcsWorld ecsWorld, ILogger<EntitySystem> logger)
     {
         _ecsWorld = ecsWorld;
         _logger = logger;
         //_ecsSystems.Init();
-        _logger.Information("Creating EntitySystem...");
+        _logger.LogInformation("Creating EntitySystem...");
     }
 
     public void OnUpdate(double dt)
@@ -36,51 +37,7 @@ public class EntitySystem : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.Information(ex.Message);
-            return false;
-        }
-    }
-    public bool TryAddComponent<T>(EcsPackedEntityWithWorld entity, ref T component) where T : struct
-    {
-        try
-        {
-            EcsPool<T> pool = _ecsWorld.GetPool<T>();
-            component = pool.Add(entity.Id);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Information(ex.Message);
-            return false;
-        }
-    }
-
-    public bool TryGetComponent<T>(EcsPackedEntityWithWorld entity, ref T component) where T : struct
-    {
-        try
-        {
-            EcsPool<T> pool = _ecsWorld.GetPool<T>();
-            component = pool.Get(entity.Id);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Information(ex.Message);
-            return false;
-        }
-    }
-
-    public bool TryRemoveComponent<T>(EcsPackedEntityWithWorld entity) where T : struct
-    {
-        try
-        {
-            EcsPool<T> pool = _ecsWorld.GetPool<T>();
-            pool.Del(entity.Id);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Information(ex.Message);
+            _logger.LogInformation(ex.Message);
             return false;
         }
     }
@@ -105,14 +62,14 @@ public class EntitySystem : IDisposable
             // TODO: set large fields to null
             _disposedValue = true;
         }
-        _logger.Information("EntitySystem Already Disposed...");
+        _logger.LogInformation("EntitySystem Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose
 
     public void Dispose()
     {
-        _logger.Information("EntitySystem Disposing...");
+        _logger.LogInformation("EntitySystem Disposing...");
         Dispose(true);
         GC.SuppressFinalize(this);
     }

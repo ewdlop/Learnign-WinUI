@@ -28,8 +28,8 @@ namespace SharedLibrary.Cameras
             disposedValue = false;
             _cameraTransform = new CameraTransform();
             _eventHandler = eventHandler;
-            _eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
-            _eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;
+            //_eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
+            //_eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;
             _eventHandler.OnKeyBoardKeyDown += (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
         }
 
@@ -63,8 +63,6 @@ namespace SharedLibrary.Cameras
                     break;
                 case "D":
                     _cameraTransform.MoveRight(Speed * 0.01f);
-                    break;
-                default:
                     break;
             }
         }

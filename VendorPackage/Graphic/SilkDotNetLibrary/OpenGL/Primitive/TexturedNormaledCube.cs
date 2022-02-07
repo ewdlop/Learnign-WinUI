@@ -2,6 +2,7 @@
 
 internal static class TexturedNormaledCube
 {
+    internal const int VerticeSize = 8;
     internal static readonly float[] Vertices =
     {
         //X    Y      Z       Normals             U     V

@@ -20,7 +20,7 @@ public class WindowEventHandler : IWindowEventHandler
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
     private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
-    private readonly ILogger _logger;
+    private readonly ILogger<WindowEventHandler> _logger;
     private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext InputContext { get; set; }
     private ImGuiController ImGuiController { get; set; }
@@ -82,9 +82,6 @@ public class WindowEventHandler : IWindowEventHandler
             mice.MouseMove += OnMouseMove;
             mice.Scroll += OnMouseWheel;
         }
-        _openGLContext.OnLoad();
-        //need to think of a better way to do this;
-        //and it didn't work
         GL = _openGLContext.OnLoad();
         ImGuiController = new ImGuiController(GL, Window, InputContext);
     }
@@ -93,9 +90,7 @@ public class WindowEventHandler : IWindowEventHandler
     {
         ImGuiController.Update((float)dt);
         _openGLContext.OnRender(dt);
-        //doesn't work rip
         ImGuiNET.ImGui.ShowDemoWindow();
-        // Make sure ImGui renders too!
         ImGuiController.Render();
     }
 

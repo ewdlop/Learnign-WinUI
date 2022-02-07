@@ -1,7 +1,7 @@
-using Leopotam.EcsLite;
 using Microsoft.Extensions.DependencyInjection;
+using SharedLibrary.Components;
 
-namespace ECS;
+namespace Leopotam.EcsLite;
 
 public static class EcsServiceExtension
 {
@@ -9,6 +9,7 @@ public static class EcsServiceExtension
     {
         services.AddScoped<EcsSystems>();
         services.AddScoped<EntitySystem>();
+        services.AddScoped<ComponentSystem<TransformComponent>>();
         return services;
     }
 }

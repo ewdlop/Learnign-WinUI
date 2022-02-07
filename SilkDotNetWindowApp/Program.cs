@@ -15,7 +15,7 @@ Log.Logger = new LoggerConfiguration()
 builder.ConfigureServices((context, services) =>
 {
     Log.Information("Configuring Service Provider...");
-    services.AddSerilog();
+    services.AddShared();
     services.AddVeryMiniEngine(options =>
     {
         options.Title = "LearnOpenGL with Silk.NET";

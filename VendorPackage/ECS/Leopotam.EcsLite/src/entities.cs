@@ -16,7 +16,7 @@ namespace Leopotam.EcsLite {
         internal int Gen;
     }
 
-    public ref struct EcsPackedEntityWithWorld {
+    public struct EcsPackedEntityWithWorld {
         internal int Id;
         internal int Gen;
         internal EcsWorld World;

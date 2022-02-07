@@ -1,12 +1,12 @@
-﻿using Silk.NET.Maths;
+﻿using SharedLibrary.Systems;
+using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 
 namespace SilkDotNetLibrary.OpenGL;
 
-public interface IOpenGLContext : IReadOnlyOpenGLContext
+public interface IOpenGLContext : IReadOnlyOpenGLContext, ISystem
 {
-    unsafe GL OnLoad();
-    unsafe void OnRender(double dt);
+    GL OnLoad();
+    void OnRender(double dt);
     void OnWindowFrameBufferResize(in Vector2D<int> resize);
-    void OnUpdate(double dt);
 }

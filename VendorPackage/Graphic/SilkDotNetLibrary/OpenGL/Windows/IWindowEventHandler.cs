@@ -2,17 +2,15 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedLibrary.Systems;
 
 namespace SilkDotNetLibrary.OpenGL.Windows;
 
-public interface IWindowEventHandler : IKeyboardInputHandler, IMouseInputHandler,IDisposable
+public interface IWindowEventHandler : ISystem, IKeyboardInputHandler, IMouseInputHandler,IDisposable
 {
     Task Start(CancellationToken cancellationToken);
     Task Stop(CancellationToken cancellationToken);
-    //need to move this one interface further down
-    void OnLoad();
-    void OnUpdate(double dt);
     void OnRender(double dt);
     void OnClosing();
-    void OnStop();
+
 }

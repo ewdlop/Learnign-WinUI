@@ -3,9 +3,9 @@ using WaveEngine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
-public unsafe static class VkHelper
+public static class VkHelper
 {
-    [Conditional("DEBUG")]
+    //[Conditional("DEBUG")]
     public static void CheckErrors(VkResult result)
     {
         if (result != VkResult.VK_SUCCESS)

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SharedLibrary.Cameras;
 using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Apps;
 using SilkDotNetLibrary.OpenGL.Windows;
@@ -15,8 +14,6 @@ public static class SilkDotNetOpenGLWindowServiceExtension
         var windowOptions = WindowOptions.Default;
         configure(windowOptions);
         return services.AddScoped(_ => Window.Create(windowOptions))
-            .AddScoped<SharedLibrary.Event.Handler.IEventHandler, SharedLibrary.Event.Handler.EventHandler>()
-            .AddScoped<ICamera, Camera>()
             .AddScoped<OpenGLContext>()
             .AddScoped<IWindowEventHandler,WindowEventHandler>()
             .AddHostedService<App>();
