@@ -31,17 +31,17 @@
   </ItemGroup>
   <PropertyGroup>
     <WapProjPath Condition="'$(WapProjPath)'==''">$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\</WapProjPath>
-    <PathToXAMLWinRTImplementations>WinUI3App\</PathToXAMLWinRTImplementations>
+    <PathToXAMLWinRTImplementations>WinUi3WindowApp\</PathToXAMLWinRTImplementations>
   </PropertyGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.props" />
   <PropertyGroup>
-    <ProjectGuid>5bf87924-d37f-4461-bf49-42fd1866c8fc</ProjectGuid>
+    <ProjectGuid>c82ce5f6-2108-4a28-bad4-81b74c58b605</ProjectGuid>
     <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <AssetTargetFallback>net5.0-windows$(TargetPlatformVersion);$(AssetTargetFallback)</AssetTargetFallback>
+    <AssetTargetFallback>net6.0-windows$(TargetPlatformVersion);$(AssetTargetFallback)</AssetTargetFallback>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
-    <EntryPointProjectUniqueName>..\WinUI3App\WinUI3App.csproj</EntryPointProjectUniqueName>
+    <EntryPointProjectUniqueName>..\WinUi3WindowApp\WinUi3WindowApp.csproj</EntryPointProjectUniqueName>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -58,16 +58,16 @@
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WinUI3App\WinUI3App.csproj">
+    <ProjectReference Include="..\WinUi3WindowApp\WinUi3WindowApp.csproj">
       <SkipGetTargetFrameworkProperties>True</SkipGetTargetFrameworkProperties>
       <PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ProjectReunion" Version="0.8.6">
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="[1.0.0]">
       <IncludeAssets>build</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.ProjectReunion.WinUI" Version="0.8.6">
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="[10.0.22000.194]">
       <IncludeAssets>build</IncludeAssets>
     </PackageReference>
   </ItemGroup>

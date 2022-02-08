@@ -88,7 +88,6 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnRender(double dt)
     {
-        ImGuiController.Update((float)dt);
         _openGLContext.OnRender(dt);
         ImGuiNET.ImGui.ShowDemoWindow();
         ImGuiController.Render();
@@ -113,7 +112,9 @@ public class WindowEventHandler : IWindowEventHandler
                 _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs { KeyCode = value });
             }
         }
+        ImGuiController.Update((float)dt);
         _openGLContext.OnUpdate(dt);
+
     }
     public virtual void OnClosing()
     {
