@@ -8,7 +8,7 @@ public class EventHandler : IEventHandler
     public event EventHandler<MouseMoveEventArgs> OnMouseMove;
     public event EventHandler<MouseScrollWheelEventArgs> OnMouseScrollWheel;
     public event EventHandler<KeyBoardKeyDownEventArgs> OnKeyBoardKeyDown;
-
+    public event EventHandler<double> OnWindowUpdate;
     public void OnMouseMoveHandler(MouseMoveEventArgs e)
     {
         OnMouseMove?.Invoke(this, e);
@@ -21,5 +21,10 @@ public class EventHandler : IEventHandler
     public void OnKeyBoardKeyDownHandler(KeyBoardKeyDownEventArgs e)
     {
         OnKeyBoardKeyDown?.Invoke(this,e);
+    }
+
+    public void OnWindowUpdateUpdateHandler(double dt)
+    {
+        OnWindowUpdate?.Invoke(this,dt);
     }
 }

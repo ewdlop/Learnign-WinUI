@@ -112,6 +112,7 @@ public class WindowEventHandler : IWindowEventHandler
                 _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs { KeyCode = value });
             }
         }
+        _eventHandler.OnWindowUpdateUpdateHandler(dt);
         ImGuiController.Update((float)dt);
         _openGLContext.OnUpdate(dt);
 

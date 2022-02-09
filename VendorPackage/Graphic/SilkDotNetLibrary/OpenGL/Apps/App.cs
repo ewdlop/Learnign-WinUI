@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Apps;
 
+//possibly not using IHostService
 public class App : IApp
 {
     private readonly ILogger _logger;

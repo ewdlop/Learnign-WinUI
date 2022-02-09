@@ -35,13 +35,14 @@ public static class VeryMiniEngineServiceExtension
         WindowOptions windowOptions = new();
         configure?.Invoke(windowOptions);
 
+        services.AddEcs();
+        services.AddScoped<IGame, Game>();
         services.AddSilkDotNetOpenGLWindow(options =>
         {
             options.Title = windowOptions.Title;
             options.Size = new Vector2D<int>(windowOptions.Width, windowOptions.Height);
         });
-        services.AddEcs();
-        services.AddScoped<IGame, Game>();
+
         return services;
     }
 }

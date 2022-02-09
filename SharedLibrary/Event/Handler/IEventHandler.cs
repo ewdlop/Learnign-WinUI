@@ -1,6 +1,7 @@
 ﻿namespace SharedLibrary.Event.Handler
 {
-    public interface IEventHandler : IMouseEventHandler, IKeyBoardEventHandler
+    public interface IEventHandler : IMouseEventHandler, IKeyBoardEventHandler, IWindowEventHandler
+
     {
 
     }
