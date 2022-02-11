@@ -15,26 +15,26 @@ public static class GLTextureExtension
         gl.BindTexture(TextureTarget.Texture2D, texturehandle);
     }
 
-    public unsafe static uint GenTexture(this GL gl, in string imagePath)
-    {
-        uint texturehandle = gl.GenTexture();
-        //Loading an image using imagesharp.
-        Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
-        image.Mutate(x => x.Flip(FlipMode.Vertical));
-        uint imageWidth = (uint)image.Width;
-        uint imageHeight = (uint)image.Height;
-        //// OpenGL has image origin in the bottom-left corner.
-        fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
-        {
-            //Loading the actual image.
-            gl.LoadTexture(data, imageWidth, imageHeight, texturehandle);
-        }
+    //public unsafe static uint GenTexture(this GL gl, in string imagePath)
+    //{
+    //    uint texturehandle = gl.GenTexture();
+    //    //Loading an image using imagesharp.
+    //    Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
+    //    image.Mutate(x => x.Flip(FlipMode.Vertical));
+    //    uint imageWidth = (uint)image.Width;
+    //    uint imageHeight = (uint)image.Height;
+    //    //// OpenGL has image origin in the bottom-left corner.
+    //    fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
+    //    {
+    //        //Loading the actual image.
+    //        gl.LoadTexture(data, imageWidth, imageHeight, texturehandle);
+    //    }
 
-        //Deleting the img from imagesharp.
-        image.Dispose();
+    //    //Deleting the img from imagesharp.
+    //    image.Dispose();
 
-        return texturehandle;
-    }
+    //    return texturehandle;
+    //}
 
     private unsafe static uint GenTexture(this GL gl, Span<byte> data, in uint width, in uint height)
     {

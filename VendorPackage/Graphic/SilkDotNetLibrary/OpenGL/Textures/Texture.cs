@@ -11,7 +11,7 @@ public struct Texture
 {
     private bool disposedValue;
     public uint Texturehandle { get; }
-    public unsafe Texture(in GL gl, in string imagePath)
+    public unsafe Texture(GL gl, in string imagePath)
     {
         disposedValue = false;
         Texturehandle = gl.GenTexture();
@@ -20,12 +20,16 @@ public struct Texture
         image.Mutate(x => x.Flip(FlipMode.Vertical));
         uint imageWidth = (uint)image.Width;
         uint imageHeight = (uint)image.Height;
-        //// OpenGL has image origin in the bottom-left corner.
-        fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
+        //// OpenGL has image origin in the bottom-left corner
+        Texture tmpThis = this;
+        image.ProcessPixelRows(accessor =>
         {
-            //Loading the actual image.
-            Load(gl, data, imageWidth, imageHeight);
-        }
+            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+            {
+                //Loading the actual image.
+                tmpThis.Load(gl, data, imageWidth, imageHeight);
+            }
+        });
 
         //Deleting the img from imagesharp.
         image.Dispose();

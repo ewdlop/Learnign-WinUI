@@ -11,7 +11,7 @@ public class Shader : IShader
     public uint ShaderProgramHandle { get; }
     public string VertexPath { get; }
     public string FragmentPath { get; }
-    public Shader(in GL gl, in string vertexPath, in string fragmentPath)
+    public Shader(GL gl, in string vertexPath, in string fragmentPath)
     {
         disposedValue = false;
         ShaderProgramHandle = gl.CreateProgram();
