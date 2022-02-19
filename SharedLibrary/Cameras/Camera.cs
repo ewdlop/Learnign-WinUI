@@ -1,5 +1,4 @@
-﻿using SharedLibrary.Event.EventArgs;
-using SharedLibrary.Event.Handler;
+﻿using SharedLibrary.Event.Handler;
 using SharedLibrary.Event.Listener;
 using SharedLibrary.Math;
 using SharedLibrary.Transforms;
@@ -85,7 +84,7 @@ namespace SharedLibrary.Cameras
             _eventHandler.OnMouseMove -= (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel -= (this as IMouseEventListener).OnMouseWheel;
             _eventHandler.OnKeyBoardKeyDown -= (this as IKeyBoardEventListener).OnKeyBoardKeyDown;
-            //_cameraTransform.Dipose();
+            //_cameraTransform.Dispose();
         }
         private void Dispose(bool disposing)
         {

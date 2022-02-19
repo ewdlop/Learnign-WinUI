@@ -8,11 +8,11 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
    where TIndexType : unmanaged
 {
     public uint VertexArrayBufferObjectHandle { get; }
-    private bool disposedValue;
+    private bool _disposedValue;
 
-    public VertexArrayBufferObject(in GL gl, in BufferObject<TVertexType> vbo, in BufferObject<TIndexType> ebo)
+    public VertexArrayBufferObject(GL gl, BufferObject<TVertexType> vbo, BufferObject<TIndexType> ebo)
     {
-        disposedValue = false;
+        _disposedValue = false;
         //Setting out handle and binding the VBO and EBO to this VAO.
         VertexArrayBufferObjectHandle = gl.GenVertexArray();
         BindBy(gl);
@@ -20,7 +20,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
         ebo.BindBy(gl);
     }
 
-    public unsafe void VertexAttributePointer(in GL gl,
+    public unsafe void VertexAttributePointer(GL gl,
                                               uint index,
                                               int count,
                                               VertexAttribPointerType vertexAttribPointerType,
@@ -37,23 +37,21 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
         gl.EnableVertexAttribArray(index);
     }
 
-    public void BindBy(in GL gl) => gl.BindVertexArray(VertexArrayBufferObjectHandle);
+    public void BindBy(GL gl) => gl.BindVertexArray(VertexArrayBufferObjectHandle);
 
-    private void OnDispose(in GL gl) => gl.DeleteVertexArray(VertexArrayBufferObjectHandle);
+    private void OnDispose(GL gl) => gl.DeleteVertexArray(VertexArrayBufferObjectHandle);
 
-    private void Dispose(bool disposing, in GL gl)
+    private void Dispose(bool disposing, GL gl)
     {
-        if (!disposedValue)
+        if (_disposedValue) return;
+        if (disposing)
         {
-            if (disposing)
-            {
-                OnDispose(gl);
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            disposedValue = true;
+            OnDispose(gl);
         }
+
+        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        // TODO: set large fields to null
+        _disposedValue = true;
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -63,7 +61,7 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
     //     Dispose(disposing: false);
     // }
 
-    public void DisposeBy(in GL gl)
+    public void DisposeBy(GL gl)
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true, gl);

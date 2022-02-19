@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using SharedLibrary.Event.EventArgs;
 
 namespace SharedLibrary.Event.Listener;
 

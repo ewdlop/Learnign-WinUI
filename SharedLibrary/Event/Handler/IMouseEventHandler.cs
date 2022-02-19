@@ -1,5 +1,4 @@
-﻿using SharedLibrary.Event.EventArgs;
-using System;
+﻿using System;
 using System.Numerics;
 
 namespace SharedLibrary.Event.Handler;

@@ -21,10 +21,10 @@ public class WindowEventHandler : IWindowEventHandler
     private readonly IEventHandler _eventHandler;
     private readonly IReadOnlyDictionary<Key, char> _keyBoardKeyMap;
     private readonly ILogger<WindowEventHandler> _logger;
+    private readonly IWindow _window;
     private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext InputContext { get; set; }
     private ImGuiController ImGuiController { get; set; }
-    private IWindow Window { get; set; }
     private Vector2 LastMousePosition { get; set; }
 
     //private EventHandler<>
@@ -33,7 +33,7 @@ public class WindowEventHandler : IWindowEventHandler
                               IEventHandler eventHandler,
                               ILogger<WindowEventHandler> logger)
     {
-        Window = window;
+        _window = window;
         _openGLContext = openGLContext;
         _eventHandler = eventHandler;
         _keyBoardKeyMap = new Dictionary<Key, char>
@@ -48,14 +48,14 @@ public class WindowEventHandler : IWindowEventHandler
 
     public virtual Task Start(CancellationToken cancellationToken)
     {
-        Window.Load += OnLoad;
-        Window.Update += OnUpdate;
-        Window.Render += OnRender;
-        Window.Closing += OnClosing;
-        Window.FramebufferResize += OnFrameBufferResize;
+        _window.Load += OnLoad;
+        _window.Update += OnUpdate;
+        _window.Render += OnRender;
+        _window.Closing += OnClosing;
+        _window.FramebufferResize += OnFrameBufferResize;
         return Task.Run(() =>
         {
-            Window?.Run();
+            _window?.Run();
         }, cancellationToken);
     }
     public virtual Task Stop(CancellationToken cancellationToken)
@@ -63,13 +63,13 @@ public class WindowEventHandler : IWindowEventHandler
         _logger.LogInformation("Window Closing...");
         return Task.Run(() =>
         {
-            Window?.Close();
+            _window?.Close();
         }, cancellationToken);
     }
 
     public void OnLoad()
     {
-        InputContext = Window.CreateInput();
+        InputContext = _window.CreateInput();
         foreach (IKeyboard inputContextKeyboard in InputContext.Keyboards)
         {
             PrimaryKeyboard = inputContextKeyboard;
@@ -83,7 +83,7 @@ public class WindowEventHandler : IWindowEventHandler
             mice.Scroll += OnMouseWheel;
         }
         GL = _openGLContext.OnLoad();
-        ImGuiController = new ImGuiController(GL, Window, InputContext);
+        ImGuiController = new ImGuiController(GL, _window, InputContext);
     }
 
     public void OnRender(double dt)
@@ -182,7 +182,7 @@ public class WindowEventHandler : IWindowEventHandler
         //{
         //    Log.Information("Window could not be found...");
         //}
-        Window.Dispose();
+        _window.Dispose();
         _logger.LogInformation("Window Disposed...");
     }
 
