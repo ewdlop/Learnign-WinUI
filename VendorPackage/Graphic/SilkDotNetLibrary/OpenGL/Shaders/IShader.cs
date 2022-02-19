@@ -4,5 +4,5 @@ namespace SilkDotNetLibrary.OpenGL.Shaders;
 
 public interface IShader: IReadOnlyShader
 {
-    void UseBy(in GL gl);
+    void UseBy(GL gl);
 }

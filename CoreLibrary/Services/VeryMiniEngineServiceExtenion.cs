@@ -7,8 +7,6 @@ using SilkDotNetLibrary.OpenGL.Services;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using SharedLibrary.Cameras;
-using SilkDotNetLibrary.OpenGL.Windows;
 
 namespace CoreLibrary.Services;
 

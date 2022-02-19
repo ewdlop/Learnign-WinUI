@@ -7,20 +7,20 @@ namespace SilkDotNetLibrary.OpenGL.Shaders;
 
 public class Shader : IShader
 {
-    private bool disposedValue;
+    private bool _disposedValue;
     public uint ShaderProgramHandle { get; }
     private string VertexPath { get; }
     private string FragmentPath { get; }
     public Shader(GL gl, in string vertexPath, in string fragmentPath)
     {
-        disposedValue = false;
+        _disposedValue = false;
         ShaderProgramHandle = gl.CreateProgram();
         VertexPath = vertexPath;
         FragmentPath = fragmentPath;
         LoadBy(gl);
     }
 
-    public void LoadBy(in GL gl)
+    public void LoadBy(GL gl)
     {
         //Load the individual shaders.
         uint vertex = LoadShader(gl, ShaderType.VertexShader, VertexPath);
@@ -65,12 +65,12 @@ public class Shader : IShader
     //    _gl.DeleteShader(fragment);
     //}
 
-    public void UseBy(in GL gl)
+    public void UseBy(GL gl)
     {
         gl.UseProgram(ShaderProgramHandle);
     }
 
-    public void SetUniformBy(in GL gl, string name, int value)
+    public void SetUniformBy(GL gl, string name, int value)
     {
         int uniformLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
         if (uniformLocation == -1) //If GetUniformLocation returns -1 the uniform is not found.
@@ -80,28 +80,28 @@ public class Shader : IShader
         gl.Uniform1(uniformLocation, value);
     }
 
-    public unsafe void SetUniformBy(in GL gl, string name, Matrix4x4 value)
+    public unsafe void SetUniformBy(GL gl, string name, Matrix4x4 value)
     {
         //A new overload has been created for setting a uniform so we can use the transform in our shader.
-        int unifromLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
-        if (unifromLocation == -1)
+        int uniformLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (uniformLocation == -1)
         {
             throw new Exception($"{name} uniform not found on shader.");
         }
-        gl.UniformMatrix4(unifromLocation, 1, false, (float*)&value);
+        gl.UniformMatrix4(uniformLocation, 1, false, (float*)&value);
     }
 
-    public void SetUniformBy(in GL gl, string name, float value)
+    public void SetUniformBy(GL gl, string name, float value)
     {
-        int unifromLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
-        if (unifromLocation == -1)
+        int uniformLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (uniformLocation == -1)
         {
             throw new Exception($"{name} uniform not found on shader {ShaderProgramHandle}.");
         }
-        gl.Uniform1(unifromLocation, value);
+        gl.Uniform1(uniformLocation, value);
     }
 
-    public void SetUniformBy(in GL gl, string name, Vector3 value)
+    public void SetUniformBy(GL gl, string name, Vector3 value)
     {
         int location = gl.GetUniformLocation(ShaderProgramHandle, name);
         if (location == -1)
@@ -111,7 +111,7 @@ public class Shader : IShader
         gl.Uniform3(location, value.X, value.Y, value.Z);
     }
 
-    public void SetUniformBy(in GL gl, string name, Vector4 value)
+    public void SetUniformBy(GL gl, string name, Vector4 value)
     {
         int location = gl.GetUniformLocation(ShaderProgramHandle, name);
         if (location == -1)
@@ -121,7 +121,7 @@ public class Shader : IShader
         gl.Uniform4(location, value.X, value.Y, value.Z, value.W);
     }
 
-    private static uint LoadShader(in GL gl,ShaderType type, string path)
+    private static uint LoadShader(GL gl,ShaderType type, string path)
     {
         string src = File.ReadAllText(path);
         uint handle = gl.CreateShader(type);
@@ -150,11 +150,11 @@ public class Shader : IShader
 
     //    return handle;
     //}
-    private void OnDispose(in GL gl) => gl.DeleteProgram(ShaderProgramHandle);
+    private void OnDispose(GL gl) => gl.DeleteProgram(ShaderProgramHandle);
 
-    private void Dispose(bool disposing, in GL gl)
+    private void Dispose(bool disposing, GL gl)
     {
-        if (disposedValue) return;
+        if (_disposedValue) return;
         if (disposing)
         {
             OnDispose(gl);
@@ -162,7 +162,7 @@ public class Shader : IShader
 
         // TODO: free unmanaged resources (unmanaged objects) and override finalizer
         // TODO: set large fields to null
-        disposedValue = true;
+        _disposedValue = true;
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
@@ -172,7 +172,7 @@ public class Shader : IShader
     //     Dispose(disposing: false);
     // }
 
-    public void DisposeBy(in GL gl)
+    public void DisposeBy(GL gl)
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true, gl);
