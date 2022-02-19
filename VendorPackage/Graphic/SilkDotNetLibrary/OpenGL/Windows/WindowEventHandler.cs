@@ -19,7 +19,7 @@ public class WindowEventHandler : IWindowEventHandler
     private GL GL { get; set; }
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
-    private readonly IReadOnlyDictionary<Key, char> _keyBoardKeyMap;
+    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
     private readonly ILogger<WindowEventHandler> _logger;
     private readonly IWindow _window;
     private IKeyboard PrimaryKeyboard { get; set; }
@@ -36,12 +36,12 @@ public class WindowEventHandler : IWindowEventHandler
         _window = window;
         _openGLContext = openGLContext;
         _eventHandler = eventHandler;
-        _keyBoardKeyMap = new Dictionary<Key, char>
+        _keyBoardKeyMap = new Dictionary<Key, string>
         {
-            {Key.W, 'W' },
-            {Key.S, 'S' },
-            {Key.A, 'A' },
-            {Key.D, 'D' }
+            {Key.W, "W" },
+            {Key.S, "S" },
+            {Key.A, "A" },
+            {Key.D, "D" }
         };
         _logger = logger;
     }
@@ -105,7 +105,7 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnUpdate(double dt)
     {
-        foreach ((Key key, char value) in _keyBoardKeyMap)
+        foreach ((Key key, string value) in _keyBoardKeyMap)
         {
             if (PrimaryKeyboard.IsKeyPressed(key))
             {

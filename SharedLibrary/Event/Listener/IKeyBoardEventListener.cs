@@ -2,5 +2,5 @@
 
 public interface IKeyBoardEventListener
 {
-    void OnKeyBoardKeyDown(object sender, char keyCode);
+    void OnKeyBoardKeyDown(object sender, string keyCode);
 }

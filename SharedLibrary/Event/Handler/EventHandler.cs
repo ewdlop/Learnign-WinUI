@@ -7,7 +7,7 @@ public class EventHandler : IEventHandler
 {
     public event EventHandler<(Vector2 Position, Vector2 LastMousePosition)> OnMouseMove;
     public event EventHandler<(float x, float y)> OnMouseScrollWheel;
-    public event EventHandler<char> OnKeyBoardKeyDown;
+    public event EventHandler<string> OnKeyBoardKeyDown;
     public event EventHandler<double> OnWindowUpdate;
     public void OnMouseMoveHandler((Vector2 Position, Vector2 LastMousePosition) e)
     {
@@ -18,7 +18,7 @@ public class EventHandler : IEventHandler
         OnMouseScrollWheel?.Invoke(this, e);
     }
 
-    public void OnKeyBoardKeyDownHandler(char keyCode)
+    public void OnKeyBoardKeyDownHandler(string keyCode)
     {
         OnKeyBoardKeyDown?.Invoke(this, keyCode);
     }

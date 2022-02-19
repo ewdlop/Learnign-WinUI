@@ -47,20 +47,20 @@ namespace SharedLibrary.Cameras
             _cameraTransform.ZoomIn(-1.0f * e.y);
         }
 
-        void IKeyBoardEventListener.OnKeyBoardKeyDown(object sender, char keyCode)
+        void IKeyBoardEventListener.OnKeyBoardKeyDown(object sender, string keyCode)
         {
             switch (keyCode)
             {
-                case 'W':
+                case "W":
                     _cameraTransform.MoveForward(Speed * 0.01f);
                     break;
-                case 'S':
+                case "S":
                     _cameraTransform.MoveBackward(Speed * 0.01f);
                     break;
-                case 'A':
+                case "A":
                     _cameraTransform.MoveLeft(Speed * 0.01f);
                     break;
-                case 'D':
+                case "D":
                     _cameraTransform.MoveRight(Speed * 0.01f);
                     break;
             }
