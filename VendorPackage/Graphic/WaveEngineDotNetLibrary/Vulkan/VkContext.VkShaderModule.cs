@@ -10,7 +10,14 @@ public unsafe partial class VkContext
 
     private VkShaderModule CreateShaderModule(byte[] code)
     {
-        VkShaderModuleCreateInfo createInfo = new VkShaderModuleCreateInfo();
+        VkShaderModuleCreateInfo createInfo = new VkShaderModuleCreateInfo
+        {
+            sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            pNext = null,
+            flags = VkShaderModuleCreateFlags.None,
+            codeSize = default,
+            pCode = null
+        };
         createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = (UIntPtr)code.Length;
 

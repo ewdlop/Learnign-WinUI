@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using WaveEngine.Bindings.Vulkan;
+﻿using WaveEngine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
