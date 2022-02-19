@@ -10,7 +10,7 @@ public struct BufferObject<TDataType> : IBufferObject<TDataType>
     public uint BufferHandle { get; }
     public BufferTargetARB BufferTargetARB { get; }
 
-    public unsafe BufferObject(GL gl, ReadOnlySpan<TDataType> span, in BufferTargetARB bufferTargetARB)
+    public unsafe BufferObject(GL gl, ReadOnlySpan<TDataType> span, BufferTargetARB bufferTargetARB)
     {
         //Setting the gl instance and storing our buffer type.
         _disposedValue = false;

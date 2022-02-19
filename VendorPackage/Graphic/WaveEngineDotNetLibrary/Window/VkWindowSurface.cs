@@ -7,8 +7,8 @@ public unsafe class VkWindowSurface : IVkSurface
 {
     private readonly VkWindowHandle _vkWindowHandle;
 
-    private VkSurfaceKHR vkWindowSurface;
-    public VkSurfaceKHR SurfaceKHR => vkWindowSurface;
+    private VkSurfaceKHR _vkWindowSurface;
+    public VkSurfaceKHR SurfaceKHR => _vkWindowSurface;
 
     public VkWindowSurface(VkWindowHandle vkWindowHandle)
     {
@@ -24,7 +24,7 @@ public unsafe class VkWindowSurface : IVkSurface
             hinstance = _vkWindowHandle.hinstance
         };
 
-        fixed (VkSurfaceKHR* surfacePtr = &vkWindowSurface)
+        fixed (VkSurfaceKHR* surfacePtr = &_vkWindowSurface)
         {
             VkHelper.CheckErrors(VulkanNative.vkCreateWin32SurfaceKHR(vkInstance, &createInfo, null, surfacePtr));
         }

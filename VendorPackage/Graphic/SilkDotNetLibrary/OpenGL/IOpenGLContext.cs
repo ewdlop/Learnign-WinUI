@@ -8,5 +8,5 @@ public interface IOpenGLContext : IReadOnlyOpenGLContext, ISystem
 {
     GL OnLoad();
     void OnRender(double dt);
-    void OnWindowFrameBufferResize(in Vector2D<int> resize);
+    void OnWindowFrameBufferResize(Vector2D<int> resize);
 }

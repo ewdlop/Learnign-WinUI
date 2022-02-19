@@ -130,7 +130,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     }
 
-    public void OnWindowFrameBufferResize(in Vector2D<int> resize)
+    public void OnWindowFrameBufferResize(Vector2D<int> resize)
     {
         _gl.Viewport(resize);
     }
@@ -149,7 +149,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (!_disposedValue)
+        if(!_disposedValue)
         {
             if (disposing)
             {

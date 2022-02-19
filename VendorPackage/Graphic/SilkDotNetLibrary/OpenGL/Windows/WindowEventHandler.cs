@@ -100,7 +100,7 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnFrameBufferResize(Vector2D<int> resize)
     {
-        _openGLContext.OnWindowFrameBufferResize(in resize);
+        _openGLContext.OnWindowFrameBufferResize(resize);
     }
 
     public void OnUpdate(double dt)

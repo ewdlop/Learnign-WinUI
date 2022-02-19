@@ -34,7 +34,7 @@ public unsafe partial class VkContext
 
     public void CreateInstance()
     {
-        VkApplicationInfo vkApplicationInfo = new VkApplicationInfo()
+        VkApplicationInfo vkApplicationInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             pApplicationName = "Hello Triangle".ToPointer(),
@@ -118,7 +118,7 @@ public unsafe partial class VkContext
         VkExtensionProperties* extensions = stackalloc VkExtensionProperties[(int)extensionCount];
         VkHelper.CheckErrors(VulkanNative.vkEnumerateInstanceExtensionProperties(null, &extensionCount, extensions));
 
-        for (int i = 0; i < extensionCount; i++)
+        for (uint i = 0; i < extensionCount; i++)
         {
             Log.Information($"Extension: {Helper.GetString(extensions[i].extensionName)} version: {extensions[i].specVersion}");
         }
@@ -146,7 +146,7 @@ public unsafe partial class VkContext
 
         VulkanNative.vkDestroyCommandPool(vkDevice, vkCommandPool, null);
 
-        foreach (var framebuffer in vkSwapChainFramebuffers)
+        foreach (VkFramebuffer framebuffer in vkSwapChainFramebuffers)
         {
             VulkanNative.vkDestroyFramebuffer(vkDevice, framebuffer, null);
         }

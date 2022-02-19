@@ -11,7 +11,7 @@ public struct Texture
 {
     private bool disposedValue;
     public uint Texturehandle { get; }
-    public unsafe Texture(GL gl, in string imagePath)
+    public unsafe Texture(GL gl, string imagePath)
     {
         disposedValue = false;
         Texturehandle = gl.GenTexture();
@@ -35,7 +35,7 @@ public struct Texture
         image.Dispose();
     }
 
-    public unsafe Texture(in GL gl, Span<byte> data, in uint width, in uint height)
+    public unsafe Texture(in GL gl, Span<byte> data, uint width, uint height)
     {
         disposedValue = false;
         Texturehandle = gl.GenTexture();
@@ -45,7 +45,7 @@ public struct Texture
         }
     }
 
-    private unsafe void Load(in GL gl, void* data, in uint width, in uint height)
+    private unsafe void Load(GL gl, void* data, uint width, uint height)
     {
         BindBy(gl);
         gl.TexImage2D(GLEnum.Texture2D,
@@ -67,15 +67,15 @@ public struct Texture
         gl.GenerateMipmap(TextureTarget.Texture2D);
     }
 
-    public void BindBy(in GL gl, TextureUnit textureUnit = TextureUnit.Texture0)
+    public void BindBy(GL gl, TextureUnit textureUnit = TextureUnit.Texture0)
     {
         //When we bind a texture we can choose which textureslot we can bind it to.
         gl.ActiveTexture(textureUnit);
         gl.BindTexture(TextureTarget.Texture2D, Texturehandle);
     }
-    private void OnDispose(in GL gl) => gl.DeleteTexture(Texturehandle);
+    private void OnDispose(GL gl) => gl.DeleteTexture(Texturehandle);
 
-    private void Dispose(bool disposing, in GL gl)
+    private void Dispose(bool disposing, GL gl)
     {
         if (disposedValue) return;
         if (disposing)
