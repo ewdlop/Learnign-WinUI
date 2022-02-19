@@ -23,9 +23,9 @@ public unsafe partial class VkContext
         if (surfaceFormatCount != 0)
         {
             details.surfaceFormats = new VkSurfaceFormatKHR[surfaceFormatCount];
-            fixed (VkSurfaceFormatKHR* surfaceformatsPtr = &details.surfaceFormats[0])
+            fixed (VkSurfaceFormatKHR* surfaceFormatsPtr = &details.surfaceFormats[0])
             {
-                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &surfaceFormatCount, surfaceformatsPtr));
+                VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, _vkSurface.SurfaceKHR, &surfaceFormatCount, surfaceFormatsPtr));
             }
         }
 
@@ -102,7 +102,27 @@ public unsafe partial class VkContext
             imageCount = swapChainSupport.surfaceCapabilities.maxImageCount;
         }
 
-        VkSwapchainCreateInfoKHR createInfo = new VkSwapchainCreateInfoKHR();
+        VkSwapchainCreateInfoKHR createInfo = new()
+        {
+            sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            pNext = null,
+            flags = VkSwapchainCreateFlagsKHR.None,
+            surface = default,
+            minImageCount = 0,
+            imageFormat = VkFormat.VK_FORMAT_UNDEFINED,
+            imageColorSpace = VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+            imageExtent = default,
+            imageArrayLayers = 0,
+            imageUsage = VkImageUsageFlags.None,
+            imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE,
+            queueFamilyIndexCount = 0,
+            pQueueFamilyIndices = null,
+            preTransform = VkSurfaceTransformFlagsKHR.None,
+            compositeAlpha = VkCompositeAlphaFlagsKHR.None,
+            presentMode = VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR,
+            clipped = default,
+            oldSwapchain = default
+        };
         createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         createInfo.surface = _vkSurface.SurfaceKHR;
         createInfo.minImageCount = imageCount;

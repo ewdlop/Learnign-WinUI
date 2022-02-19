@@ -57,7 +57,7 @@ public unsafe partial class VkContext
         };
 
 
-        fixed (VkRenderPass* renderPassPtr = &this.vkRenderPass)
+        fixed (VkRenderPass* renderPassPtr = &vkRenderPass)
         {
             VkHelper.CheckErrors(VulkanNative.vkCreateRenderPass(vkDevice, &renderPassInfo, null, renderPassPtr));
         }

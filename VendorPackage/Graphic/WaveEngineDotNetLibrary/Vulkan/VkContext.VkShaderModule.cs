@@ -33,7 +33,7 @@ public unsafe partial class VkContext
         VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
 
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo = new VkPipelineShaderStageCreateInfo()
+        VkPipelineShaderStageCreateInfo vertShaderStageInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             stage = VkShaderStageFlags.VK_SHADER_STAGE_VERTEX_BIT,
@@ -41,7 +41,7 @@ public unsafe partial class VkContext
             pName = "main".ToPointer(),
         };
 
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo = new VkPipelineShaderStageCreateInfo()
+        VkPipelineShaderStageCreateInfo fragShaderStageInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             stage = VkShaderStageFlags.VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -56,7 +56,7 @@ public unsafe partial class VkContext
         };
 
         // Vertex Input
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo = new VkPipelineVertexInputStateCreateInfo()
+        VkPipelineVertexInputStateCreateInfo vertexInputInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
             vertexBindingDescriptionCount = 0,
@@ -66,7 +66,7 @@ public unsafe partial class VkContext
         };
 
         // Input assembly
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly = new VkPipelineInputAssemblyStateCreateInfo()
+        VkPipelineInputAssemblyStateCreateInfo inputAssembly = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
             topology = VkPrimitiveTopology.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -74,7 +74,7 @@ public unsafe partial class VkContext
         };
 
         // Viewports and scissors
-        VkViewport viewport = new VkViewport()
+        VkViewport viewport = new()
         {
             x = 0.0f,
             y = 0.0f,
@@ -84,13 +84,13 @@ public unsafe partial class VkContext
             maxDepth = 1.0f,
         };
 
-        VkRect2D scissor = new VkRect2D()
+        VkRect2D scissor = new()
         {
             offset = new VkOffset2D(0, 0),
             extent = vkSwapChainExtent,
         };
 
-        VkPipelineViewportStateCreateInfo viewportState = new VkPipelineViewportStateCreateInfo()
+        VkPipelineViewportStateCreateInfo viewportState = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
             viewportCount = 1,
@@ -100,7 +100,7 @@ public unsafe partial class VkContext
         };
 
         // Rasterizer
-        VkPipelineRasterizationStateCreateInfo rasterizer = new VkPipelineRasterizationStateCreateInfo()
+        VkPipelineRasterizationStateCreateInfo rasterizer = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
             depthClampEnable = false,
@@ -115,7 +115,7 @@ public unsafe partial class VkContext
             depthBiasSlopeFactor = 0.0f, // Optional
         };
 
-        VkPipelineMultisampleStateCreateInfo multisampling = new VkPipelineMultisampleStateCreateInfo()
+        VkPipelineMultisampleStateCreateInfo multisampling = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
             sampleShadingEnable = false,
@@ -130,7 +130,7 @@ public unsafe partial class VkContext
         //VkPipelineDepthStencilStateCreateInfo
 
         // Color blending
-        VkPipelineColorBlendAttachmentState colorBlendAttachment = new VkPipelineColorBlendAttachmentState()
+        VkPipelineColorBlendAttachmentState colorBlendAttachment = new()
         {
             colorWriteMask = VkColorComponentFlags.VK_COLOR_COMPONENT_R_BIT |
                              VkColorComponentFlags.VK_COLOR_COMPONENT_G_BIT |
@@ -145,7 +145,7 @@ public unsafe partial class VkContext
             alphaBlendOp = VkBlendOp.VK_BLEND_OP_ADD, // Optional
         };
 
-        VkPipelineColorBlendStateCreateInfo colorBlending = new VkPipelineColorBlendStateCreateInfo()
+        VkPipelineColorBlendStateCreateInfo colorBlending = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
             logicOpEnable = false,
@@ -158,7 +158,7 @@ public unsafe partial class VkContext
             blendConstants_3 = 0.0f, // Optional
         };
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo = new VkPipelineLayoutCreateInfo()
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             setLayoutCount = 0, // Optional
@@ -172,7 +172,7 @@ public unsafe partial class VkContext
             VkHelper.CheckErrors(VulkanNative.vkCreatePipelineLayout(vkDevice, &pipelineLayoutInfo, null, pipelineLayoutPtr));
         }
 
-        VkGraphicsPipelineCreateInfo pipelineInfo = new VkGraphicsPipelineCreateInfo()
+        VkGraphicsPipelineCreateInfo pipelineInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
             stageCount = 2,

@@ -49,7 +49,7 @@ namespace WaveEngineDotNetLibrary.Vulkan
 
             // Presentation
             VkSwapchainKHR* swapChains = stackalloc VkSwapchainKHR[] { vkSwapChain };
-            VkPresentInfoKHR presentInfo = new VkPresentInfoKHR()
+            VkPresentInfoKHR presentInfo = new()
             {
                 sType = VkStructureType.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
                 waitSemaphoreCount = 1,

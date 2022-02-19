@@ -12,7 +12,17 @@ namespace WaveEngineDotNetLibrary.Vulkan
 
             for (int i = 0; i < vkSwapChainImages.Length; i++)
             {
-                VkImageViewCreateInfo createInfo = new VkImageViewCreateInfo();
+                VkImageViewCreateInfo createInfo = new()
+                {
+                    sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
+                    pNext = null,
+                    flags = VkImageViewCreateFlags.None,
+                    image = default,
+                    viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_1D,
+                    format = VkFormat.VK_FORMAT_UNDEFINED,
+                    components = default,
+                    subresourceRange = default
+                };
                 createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
                 createInfo.image = vkSwapChainImages[i];
                 createInfo.viewType = VkImageViewType.VK_IMAGE_VIEW_TYPE_2D;

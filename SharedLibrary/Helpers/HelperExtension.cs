@@ -1,6 +1,6 @@
 ﻿namespace SharedLibrary.Helpers;
 
-public unsafe static class HelperExtension
+public static unsafe class HelperExtension
 {
     public static byte* ToPointer(this string text)
     {

@@ -10,26 +10,25 @@ public unsafe partial class VkContext
     private VkQueue vkGraphicsQueue;
     private VkQueue vkPresentQueue;
 
-    private ImmutableArray<string> VkDeviceExtensionNames { get; init; } = ImmutableArray.Create(new string[]
+    private ImmutableArray<string> VkDeviceExtensionNames { get; } = new[]
     {
         "VK_KHR_swapchain"
-    });
+    }.ToImmutableArray();
 
     private void CreateLogicalDevice()
     {
         float queuePriority = 1.0f;
 
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice);
-        VkDeviceQueueCreateInfo[] queueCreateInfos = new VkDeviceQueueCreateInfo[]
-        {
-            new VkDeviceQueueCreateInfo()
+        VkDeviceQueueCreateInfo[] queueCreateInfos = {
+            new()
             {
                 sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
                 queueFamilyIndex = queueFamilyIndices.graphicsFamily.Value,
                 queueCount = 1,
                 pQueuePriorities = &queuePriority,
             },
-            new VkDeviceQueueCreateInfo()
+            new()
             {
                 sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
                 queueFamilyIndex = queueFamilyIndices.presentFamily.Value,
