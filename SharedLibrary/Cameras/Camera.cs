@@ -30,10 +30,10 @@ namespace SharedLibrary.Cameras
             _eventHandler = eventHandler;
             //_eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
             //_eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;
-            _eventHandler.OnKeyBoardKeyDown += (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
+            _eventHandler.OnKeyBoardKeyDown += (this as IKeyBoardEventListener).OnKeyBoardKeyDown;
         }
 
-        void IMouseEventListener.OnMouseMove(object sender, MouseMoveEventArgs e)
+        void IMouseEventListener.OnMouseMove(object sender, (Vector2 Position, Vector2 LastMousePosition) e)
         {
             var xOffset = (e.Position.X - e.LastMousePosition.X) * _lookSensitivity;
             var yOffset = (e.Position.Y - e.LastMousePosition.Y) * _lookSensitivity;
@@ -43,25 +43,25 @@ namespace SharedLibrary.Cameras
             _cameraTransform.SetDirection();
         }
 
-        void IMouseEventListener.OnMouseWheel(object sender, MouseScrollWheelEventArgs e)
+        void IMouseEventListener.OnMouseWheel(object sender, (float x, float y) e)
         {
-            _cameraTransform.ZoomIn(-1.0f * e.Y);
+            _cameraTransform.ZoomIn(-1.0f * e.y);
         }
 
-        void IKeyBoardEventListner.OnKeyBoardKeyDown(object sender, KeyBoardKeyDownEventArgs e)
+        void IKeyBoardEventListener.OnKeyBoardKeyDown(object sender, char keyCode)
         {
-            switch (e.KeyCode)
+            switch (keyCode)
             {
-                case "W":
+                case 'W':
                     _cameraTransform.MoveForward(Speed * 0.01f);
                     break;
-                case "S":
+                case 'S':
                     _cameraTransform.MoveBackward(Speed * 0.01f);
                     break;
-                case "A":
+                case 'A':
                     _cameraTransform.MoveLeft(Speed * 0.01f);
                     break;
-                case "D":
+                case 'D':
                     _cameraTransform.MoveRight(Speed * 0.01f);
                     break;
             }
@@ -84,22 +84,20 @@ namespace SharedLibrary.Cameras
         {
             _eventHandler.OnMouseMove -= (this as IMouseEventListener).OnMouseMove;
             _eventHandler.OnMouseScrollWheel -= (this as IMouseEventListener).OnMouseWheel;
-            _eventHandler.OnKeyBoardKeyDown -= (this as IKeyBoardEventListner).OnKeyBoardKeyDown;
+            _eventHandler.OnKeyBoardKeyDown -= (this as IKeyBoardEventListener).OnKeyBoardKeyDown;
             //_cameraTransform.Dipose();
         }
         private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (disposedValue) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    OnDipose();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
+                OnDipose();
             }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            disposedValue = true;
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

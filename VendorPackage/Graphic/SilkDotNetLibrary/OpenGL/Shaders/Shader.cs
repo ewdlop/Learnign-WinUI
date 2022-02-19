@@ -9,8 +9,8 @@ public class Shader : IShader
 {
     private bool disposedValue;
     public uint ShaderProgramHandle { get; }
-    public string VertexPath { get; }
-    public string FragmentPath { get; }
+    private string VertexPath { get; }
+    private string FragmentPath { get; }
     public Shader(GL gl, in string vertexPath, in string fragmentPath)
     {
         disposedValue = false;
@@ -72,12 +72,12 @@ public class Shader : IShader
 
     public void SetUniformBy(in GL gl, string name, int value)
     {
-        int unifromLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
-        if (unifromLocation == -1) //If GetUniformLocation returns -1 the uniform is not found.
+        int uniformLocation = gl.GetUniformLocation(ShaderProgramHandle, name);
+        if (uniformLocation == -1) //If GetUniformLocation returns -1 the uniform is not found.
         {
             throw new Exception($"{name} uniform not found on shader {ShaderProgramHandle}.");
         }
-        gl.Uniform1(unifromLocation, value);
+        gl.Uniform1(uniformLocation, value);
     }
 
     public unsafe void SetUniformBy(in GL gl, string name, Matrix4x4 value)
@@ -154,17 +154,15 @@ public class Shader : IShader
 
     private void Dispose(bool disposing, in GL gl)
     {
-        if (!disposedValue)
+        if (disposedValue) return;
+        if (disposing)
         {
-            if (disposing)
-            {
-                OnDispose(gl);
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            disposedValue = true;
+            OnDispose(gl);
         }
+
+        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        // TODO: set large fields to null
+        disposedValue = true;
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

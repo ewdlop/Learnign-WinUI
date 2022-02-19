@@ -19,7 +19,7 @@ public class WindowEventHandler : IWindowEventHandler
     private GL GL { get; set; }
     private readonly OpenGLContext _openGLContext;
     private readonly IEventHandler _eventHandler;
-    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
+    private readonly IReadOnlyDictionary<Key, char> _keyBoardKeyMap;
     private readonly ILogger<WindowEventHandler> _logger;
     private IKeyboard PrimaryKeyboard { get; set; }
     private IInputContext InputContext { get; set; }
@@ -36,12 +36,12 @@ public class WindowEventHandler : IWindowEventHandler
         Window = window;
         _openGLContext = openGLContext;
         _eventHandler = eventHandler;
-        _keyBoardKeyMap = new Dictionary<Key, string>
+        _keyBoardKeyMap = new Dictionary<Key, char>
         {
-            {Key.W, "W"},
-            {Key.S, "S" },
-            {Key.A, "A" },
-            {Key.D, "D" }
+            {Key.W, 'W' },
+            {Key.S, 'S' },
+            {Key.A, 'A' },
+            {Key.D, 'D' }
         };
         _logger = logger;
     }
@@ -105,11 +105,11 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnUpdate(double dt)
     {
-        foreach ((Key key, string value) in _keyBoardKeyMap)
+        foreach ((Key key, char value) in _keyBoardKeyMap)
         {
             if (PrimaryKeyboard.IsKeyPressed(key))
             {
-                _eventHandler.OnKeyBoardKeyDownHandler(new SharedLibrary.Event.EventArgs.KeyBoardKeyDownEventArgs { KeyCode = value });
+                _eventHandler.OnKeyBoardKeyDownHandler(value);
             }
         }
         _eventHandler.OnWindowUpdateUpdateHandler(dt);
@@ -154,22 +154,14 @@ public class WindowEventHandler : IWindowEventHandler
         }
         else
         {
-            _eventHandler.OnMouseMoveHandler(new()
-            {
-                LastMousePosition = LastMousePosition,
-                Position = position
-            });
+            _eventHandler.OnMouseMoveHandler((LastMousePosition, position));
             LastMousePosition = position;
         }
     }
 
     public void OnMouseWheel(IMouse mouse, ScrollWheel scrollWheel)
     {
-        _eventHandler.OnMouseScrollWheelHandler(new()
-        {
-            X = scrollWheel.X,
-            Y = scrollWheel.Y
-        });
+        _eventHandler.OnMouseScrollWheelHandler((scrollWheel.X, scrollWheel.Y));
     }
 
     protected virtual void OnDispose()

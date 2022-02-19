@@ -20,8 +20,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private readonly IWindow _window;
     private readonly ICamera _camera;
     private readonly ILogger<OpenGLContext> _logger;
-    private readonly Transform[] Transforms = new Transform[4];
-
+    private readonly Transform[] _transforms = new Transform[4];
+    private readonly Vector3 _lampPosition = new(1.2f, 1.0f, 2.0f);
     private GL _gl;
     private BufferObject<float> _vbo;
     private BufferObject<uint> _ebo;
@@ -33,7 +33,6 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private Textures.Texture DiffuseMap { get; set; }
     private Textures.Texture SpecularMap { get; set; }
 
-    private Vector3 LampPosition = new(1.2f, 1.0f, 2.0f);
     private float Time { get; set; }
 
     //Setup the camera's location, and relative up and right directions
@@ -98,7 +97,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LightingShader.SetUniformBy(_gl, "light.ambient", ambientColor);
         LightingShader.SetUniformBy(_gl, "light.diffuse", diffuseColor); // darkened
         LightingShader.SetUniformBy(_gl, "light.specular", new Vector3(1.0f, 1.0f, 1.0f));
-        LightingShader.SetUniformBy(_gl, "light.position", LampPosition);
+        LightingShader.SetUniformBy(_gl, "light.position", _lampPosition);
 
         //We're drawing with just vertices and no indicies, and it takes 36 verticies to have a six-sided textured cube
         _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length/ TexturedNormaledCube.VerticeSize);
@@ -107,7 +106,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
         var lampMatrix = Matrix4x4.Identity
                          * Matrix4x4.CreateScale(0.2f)
-                         * Matrix4x4.CreateTranslation(LampPosition);
+                         * Matrix4x4.CreateTranslation(_lampPosition);
                          //* Matrix4x4.CreateTranslation(new Vector3(1.2f, 1.0f, 2.0f));
 
         LampShader.SetUniformBy(_gl, "uModel", lampMatrix);
@@ -137,7 +136,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.Viewport(resize);
     }
 
-    public void OnDispose()
+    private void OnDispose()
     {
         _logger.LogInformation("OpnGLContext Disposing...");
         _vbo.DisposeBy(_gl);
@@ -149,7 +148,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         SpecularMap.DisposeBy(_gl);
     }
 
-    public void Dispose(bool disposing)
+    private void Dispose(bool disposing)
     {
         if (!_disposedValue)
         {

@@ -5,6 +5,6 @@ namespace SharedLibrary.Event.Handler;
 
 public interface IKeyBoardEventHandler
 {
-    event EventHandler<KeyBoardKeyDownEventArgs> OnKeyBoardKeyDown;
-    void OnKeyBoardKeyDownHandler(KeyBoardKeyDownEventArgs e);
+    event EventHandler<char> OnKeyBoardKeyDown;
+    void OnKeyBoardKeyDownHandler(char keyCode);
 }

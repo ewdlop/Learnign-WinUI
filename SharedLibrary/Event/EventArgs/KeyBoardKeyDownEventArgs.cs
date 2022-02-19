@@ -1,6 +1,5 @@
 ﻿namespace SharedLibrary.Event.EventArgs;
-
-public class KeyBoardKeyDownEventArgs : System.EventArgs
+public record struct KeyBoardKeyDownEventArgs
 {
-    public string KeyCode { get; init; }
+    public char KeyCode { get; init; }
 }

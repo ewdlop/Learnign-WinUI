@@ -57,7 +57,7 @@ public struct Texture
                        PixelFormat.Rgba,
                        PixelType.UnsignedByte,
                        data);
-        //Setting some texture perameters so the texture behaves as expected.
+        //Setting some texture parameters so the texture behaves as expected.
         gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
         gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
         gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
@@ -77,17 +77,15 @@ public struct Texture
 
     private void Dispose(bool disposing, in GL gl)
     {
-        if (!disposedValue)
+        if (disposedValue) return;
+        if (disposing)
         {
-            if (disposing)
-            {
-                OnDispose(gl);
-            }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            disposedValue = true;
+            OnDispose(gl);
         }
+
+        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+        // TODO: set large fields to null
+        disposedValue = true;
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

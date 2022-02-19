@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace SharedLibrary.Cameras
 {
-    public interface ICamera : ICameraMoveable, IMouseEventListener, IKeyBoardEventListner
+    public interface ICamera : ICameraMoveable, IMouseEventListener, IKeyBoardEventListener
     {
         public Vector3 Position { get; }
         public Vector3 Front { get; }

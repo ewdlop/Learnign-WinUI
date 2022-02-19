@@ -1,9 +1,10 @@
-﻿using SharedLibrary.Event.EventArgs;
+﻿using System.Numerics;
+using SharedLibrary.Event.EventArgs;
 
 namespace SharedLibrary.Event.Listener;
 
 public interface IMouseEventListener
 {
-    void OnMouseMove(object sender, MouseMoveEventArgs e);
-    void OnMouseWheel(object sender, MouseScrollWheelEventArgs e);
+    void OnMouseMove(object sender, (Vector2 Position, Vector2 LastMousePosition) e);
+    void OnMouseWheel(object sender, (float x, float y) e);
 }
