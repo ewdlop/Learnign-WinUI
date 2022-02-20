@@ -86,7 +86,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         SpecularMap = new Textures.Texture(_gl, "Textures/silkSpecular.png");
 
         ScreenShader.UseBy(_gl);
-        ScreenShader.SetUniformBy(_gl, "screenTexture", 0);
+        ScreenShader.SetUniformBy(_gl, "screenTexture", 2);
 
         Fbo = new FrameBufferObject(_gl);
         Fbt = new FrameBufferTexture(_gl, (uint)_window.Size.X, (uint)_window.Size.Y);
@@ -140,7 +140,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
         CubeVao.BindBy(_gl);
         _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length / TexturedNormaledCube.VerticeSize);
-
+        
         LampShader.UseBy(_gl);
 
         var lampMatrix = Matrix4x4.Identity
@@ -166,12 +166,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     public void OnRender(double dt)
     {
         Time += (float) dt;
-        //Fbo.BindBy(_gl);
+        Fbo.BindBy(_gl);
         Reset();
         RenderScene(dt);
         // now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-        //_gl.BindFramebuffer(GLEnum.Framebuffer, 0);
-        //OnPostProcessing();
+        _gl.BindFramebuffer(GLEnum.Framebuffer, 0);
+        OnPostProcessing();
     }
 
     private void OnPostProcessing()
@@ -182,10 +182,10 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
         _gl.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         _gl.Clear((uint)GLEnum.ColorBufferBit);
-        _gl.BindTexture(GLEnum.Texture2D, 0);
+        Fbt.BindBy(_gl, TextureUnit.Texture2);
         ScreenShader.UseBy(_gl);
         QuadVao.BindBy(_gl);
-        Fbt.BindBy(_gl);
+ 
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
     }
 
@@ -217,9 +217,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void OnDispose()
     {
         _logger.LogInformation("OpnGLContext Disposing...");
+        QuadVbo.DisposeBy(_gl);
+        QuadVao.DisposeBy(_gl);
         CubeVbo.DisposeBy(_gl);
         CubeEbo.DisposeBy(_gl);
         CubeVao.DisposeBy(_gl);
+        ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);
         DiffuseMap.DisposeBy(_gl);

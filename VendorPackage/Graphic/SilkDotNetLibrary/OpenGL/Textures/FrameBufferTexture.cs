@@ -12,7 +12,12 @@ public unsafe readonly struct FrameBufferTexture
         Load(gl, width, height);
     }
 
-    public void BindBy(GL gl) => gl.BindTexture(GLEnum.Texture2D, FrameBufferTextureHandle);
+    public void BindBy(GL gl, TextureUnit textureUnit = TextureUnit.Texture0)
+    {
+        gl.ActiveTexture(textureUnit);
+        gl.BindTexture(GLEnum.Texture2D, FrameBufferTextureHandle);
+    }
+
 
     public void Load(GL gl,uint width,uint height)
     {
