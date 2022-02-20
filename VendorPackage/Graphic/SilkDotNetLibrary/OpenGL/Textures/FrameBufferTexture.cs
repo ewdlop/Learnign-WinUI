@@ -3,14 +3,11 @@ using Silk.NET.OpenGL;
 
 namespace SilkDotNetLibrary.OpenGL.Textures;
 
-public unsafe struct FrameBufferTexture
+public unsafe readonly struct FrameBufferTexture
 {
-    private bool _disposedValue;
     public uint FrameBufferTextureHandle { get; }
-
     public FrameBufferTexture(GL gl)
     {
-        _disposedValue = false;
         FrameBufferTextureHandle = gl.GenTexture();
         BindBy(gl);
     }
@@ -28,23 +25,8 @@ public unsafe struct FrameBufferTexture
     }
     private void OnDispose(GL gl) => gl.DeleteTexture(FrameBufferTextureHandle);
 
-    private void Dispose(bool disposing, GL gl)
-    {
-        if (_disposedValue) return;
-        if (disposing)
-        {
-            OnDispose(gl);
-        }
-
-        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-        // TODO: set large fields to null
-        _disposedValue = true;
-    }
-
     public void DisposeBy(GL gl)
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true, gl);
-        GC.SuppressFinalize(this);
+        OnDispose(gl);
     }
 }

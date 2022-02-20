@@ -37,7 +37,6 @@ public readonly struct BufferObject<TDataType> : IBufferObject<TDataType>
 
     public void DisposeBy(GL gl)
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         OnDispose(gl);
     }
 }

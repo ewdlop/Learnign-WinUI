@@ -40,7 +40,6 @@ public readonly struct VertexArrayBufferObject<TVertexType, TIndexType>
     private void OnDispose(GL gl) => gl.DeleteVertexArray(VertexArrayBufferObjectHandle);
     public void DisposeBy(GL gl)
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         OnDispose( gl);
     }
 }
