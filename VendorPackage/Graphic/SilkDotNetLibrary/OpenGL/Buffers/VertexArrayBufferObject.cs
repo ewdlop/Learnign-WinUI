@@ -18,6 +18,15 @@ public readonly struct VertexArrayBufferObject<TVertexType, TIndexType>
         ebo.BindBy(gl);
     }
 
+    public VertexArrayBufferObject(GL gl, BufferObject<TVertexType> vbo)
+    {
+        //Setting out handle and binding the VBO and EBO to this VAO.
+        VertexArrayBufferObjectHandle = gl.GenVertexArray();
+        BindBy(gl);
+        vbo.BindBy(gl);
+    }
+
+
     public unsafe void VertexAttributePointer(GL gl,
                                               uint index,
                                               int count,

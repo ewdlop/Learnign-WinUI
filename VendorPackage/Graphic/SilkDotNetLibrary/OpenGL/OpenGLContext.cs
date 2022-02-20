@@ -27,14 +27,16 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private readonly Transform[] _transforms = new Transform[4];
     private readonly Vector3 _lampPosition = new(1.2f, 1.0f, 2.0f);
     private GL _gl;
-    private BufferObject<float> _vbo;
-    private BufferObject<uint> _ebo;
+
     //private ImGuiController _ImGuiController;
     private FrameBufferObject Fbo { get; set; }
     private RenderBufferObject Rbo { get; set; }
-    private VertexArrayBufferObject<float, uint> VaoCube { get; set; }
+    private BufferObject<float> CubeVbo { get; set; }
+    private BufferObject<uint> CubeEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> CubeVao { get; set; }
+    private BufferObject<float> QuadVbo { get; set; }
+    private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
     private Shader LightingShader { get; set; }
-
     private Shader LampShader { get; set; }
     private Shader ScreenShader { get; set; }
 
@@ -58,17 +60,24 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl = _window.CreateOpenGL();
 
         //Telling the VAO object how to lay out the attribute pointers
-        _ebo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
-        _vbo = new BufferObject<float>(_gl, TexturedNormaledCube.Vertices, BufferTargetARB.ArrayBuffer);
-        VaoCube = new VertexArrayBufferObject<float, uint>(_gl, _vbo, _ebo);
-        VaoCube.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 0);
-        VaoCube.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 3);
-        VaoCube.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 6);
+        CubeEbo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
+        CubeVbo = new BufferObject<float>(_gl, TexturedNormaledCube.Vertices, BufferTargetARB.ArrayBuffer);
+        CubeVao = new VertexArrayBufferObject<float, uint>(_gl, CubeVbo, CubeEbo);
+        CubeVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 0);
+        CubeVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 3);
+        CubeVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 6);
 
+        ////for sceen
+        QuadVbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
+        QuadVao = new VertexArrayBufferObject<float, uint>(_gl, QuadVbo);
+        QuadVao.VertexAttributePointer(_gl, 0, 2, VertexAttribPointerType.Float, Quad.VerticeSize, 0);
+        QuadVao.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, Quad.VerticeSize, 2);
+        
         //The Lamp shader uses a fragment shader that just colors it solid white so that we know it is the light source
         ScreenShader = new Shader(_gl);
         LightingShader = new Shader(_gl);
         LampShader = new Shader(_gl); ;
+        
         ScreenShader.LoadBy(_gl, "Shaders/screen.vert", "Shaders/screen.frag");
         LightingShader.LoadBy(_gl, "Shaders/basic.vert", "Shaders/material.frag");
         LampShader.LoadBy(_gl, "Shaders/basic.vert", "Shaders/white.frag");
@@ -129,7 +138,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LightingShader.SetUniformBy(_gl, "light.position", _lampPosition);
 
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
-        VaoCube.BindBy(_gl);
+        CubeVao.BindBy(_gl);
         _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length / TexturedNormaledCube.VerticeSize);
 
         LampShader.UseBy(_gl);
@@ -160,21 +169,22 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //Fbo.BindBy(_gl);
         Reset();
         RenderScene(dt);
+        // now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+        //_gl.BindFramebuffer(GLEnum.Framebuffer, 0);
         //OnPostProcessing();
     }
 
     private void OnPostProcessing()
     {
-        // now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
-        _gl.BindFramebuffer(GLEnum.Framebuffer, 0);
         // disable depth test so screen-space quad isn't discarded due to depth test.
         _gl.Disable(EnableCap.DepthTest);
         // clear all relevant buffers
         // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
         _gl.ClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         _gl.Clear((uint)GLEnum.ColorBufferBit);
+        _gl.BindTexture(GLEnum.Texture2D, 0);
         ScreenShader.UseBy(_gl);
-        //screen quoad use
+        QuadVao.BindBy(_gl);
         Fbt.BindBy(_gl);
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 6);
     }
@@ -207,9 +217,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void OnDispose()
     {
         _logger.LogInformation("OpnGLContext Disposing...");
-        _vbo.DisposeBy(_gl);
-        _ebo.DisposeBy(_gl);
-        VaoCube.DisposeBy(_gl);
+        CubeVbo.DisposeBy(_gl);
+        CubeEbo.DisposeBy(_gl);
+        CubeVao.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);
         DiffuseMap.DisposeBy(_gl);
