@@ -3,7 +3,7 @@ using Silk.NET.OpenGL;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public struct RenderBufferObject
+public readonly struct RenderBufferObject
 {
     public uint VertexArrayBufferObjectHandle { get; }
 

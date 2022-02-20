@@ -5,13 +5,11 @@ using System.Numerics;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public struct Shader : IShader
+public readonly struct Shader : IShader
 {
-    private bool _disposedValue;
     public uint ShaderProgramHandle { get; }
     public Shader(GL gl, string vertexPath, string fragmentPath)
     {
-        _disposedValue = false;
         ShaderProgramHandle = gl.CreateProgram();
         LoadBy(gl, vertexPath, fragmentPath);
     }
@@ -147,31 +145,8 @@ public struct Shader : IShader
     //    return handle;
     //}
     private void OnDispose(GL gl) => gl.DeleteProgram(ShaderProgramHandle);
-
-    private void Dispose(bool disposing, GL gl)
-    {
-        if (_disposedValue) return;
-        if (disposing)
-        {
-            OnDispose(gl);
-        }
-
-        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-        // TODO: set large fields to null
-        _disposedValue = true;
-    }
-
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Shader()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
     public void DisposeBy(GL gl)
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true, gl);
-        GC.SuppressFinalize(this);
+        OnDispose(gl);
     }
 }

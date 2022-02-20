@@ -9,10 +9,10 @@ namespace SilkDotNetLibrary.OpenGL.Extension;
 
 public static class GLTextureExtension
 {
-    public static void BindTexture(this GL gl, uint texturehandle, TextureUnit textureUnit = TextureUnit.Texture0)
+    public static void BindTexture(this GL gl, uint textureHandle, TextureUnit textureUnit = TextureUnit.Texture0)
     {
         gl.ActiveTexture(textureUnit);
-        gl.BindTexture(TextureTarget.Texture2D, texturehandle);
+        gl.BindTexture(TextureTarget.Texture2D, textureHandle);
     }
 
     //public unsafe static uint GenTexture(this GL gl, in string imagePath)
@@ -27,7 +27,7 @@ public static class GLTextureExtension
     //    fixed (void* data = &MemoryMarshal.GetReference(image.GetPixelRowSpan(0)))
     //    {
     //        //Loading the actual image.
-    //        gl.LoadTexture(data, imageWidth, imageHeight, texturehandle);
+    //        gl.LoadTexture(data, imageWidth, imageHeight, textureHandle);
     //    }
 
     //    //Deleting the img from imagesharp.
@@ -36,17 +36,17 @@ public static class GLTextureExtension
     //    return texturehandle;
     //}
 
-    private unsafe static uint GenTexture(this GL gl, Span<byte> data, in uint width, in uint height)
+    private static unsafe uint GenTexture(this GL gl, Span<byte> data, in uint width, in uint height)
     {
-        uint texturehandle = gl.GenTexture();
+        uint textureHandle = gl.GenTexture();
         fixed (void* d = &data[0])
         {
-            gl.LoadTexture(d, width, height, texturehandle);
+            gl.LoadTexture(d, width, height, textureHandle);
         }
-        return texturehandle;
+        return textureHandle;
     }
 
-    private unsafe static void LoadTexture(this GL gl, void* data, in uint width, in uint height, in uint texturehandle)
+    private static unsafe void LoadTexture(this GL gl, void* data, in uint width, in uint height, in uint texturehandle)
     {
         gl.BindTexture(texturehandle);
         gl.TexImage2D(GLEnum.Texture2D,

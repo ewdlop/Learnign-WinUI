@@ -3,7 +3,7 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public struct BufferObject<TDataType> : IBufferObject<TDataType>
+public readonly struct BufferObject<TDataType> : IBufferObject<TDataType>
     where TDataType : unmanaged
 {
     public uint BufferHandle { get; }

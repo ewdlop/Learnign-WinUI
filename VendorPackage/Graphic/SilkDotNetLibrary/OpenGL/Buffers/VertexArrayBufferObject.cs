@@ -3,7 +3,7 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public struct VertexArrayBufferObject<TVertexType, TIndexType>
+public readonly struct VertexArrayBufferObject<TVertexType, TIndexType>
    where TVertexType : unmanaged
    where TIndexType : unmanaged
 {

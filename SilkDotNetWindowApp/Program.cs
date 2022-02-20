@@ -22,7 +22,7 @@ builder.ConfigureServices((context, services) =>
         options.Width = 800;
         options.Height = 600;
     });
-    services.AddApplicationInsightsTelemetryWorkerService();
+    //services.AddApplicationInsightsTelemetryWorkerService();
 });
 //.UseConsoleLifetime();
 
