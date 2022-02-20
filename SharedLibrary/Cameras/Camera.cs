@@ -10,7 +10,7 @@ namespace SharedLibrary.Cameras
     public class Camera : ICamera, IDisposable
     {
         private float _lookSensitivity = 0.1f;
-        private bool disposedValue;
+        private bool _disposedValue;
         private readonly ICameraTransform _cameraTransform;
         private readonly IEventHandler _eventHandler;
         public Vector3 Position => _cameraTransform.CameraPosition;
@@ -24,7 +24,7 @@ namespace SharedLibrary.Cameras
         public float AspectRatio { get; private set; } = 8f / 6;
         public Camera(IEventHandler eventHandler)
         {
-            disposedValue = false;
+            _disposedValue = false;
             _cameraTransform = new CameraTransform();
             _eventHandler = eventHandler;
             //_eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
@@ -88,7 +88,7 @@ namespace SharedLibrary.Cameras
         }
         private void Dispose(bool disposing)
         {
-            if (disposedValue) return;
+            if (_disposedValue) return;
             if (disposing)
             {
                 OnDipose();
@@ -96,7 +96,7 @@ namespace SharedLibrary.Cameras
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
             // TODO: set large fields to null
-            disposedValue = true;
+            _disposedValue = true;
         }
 
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources

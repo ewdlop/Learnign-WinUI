@@ -2,16 +2,16 @@
 using System;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
 public readonly struct Shader : IShader
 {
     public uint ShaderProgramHandle { get; }
-    public Shader(GL gl, string vertexPath, string fragmentPath)
+    public Shader(GL gl)
     {
         ShaderProgramHandle = gl.CreateProgram();
-        LoadBy(gl, vertexPath, fragmentPath);
     }
 
     public void LoadBy(GL gl,string vertexPath, string fragmentPath)
@@ -37,27 +37,27 @@ public readonly struct Shader : IShader
         gl.DeleteShader(fragment);
     }
 
-    //public async Task LoadAsync(string vertexPath, string fragmentPath)
-    //{
-    //    //Load the individual shaders.
-    //    uint vertex = await LoadShaderAsync(ShaderType.VertexShader, vertexPath);
-    //    uint fragment = await LoadShaderAsync(ShaderType.FragmentShader, fragmentPath);
-    //    //Attach the individual shaders.
-    //    _gl.AttachShader(ShaderProgramHandle, vertex);
-    //    _gl.AttachShader(ShaderProgramHandle, fragment);
-    //    _gl.LinkProgram(ShaderProgramHandle);
-    //    //Check for linking errors.
-    //    _gl.GetProgram(ShaderProgramHandle, GLEnum.LinkStatus, out var linkStatus);
-    //    if (linkStatus == 0)
-    //    {
-    //        throw new Exception($"Program failed to link with error: {_gl.GetProgramInfoLog(ShaderProgramHandle)}");
-    //    }
-    //    //Detach and delete the shaders
-    //    _gl.DetachShader(ShaderProgramHandle, vertex);
-    //    _gl.DetachShader(ShaderProgramHandle, fragment);
-    //    _gl.DeleteShader(vertex);
-    //    _gl.DeleteShader(fragment);
-    //}
+    public async Task LoadAsync(GL gl,string vertexPath, string fragmentPath)
+    {
+        //Load the individual shaders.
+        uint vertex = await LoadShaderAsync(gl,ShaderType.VertexShader, vertexPath);
+        uint fragment = await LoadShaderAsync(gl,ShaderType.FragmentShader, fragmentPath);
+        //Attach the individual shaders.
+        gl.AttachShader(ShaderProgramHandle, vertex);
+        gl.AttachShader(ShaderProgramHandle, fragment);
+        gl.LinkProgram(ShaderProgramHandle);
+        //Check for linking errors.
+        gl.GetProgram(ShaderProgramHandle, GLEnum.LinkStatus, out var linkStatus);
+        if (linkStatus == 0)
+        {
+            throw new Exception($"Program failed to link with error: {gl.GetProgramInfoLog(ShaderProgramHandle)}");
+        }
+        //Detach and delete the shaders
+        gl.DetachShader(ShaderProgramHandle, vertex);
+        gl.DetachShader(ShaderProgramHandle, fragment);
+        gl.DeleteShader(vertex);
+        gl.DeleteShader(fragment);
+    }
 
     public void UseBy(GL gl)
     {
@@ -130,20 +130,20 @@ public readonly struct Shader : IShader
         return handle;
     }
 
-    //private async Task<uint> LoadShaderAsync(ShaderType type, string path)
-    //{
-    //    string src = await File.ReadAllTextAsync(path);
-    //    uint handle = _gl.CreateShader(type);
-    //    _gl.ShaderSource(handle, src);
-    //    _gl.CompileShader(handle);
-    //    string infoLog = _gl.GetShaderInfoLog(handle);
-    //    if (!string.IsNullOrWhiteSpace(infoLog))
-    //    {
-    //        throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
-    //    }
+    private async Task<uint> LoadShaderAsync(GL gl, ShaderType type, string path)
+    {
+        string src = await File.ReadAllTextAsync(path);
+        uint handle = gl.CreateShader(type);
+        gl.ShaderSource(handle, src);
+        gl.CompileShader(handle);
+        string infoLog = gl.GetShaderInfoLog(handle);
+        if (!string.IsNullOrWhiteSpace(infoLog))
+        {
+            throw new Exception($"Error compiling shader of type {type}, failed with error {infoLog}");
+        }
 
-    //    return handle;
-    //}
+        return handle;
+    }
     private void OnDispose(GL gl) => gl.DeleteProgram(ShaderProgramHandle);
     public void DisposeBy(GL gl)
     {
