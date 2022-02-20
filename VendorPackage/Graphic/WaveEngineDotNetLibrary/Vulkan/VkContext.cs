@@ -94,7 +94,6 @@ public unsafe partial class VkContext
 #if DEBUG
         SetupDebugMessenger();
 #endif
-
         _vkSurface.CreateSurface(vkInstance);
 
         PickPhysicalDevice();
