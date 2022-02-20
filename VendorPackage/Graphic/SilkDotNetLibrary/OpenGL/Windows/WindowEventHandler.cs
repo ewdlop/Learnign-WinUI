@@ -83,14 +83,14 @@ public class WindowEventHandler : IWindowEventHandler
             mice.Scroll += OnMouseWheel;
         }
         GL = _openGLContext.OnLoad();
-        ImGuiController = new ImGuiController(GL, _window, InputContext);
+        //ImGuiController = new ImGuiController(GL, _window, InputContext);
     }
 
     public void OnRender(double dt)
     {
         _openGLContext.OnRender(dt);
-        ImGuiNET.ImGui.ShowDemoWindow();
-        ImGuiController.Render();
+        //ImGuiNET.ImGui.ShowDemoWindow();
+        //ImGuiController.Render();
     }
 
     public void OnStop()
@@ -113,7 +113,7 @@ public class WindowEventHandler : IWindowEventHandler
             }
         }
         _eventHandler.OnWindowUpdateUpdateHandler(dt);
-        ImGuiController.Update((float)dt);
+        //ImGuiController.Update((float)dt);
         _openGLContext.OnUpdate(dt);
 
     }

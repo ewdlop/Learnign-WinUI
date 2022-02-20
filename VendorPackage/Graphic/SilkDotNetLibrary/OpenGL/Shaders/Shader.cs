@@ -5,26 +5,22 @@ using System.Numerics;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public class Shader : IShader
+public struct Shader : IShader
 {
     private bool _disposedValue;
     public uint ShaderProgramHandle { get; }
-    private string VertexPath { get; }
-    private string FragmentPath { get; }
-    public Shader(GL gl, in string vertexPath, in string fragmentPath)
+    public Shader(GL gl, string vertexPath, string fragmentPath)
     {
         _disposedValue = false;
         ShaderProgramHandle = gl.CreateProgram();
-        VertexPath = vertexPath;
-        FragmentPath = fragmentPath;
-        LoadBy(gl);
+        LoadBy(gl, vertexPath, fragmentPath);
     }
 
-    public void LoadBy(GL gl)
+    public void LoadBy(GL gl,string vertexPath, string fragmentPath)
     {
         //Load the individual shaders.
-        uint vertex = LoadShader(gl, ShaderType.VertexShader, VertexPath);
-        uint fragment = LoadShader(gl, ShaderType.FragmentShader, FragmentPath);
+        uint vertex = LoadShader(gl, ShaderType.VertexShader, vertexPath);
+        uint fragment = LoadShader(gl, ShaderType.FragmentShader, fragmentPath);
         //Create the shader program.
         //Attach the individual shaders.
         gl.AttachShader(ShaderProgramHandle, vertex);

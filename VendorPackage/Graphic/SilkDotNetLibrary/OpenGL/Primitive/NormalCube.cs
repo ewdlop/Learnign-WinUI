@@ -1,8 +1,8 @@
 ﻿namespace SilkDotNetLibrary.OpenGL.Primitive;
 
-internal static class NormaledCube
+public static class NormalCube
 {
-    internal static readonly float[] Vertices =
+    public static readonly float[] Vertices =
     {
          //X    Y      Z       Normals
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -48,7 +48,7 @@ internal static class NormaledCube
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
-    internal static readonly uint[] Indices =
+    public static readonly uint[] Indices =
     {
         0, 1, 3,
         1, 2, 3

@@ -8,11 +8,9 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
    where TIndexType : unmanaged
 {
     public uint VertexArrayBufferObjectHandle { get; }
-    private bool _disposedValue;
 
     public VertexArrayBufferObject(GL gl, BufferObject<TVertexType> vbo, BufferObject<TIndexType> ebo)
     {
-        _disposedValue = false;
         //Setting out handle and binding the VBO and EBO to this VAO.
         VertexArrayBufferObjectHandle = gl.GenVertexArray();
         BindBy(gl);
@@ -40,31 +38,9 @@ public struct VertexArrayBufferObject<TVertexType, TIndexType>
     public void BindBy(GL gl) => gl.BindVertexArray(VertexArrayBufferObjectHandle);
 
     private void OnDispose(GL gl) => gl.DeleteVertexArray(VertexArrayBufferObjectHandle);
-
-    private void Dispose(bool disposing, GL gl)
-    {
-        if (_disposedValue) return;
-        if (disposing)
-        {
-            OnDispose(gl);
-        }
-
-        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-        // TODO: set large fields to null
-        _disposedValue = true;
-    }
-
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~VertexArrayObjectObject()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
     public void DisposeBy(GL gl)
     {
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true, gl);
-        GC.SuppressFinalize(this);
+        OnDispose( gl);
     }
 }

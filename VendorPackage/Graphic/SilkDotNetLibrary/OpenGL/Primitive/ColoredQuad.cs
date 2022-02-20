@@ -1,8 +1,8 @@
 ﻿namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-internal static class ColoredQuad
+public static class ColoredQuad
 {
-    internal static readonly string VertexShader = @"
+    public static readonly string VertexShader = @"
         #version 330 core //Using version GLSL version 3.3
         layout (location = 0) in vec4 vPos;
         
@@ -11,7 +11,7 @@ internal static class ColoredQuad
             gl_Position = vec4(vPos.x, vPos.y, vPos.z, 1.0);
         }";
 
-    internal static readonly string FragmentShader = @"
+    public static readonly string FragmentShader = @"
         #version 330 core
         out vec4 FragColor;
         void main()
@@ -20,7 +20,7 @@ internal static class ColoredQuad
         }";
 
     //Vertex data, uploaded to the VBO.
-    internal static readonly float[] Vertices =
+    public static readonly float[] Vertices =
     {
         //X    Y      Z     R  G  B  A
         0.5f,  0.5f, 0.0f, 1, 0, 0, 1,
@@ -29,7 +29,7 @@ internal static class ColoredQuad
         -0.5f,  0.5f, 0.5f, 0, 0, 0, 1
     };
 
-    internal static readonly uint[] Indices =
+    public static readonly uint[] Indices =
     {
             0, 1, 3,
             1, 2, 3

@@ -8,8 +8,10 @@ using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using SilkDotNetLibrary.OpenGL.Primitive;
 using System;
+using System.Drawing;
 using System.Numerics;
 using SharedLibrary.Systems;
+using Silk.NET.SDL;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 
 namespace SilkDotNetLibrary.OpenGL;
@@ -48,6 +50,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl = _window.CreateOpenGL();
         _ebo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
         _vbo = new BufferObject<float>(_gl, TexturedNormaledCube.Vertices, BufferTargetARB.ArrayBuffer);
+
+        //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        //    cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
         VaoCube = new VertexArrayBufferObject<float, uint>(_gl, _vbo, _ebo);
 
         //Telling the VAO object how to lay out the attribute pointers
@@ -64,12 +71,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         return _gl;
     }
 
-    public void OnRender(double dt)
+    private void RenderScene(double dt)
     {
-        Time += (float)dt;
-        _gl.Enable(EnableCap.DepthTest);
-        _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
-
         VaoCube.BindBy(_gl);
         DiffuseMap.BindBy(_gl, TextureUnit.Texture0);
         SpecularMap.BindBy(_gl, TextureUnit.Texture1);
@@ -80,7 +83,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //Slightly rotate the cube to give it an angled face to look at
         LightingShader.UseBy(_gl);
 
-        LightingShader.SetUniformBy(_gl, "uModel", Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateTranslation(new Vector3(0f,-1*Time,0f)));
+        LightingShader.SetUniformBy(_gl, "uModel", Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference)) * Matrix4x4.CreateTranslation(new Vector3(0f, -1 * Time, 0f)));
         LightingShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LightingShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
         LightingShader.SetUniformBy(_gl, "viewPos", _camera.Position);
@@ -88,7 +91,6 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //Specular is set to 1 because our diffuseMap is bound to Texture1
         LightingShader.SetUniformBy(_gl, "material.specular", 1);
         LightingShader.SetUniformBy(_gl, "material.shininess", 32.0f);
-
 
         var diffuseColor = new Vector3(0.5f);
         var ambientColor = diffuseColor * new Vector3(0.2f);
@@ -99,20 +101,45 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LightingShader.SetUniformBy(_gl, "light.position", _lampPosition);
 
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
-        _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length/ TexturedNormaledCube.VerticeSize);
+        _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length / TexturedNormaledCube.VerticeSize);
 
         LampShader.UseBy(_gl);
 
         var lampMatrix = Matrix4x4.Identity
                          * Matrix4x4.CreateScale(0.2f)
                          * Matrix4x4.CreateTranslation(_lampPosition);
-                         //* Matrix4x4.CreateTranslation(new Vector3(1.2f, 1.0f, 2.0f));
+        //* Matrix4x4.CreateTranslation(new Vector3(1.2f, 1.0f, 2.0f));
 
         LampShader.SetUniformBy(_gl, "uModel", lampMatrix);
         LampShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LampShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+    }
+
+    private void UseScreenShader()
+    {
+        //https://learnopengl.com/Advanced-OpenGL/Framebuffers
+        //screenShader.use();
+        //glBindVertexArray(quadVAO);
+        //glDisable(GL_DEPTH_TEST);
+        //glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+    private void Reset()
+    {
+        _gl.BindFramebuffer(GLEnum.Framebuffer, 0);
+        _gl.ClearColor(new Vector4D<float>(1f, 1f, 1f, 1f));
+        _gl.Clear((uint)(ClearBufferMask.ColorBufferBit));
+    }
+    public void OnRender(double dt)
+    {
+        Time += (float)dt;
+        _gl.Enable(EnableCap.DepthTest);
+        //_gl.ClearColor(new Vector4D<float>(0.1f, 0.1f, 0.1f, 0.1f));
+        _gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+
+        RenderScene(dt);
     }
 
     public void OnStop()

@@ -1,9 +1,9 @@
 ﻿namespace SilkDotNetLibrary.OpenGL.Primitive;
 
-internal static class TexturedNormaledCube
+public static class TexturedNormaledCube
 {
-    internal const int VerticeSize = 8;
-    internal static readonly float[] Vertices =
+    public const int VerticeSize = 8;
+    public static readonly float[] Vertices =
     {
         //X    Y      Z       Normals             U     V
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f,
@@ -49,7 +49,7 @@ internal static class TexturedNormaledCube
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f
     };
 
-    internal static readonly uint[] Indices =
+    public static readonly uint[] Indices =
     {
         0, 1, 3,
         1, 2, 3

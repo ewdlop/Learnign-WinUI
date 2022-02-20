@@ -9,12 +9,12 @@ namespace SilkDotNetLibrary.OpenGL.Textures;
 
 public struct Texture
 {
-    private bool disposedValue;
-    public uint Texturehandle { get; }
+    private bool _disposedValue;
+    public uint TextureHandle { get; }
     public unsafe Texture(GL gl, string imagePath)
     {
-        disposedValue = false;
-        Texturehandle = gl.GenTexture();
+        _disposedValue = false;
+        TextureHandle = gl.GenTexture();
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
         image.Mutate(x => x.Flip(FlipMode.Vertical));
@@ -35,10 +35,10 @@ public struct Texture
         image.Dispose();
     }
 
-    public unsafe Texture(in GL gl, Span<byte> data, uint width, uint height)
+    public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
     {
-        disposedValue = false;
-        Texturehandle = gl.GenTexture();
+        _disposedValue = false;
+        TextureHandle = gl.GenTexture();
         fixed (void* d = &data[0])
         {
             Load(gl, d, width, height);
@@ -71,13 +71,13 @@ public struct Texture
     {
         //When we bind a texture we can choose which textureslot we can bind it to.
         gl.ActiveTexture(textureUnit);
-        gl.BindTexture(TextureTarget.Texture2D, Texturehandle);
+        gl.BindTexture(TextureTarget.Texture2D, TextureHandle);
     }
-    private void OnDispose(GL gl) => gl.DeleteTexture(Texturehandle);
+    private void OnDispose(GL gl) => gl.DeleteTexture(TextureHandle);
 
     private void Dispose(bool disposing, GL gl)
     {
-        if (disposedValue) return;
+        if (_disposedValue) return;
         if (disposing)
         {
             OnDispose(gl);
@@ -85,7 +85,7 @@ public struct Texture
 
         // TODO: free unmanaged resources (unmanaged objects) and override finalizer
         // TODO: set large fields to null
-        disposedValue = true;
+        _disposedValue = true;
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
