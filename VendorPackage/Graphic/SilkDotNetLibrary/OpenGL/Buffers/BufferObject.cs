@@ -3,7 +3,7 @@ using System;
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public readonly struct BufferObject<TDataType> : IBufferObject<TDataType>
+public readonly struct BufferObject<TDataType> : IBufferObject
     where TDataType : unmanaged
 {
     public uint BufferHandle { get; }
@@ -23,7 +23,6 @@ public readonly struct BufferObject<TDataType> : IBufferObject<TDataType>
                            BufferUsageARB.StaticDraw);
         }
     }
-
     public void BindBy(GL gl)
     {
         //Binding the buffer object, with the correct buffer type.

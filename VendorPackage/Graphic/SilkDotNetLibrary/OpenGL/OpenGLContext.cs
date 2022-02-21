@@ -6,7 +6,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Buffers;
-using SilkDotNetLibrary.OpenGL.Primitive;
+using SilkDotNetLibrary.OpenGL.Primitives;
 using System;
 using System.Drawing;
 using System.Numerics;

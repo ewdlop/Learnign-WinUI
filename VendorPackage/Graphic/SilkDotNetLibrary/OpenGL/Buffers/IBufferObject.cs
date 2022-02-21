@@ -2,7 +2,7 @@
 
 namespace SilkDotNetLibrary.OpenGL.Buffers;
 
-public interface IBufferObject<TDataType> where TDataType : unmanaged
+public interface IBufferObject
 {
     uint BufferHandle { get; }
     void BindBy(GL gl);

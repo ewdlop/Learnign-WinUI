@@ -1,4 +1,4 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Primitive;
+﻿namespace SilkDotNetLibrary.OpenGL.Primitives;
 
 public static class TexturedCube
 {

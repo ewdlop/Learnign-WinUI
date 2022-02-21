@@ -1,5 +1,4 @@
-﻿namespace SilkDotNetLibrary.OpenGL.Shaders;
-
+﻿namespace SilkDotNetLibrary.OpenGL.Primitives;
 public static class ColoredQuad
 {
     public static readonly string VertexShader = @"

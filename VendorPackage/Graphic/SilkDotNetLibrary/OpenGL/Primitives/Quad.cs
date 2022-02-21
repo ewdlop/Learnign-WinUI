@@ -1,4 +1,5 @@
-﻿public static class Quad
+﻿namespace SilkDotNetLibrary.OpenGL.Primitives;
+public static class Quad
 {
     public const int VerticeSize = 4;
     public static float[] Vertices = { 
