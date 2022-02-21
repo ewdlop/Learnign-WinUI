@@ -9,11 +9,9 @@ namespace SilkDotNetLibrary.OpenGL.Textures;
 
 public struct Texture
 {
-    private bool _disposedValue;
     public uint TextureHandle { get; }
     public unsafe Texture(GL gl, string imagePath)
     {
-        _disposedValue = false;
         TextureHandle = gl.GenTexture();
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
@@ -37,7 +35,6 @@ public struct Texture
 
     public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
     {
-        _disposedValue = false;
         TextureHandle = gl.GenTexture();
         fixed (void* d = &data[0])
         {
@@ -73,32 +70,11 @@ public struct Texture
         gl.ActiveTexture(textureUnit);
         gl.BindTexture(TextureTarget.Texture2D, TextureHandle);
     }
+
     private void OnDispose(GL gl) => gl.DeleteTexture(TextureHandle);
-
-    private void Dispose(bool disposing, GL gl)
-    {
-        if (_disposedValue) return;
-        if (disposing)
-        {
-            OnDispose(gl);
-        }
-
-        // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-        // TODO: set large fields to null
-        _disposedValue = true;
-    }
-
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Texture()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
 
     public void DisposeBy(in GL gl)
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true, gl);
-        GC.SuppressFinalize(this);
+        OnDispose(gl);
     }
 }
