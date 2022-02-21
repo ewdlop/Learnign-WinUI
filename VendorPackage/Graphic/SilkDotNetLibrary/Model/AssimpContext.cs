@@ -4,7 +4,6 @@ using System.Numerics;
 using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
-using SilkDotNetLibrary.OpenGL.Primitive;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 
 namespace SilkDotNetLibrary.Model;
@@ -80,7 +79,19 @@ public  class AssimpContext
 
     public unsafe void ProcessNode(Node* node, Scene* scene)
     {
+        for(uint i = 0; i < node->MNumMeshes; i++)
+        {
+            Silk.NET.Assimp.Mesh* mesh = scene->MMeshes[node->MMeshes[i]];
+            //meshes.push_back(processMesh(mesh, scene));
+        }
+    }
 
+    private Memory<T> AddElementToArray<T>(Span<T> array, T element) where T:unmanaged
+    {
+        Span<T> newArray = stackalloc T[array.Length + 1];
+        array.CopyTo(newArray);
+        newArray[array.Length] = element;
+        return newArray.ToArray();
     }
     public unsafe Mesh ProcessMesh(Mesh* mesh,  Scene* scene)
     {
