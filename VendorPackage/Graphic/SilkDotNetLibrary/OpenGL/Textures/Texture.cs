@@ -12,6 +12,7 @@ public struct Texture
     public uint TextureHandle { get; }
     public unsafe Texture(GL gl, string imagePath)
     {
+        
         TextureHandle = gl.GenTexture();
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
