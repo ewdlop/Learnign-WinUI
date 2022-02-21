@@ -2,22 +2,32 @@
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace SilkDotNetLibrary.OpenGL.Models;
+//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/model.h
 
-public unsafe struct Vertex
+public struct Vertex
 {
     public Vector3 Position { get; init; }
     public Vector3 Normal { get; init; }
     public Vector2 TexCoords { get; init; }
     public Vector3 Tangent { get; init; }
     public Vector3 BiTangent { get; init; }
-
-    //public Span<int> BonesID = stackalloc int[5];
+    //public int* BonesID = stackalloc int*[5];
+    //public Span<int> BonesID = stackalloc int*[5];
+}
+public unsafe ref struct RefVertex
+{
+    public Vector3 Position { get; init; }
+    public Vector3 Normal { get; init; }
+    public Vector2 TexCoords { get; init; }
+    public Vector3 Tangent { get; init; }
+    public Vector3 BiTangent { get; init; }
+    public Span<int> BonesID { get; init; } = stackalloc int[5];
+    public Span<float> Weights { get; init; } = stackalloc float[5];
 }
 
 public struct Texture
@@ -38,7 +48,6 @@ public record struct Mesh
     private VertexArrayBufferObject<Vertex, uint> Vao { get; }
     private BufferObject<Vertex> Vbo { get; }
     private BufferObject<uint> Ebo { get; }
-
 
     public unsafe Mesh(GL gl, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<uint> indices, ReadOnlySpan<Texture> textures)
     {
@@ -65,24 +74,35 @@ public record struct Mesh
     }
 }
 
-//public static class X
-//{
-//    public static T[] ToAppendedArray<T>(this Span<T> array, T element) where T : unmanaged
-//    {
-//        Span<T> newArray = stackalloc T[array.Length + 1];
-//        array.CopyTo(newArray);
-//        newArray[array.Length] = element;
-//        return newArray.ToArray();
-//    }
-//}
+public static class X
+{
+    public static T[] ToAppendedArray<T>(this ReadOnlySpan<T> array, T element) where T : unmanaged
+    {
+        Span<T> newArray = stackalloc T[array.Length + 1];
+        array.CopyTo(newArray);
+        newArray[array.Length] = element;
+        return newArray.ToArray();
+    }
+    public static T[] ToAppendedArray<T>(this ReadOnlySpan<T> array, ReadOnlySpan<T> element) where T : unmanaged
+    {
+        Span<T> newArray = stackalloc T[array.Length + element.Length];
+        array.CopyTo(newArray);
+        for (int i = 0; i < element.Length; i++)
+        {
+            newArray[i + array.Length] = element[i];
+        }
+        return newArray.ToArray();
+    }
+}
 
 
 public class Model
 {
     private readonly GL _gl;
     private readonly Assimp _assimp;
+    public Texture[] TextureLoaded { get; private set; }
     public string Directory { get; private set; }
-    public bool GammaCoorection { get; private set; }
+    public bool GammaCoorection { get;}
     public Model(GL gl, bool gammaCoorection = false)
     {
         _gl = gl;
@@ -101,7 +121,7 @@ public class Model
             return;
         }
 
-        Directory = new System.IO.FileInfo(path).Directory?.Parent?.ToString() ?? throw new FileNotFoundException("RIP", path);
+        Directory = new FileInfo(path).Directory?.Parent?.ToString() ?? throw new FileNotFoundException("RIP", path);
 
         ProcessNode(scene->MRootNode, scene);
     }
@@ -152,16 +172,30 @@ public class Model
                 indices[i]=face.MIndices[j];
             }
         }
+        // process materials
+        Material* material = scene->MMaterials[mesh->MMaterialIndex];
+        // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
+        // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
+        // Same applies to other texture as the following list summarizes:
+        // diffuse: texture_diffuseN
+        // specular: texture_specularN
+        // normal: texture_normalN
+
+        Span<Texture> diffuseTexture = stackalloc Texture[5];
+        //for(int i = 0; i < material->GetTextureCount(type); i++)
+        //{
+
+        //}
+
         return new Mesh(_gl, vertices, indices, textures);
     }
 
-    public unsafe Texture[] LoadMaterialTextures(Material* mat, TextureType type,
+    public unsafe Span<T> LoadMaterialTextures<T>(Material* mat, TextureType type,
         string typeName)
     {
         return default;
     }
 }
-
 
 public readonly struct VertexBufferObject
 {

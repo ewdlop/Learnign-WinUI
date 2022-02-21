@@ -9,10 +9,11 @@ public unsafe struct FrameBufferObject
     // create a color attachment texture
     public FrameBufferObject(GL gl)
     {
-        fixed (uint* hFbo = &_frameBufferObjectHandle)
-        {
-            gl.GenFramebuffers(1, hFbo);
-        }
+        //fixed (uint* hFbo = &_frameBufferObjectHandle)
+        //{
+        //    gl.GenFramebuffers(1, hFbo);
+        //}
+        _frameBufferObjectHandle = gl.GenFramebuffer();
         Load(gl);
     }
 

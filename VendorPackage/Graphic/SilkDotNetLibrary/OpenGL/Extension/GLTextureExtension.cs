@@ -36,7 +36,7 @@ public static class GLTextureExtension
     //    return texturehandle;
     //}
 
-    private static unsafe uint GenTexture(this GL gl, Span<byte> data, in uint width, in uint height)
+    private static unsafe uint GenTexture(this GL gl, ReadOnlySpan<byte> data, in uint width, in uint height)
     {
         uint textureHandle = gl.GenTexture();
         fixed (void* d = &data[0])
