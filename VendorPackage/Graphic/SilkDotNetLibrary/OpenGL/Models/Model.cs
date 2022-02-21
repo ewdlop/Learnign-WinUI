@@ -2,7 +2,9 @@
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -30,29 +32,24 @@ public unsafe ref struct RefVertex
     public Span<float> Weights { get; init; } = stackalloc float[5];
 }
 
-public struct Texture
+public record struct Texture
 {
-    public uint id;
+    public uint id { get; }
 }
 
-public ref struct Test
-{
-
-}
 public record struct Mesh
 {
     //private Vertex[] Vertices { get; }
     //private uint[] Indices { get; }
     //private Texture[] Textures { get; }
-
+    private uint indicesLength;
     private VertexArrayBufferObject<Vertex, uint> Vao { get; }
     private BufferObject<Vertex> Vbo { get; }
     private BufferObject<uint> Ebo { get; }
 
-    public unsafe Mesh(GL gl, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<uint> indices, ReadOnlySpan<Texture> textures)
+    public Mesh(GL gl, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<uint> indices, ReadOnlySpan<Texture> textures)
     {
-        Test* test = stackalloc Test[2];
-
+        indicesLength = Convert.ToUInt32(indices.Length);
         Vbo = new BufferObject<Vertex>(gl, vertices, BufferTargetARB.ArrayBuffer);
         Ebo = new BufferObject<uint>(gl, indices, BufferTargetARB.ElementArrayBuffer);
         Vao = new VertexArrayBufferObject<Vertex, uint>(gl, Vbo, Ebo);
@@ -63,14 +60,37 @@ public record struct Mesh
             Marshal.OffsetOf(typeof(Vertex), "TexCoords").ToInt32());
     }
 
-    public void Draw(SilkDotNetLibrary.OpenGL.Shaders.Shader shader, ReadOnlySpan<Texture> textures)
+    public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, ReadOnlySpan<Texture> textures)
     {
         uint diffuseNr = 1;
         uint specularNr = 1;
-        for (uint i = 0; i < textures.Length; i++)
+        uint normalNr = 1;
+        uint heightNr = 1;
+        for (int i = 0; i < textures.Length; i++)
         {
+            gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
+            // retrieve texture number (the N in diffuse_textureN)
+            string name = string.Empty;//textures[i].type;
+            string combined = name switch
+            {
+                "texture_diffuse" => $"{name}{diffuseNr++}",
+                "texture_specular" => $"{name}{specularNr++}",
+                "texture_normal" => $"{name}{normalNr++}",
+                "texture_height" => $"{name}{heightNr++}",
+                _ => string.Empty
+            };
 
+            // now set the sampler to the correct texture unit
+            gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, combined), i);
+            // and finally bind the texture
+            gl.BindTexture(GLEnum.Texture2D, textures[i].id);
         }
+        // draw mesh
+        Vao.BindBy(gl);
+        gl.DrawElements(GLEnum.Triangles, indicesLength, GLEnum.UnsignedInt, 0);
+        gl.BindVertexArray(0);
+        // always good practice to set everything back to defaults once configured.
+        gl.ActiveTexture(GLEnum.Texture0);
     }
 }
 
@@ -95,22 +115,25 @@ public static class X
     }
 }
 
-
 public class Model
+{
+    public Mesh[] Meshes { get; set; }
+    public Texture[] TextureLoaded { get; private set; }
+    public string Directory { get; private set; }
+    public bool GammaCoorection { get; }
+}
+public class ModelFactory
 {
     private readonly GL _gl;
     private readonly Assimp _assimp;
-    public Texture[] TextureLoaded { get; private set; }
-    public string Directory { get; private set; }
-    public bool GammaCoorection { get;}
-    public Model(GL gl, bool gammaCoorection = false)
+
+    public ModelFactory (GL gl)
     {
         _gl = gl;
         _assimp = Assimp.GetApi();
-        GammaCoorection = gammaCoorection;
     }
 
-    public unsafe void LoadModel(string path)
+    public unsafe Model LoadModel(string path)
     {
         Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));
         if (scene is not null ||
@@ -118,25 +141,30 @@ public class Model
             scene->MRootNode is not null)
         {
             Console.Write($"ERROR::ASSIMP:{_assimp.GetErrorStringS()}");
-            return;
+            return null;
         }
-
-        Directory = new FileInfo(path).Directory?.Parent?.ToString() ?? throw new FileNotFoundException("RIP", path);
-
-        ProcessNode(scene->MRootNode, scene);
+        string Directory = new FileInfo(path).Directory?.Parent?.ToString() ??
+                    throw new FileNotFoundException("RIP", path);
+        Model model = new()
+        {
+            Meshes = ProcessNode(scene->MRootNode, scene)
+        };
+        return model;
     }
-    public void Draw(SilkDotNetLibrary.OpenGL.Shaders.Shader shader)
-    {
 
-    }
-
-    public unsafe void ProcessNode(Node* node, Scene* scene)
+    public unsafe Mesh[] ProcessNode(Node* node, Scene* scene)
     {
+        IEnumerable<Mesh> meshes = Enumerable.Empty<Mesh>();
         for (uint i = 0; i < node->MNumMeshes; i++)
         {
             Silk.NET.Assimp.Mesh* mesh = scene->MMeshes[node->MMeshes[i]];
-            //meshes.push_back(processMesh(mesh, scene));
+            meshes.Append(ProcessMesh(mesh, scene));
         }
+        for (int i = 0; i < node->MNumChildren; i++)
+        {
+            meshes.Concat(ProcessNode(node->MChildren[i], scene));
+        }
+        return meshes.ToArray();
     }
 
     public unsafe Mesh ProcessMesh(Silk.NET.Assimp.Mesh* mesh, Scene* scene)
@@ -182,7 +210,7 @@ public class Model
         // normal: texture_normalN
 
         Span<Texture> diffuseTexture = stackalloc Texture[5];
-        //for(int i = 0; i < material->GetTextureCount(type); i++)
+        //for(int i = 0; i < material->GetMaterialCount(); i++)
         //{
 
         //}
