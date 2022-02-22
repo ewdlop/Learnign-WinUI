@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -10,15 +11,16 @@ namespace SilkDotNetLibrary.OpenGL.Textures;
 public struct Texture
 {
     public uint TextureHandle { get; }
-    public unsafe Texture(GL gl, string imagePath)
+    public TextureType TextureType { get; } = default;
+    public unsafe Texture(GL gl, string imagePath,TextureType textureType=default)
     {
-        
         TextureHandle = gl.GenTexture();
         //Loading an image using imagesharp.
         Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
         image.Mutate(x => x.Flip(FlipMode.Vertical));
         uint imageWidth = (uint)image.Width;
         uint imageHeight = (uint)image.Height;
+        TextureType = textureType;
         //// OpenGL has image origin in the bottom-left corner
         Texture tmpThis = this;
         image.ProcessPixelRows(accessor =>
