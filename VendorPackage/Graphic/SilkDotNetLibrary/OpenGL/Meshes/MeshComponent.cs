@@ -6,7 +6,7 @@ using Texture = SilkDotNetLibrary.OpenGL.Textures.Texture;
 
 namespace SilkDotNetLibrary.OpenGL.Meshes;
 
-public class MeshComponent//model is an entity?
+public struct MeshComponent//model is an entity? class?
 {
     public List<(Mesh, List<Texture>)> Meshes { get; init; }
     //public Texture[] Textures { get; init; }

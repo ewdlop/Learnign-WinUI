@@ -51,7 +51,7 @@ public readonly record struct Mesh
 
             string combined = textures[i].TextureType switch
             {
-                TextureType.TextureTypeDiffuse => $"texture_diffuse{ diffuseNr++}",
+                TextureType.TextureTypeDiffuse => $"texture_diffuse{diffuseNr++}",
                 TextureType.TextureTypeSpecular => $"texture_specular{specularNr++}",
                 TextureType.TextureTypeNormals => $"texture_normal{normalNr++}",
                 TextureType.TextureTypeHeight => $"texture_height{heightNr++}",

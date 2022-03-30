@@ -15,6 +15,7 @@ using SharedLibrary.Systems;
 using Silk.NET.SDL;
 using SilkDotNetLibrary.OpenGL.Textures;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
+using SilkDotNetLibrary.OpenGL.Meshes;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -24,6 +25,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private readonly IWindow _window;
     private readonly ICamera _camera;
     private readonly ILogger<OpenGLContext> _logger;
+    private readonly MeshComponentFactory _meshComponentFactory;
     private readonly Transform[] _transforms = new Transform[4];
     private readonly Vector3 _lampPosition = new(1.2f, 1.0f, 2.0f);
     private GL _gl;
@@ -39,20 +41,23 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private Shader LightingShader { get; set; }
     private Shader LampShader { get; set; }
     private Shader ScreenShader { get; set; }
+    private Shader MeshShader { get; set; }
 
     //private Textures.Texture Texture { get; set; }
     private Textures.Texture DiffuseMap { get; set; }
     private Textures.Texture SpecularMap { get; set; }
     private FrameBufferTexture Fbt { get; set; }
     private float Time { get; set; }
+    private MeshComponent MeshComponent { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow window, ICamera camera, ILogger<OpenGLContext> logger)
+    public OpenGLContext(IWindow window, ICamera camera, ILogger<OpenGLContext> logger, MeshComponentFactory meshComponentFactory)
     {
         _window = window;
         _camera = camera;
         _logger = logger;
         _logger.LogInformation("Creating OpenGLContext...");
+        _meshComponentFactory = meshComponentFactory;
     }
 
     public GL OnLoad()
@@ -101,6 +106,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // draw as wireframe
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
+        MeshComponent = _meshComponentFactory.LoadModel(_gl,"Assets/batman_free/scene.gltf");
+        //MeshShader = new Shader(_gl);
+        //MeshShader.LoadBy(_gl, "Shaders/mesh.vert", "Shaders/mesh.frag");
         return _gl;
     }
 
@@ -108,7 +116,10 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     {
         throw new NotImplementedException();
     }
-
+    private void DrawMesh()
+    {
+        //MeshComponent.Draw(_gl, new Shader());
+    }
     private void RenderScene(double dt)
     {
 
@@ -165,7 +176,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     }
     public void OnRender(double dt)
     {
-        Time += (float) dt;
+        Time += (float)dt;
         Fbo.BindBy(_gl);
         Reset();
         RenderScene(dt);
@@ -173,6 +184,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.BindFramebuffer(GLEnum.Framebuffer, 0);
         OnPostProcessing();
     }
+    //public void OnRender(double dt)
+    //{
+    //    Reset();
+    //    DrawMesh();
+    //}
+
 
     private void OnPostProcessing()
     {

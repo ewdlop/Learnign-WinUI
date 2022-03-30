@@ -12,28 +12,84 @@ public struct Texture
 {
     public uint TextureHandle { get; }
     public TextureType TextureType { get; } = default;
+    /// <summary>
+    /// Texture is flipped automatically
+    /// </summary>
+    /// <param name="gl"></param>
+    /// <param name="imagePath"></param>
+    /// <param name="textureType"></param>
     public unsafe Texture(GL gl, string imagePath,TextureType textureType=default)
     {
-        TextureHandle = gl.GenTexture();
-        //Loading an image using imagesharp.
-        Image<Rgba32> image = (Image<Rgba32>)Image.Load(imagePath);
-        image.Mutate(x => x.Flip(FlipMode.Vertical));
-        uint imageWidth = (uint)image.Width;
-        uint imageHeight = (uint)image.Height;
-        TextureType = textureType;
-        //// OpenGL has image origin in the bottom-left corner
-        Texture tmpThis = this;
-        image.ProcessPixelRows(accessor =>
+        try
         {
-            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+            TextureHandle = gl.GenTexture();
+            TextureType = textureType;
+            //Loading an image using imagesharp.
+            Image image = Image.Load(imagePath);
+            Texture tmpThis = this;
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+            uint imageWidth = (uint)image.Width;
+            uint imageHeight = (uint)image.Height;
+            if (image.PixelType.BitsPerPixel == 32)
             {
-                //Loading the actual image.
-                tmpThis.Load(gl, data, imageWidth, imageHeight);
+                Image<Rgba32> imag32 = (Image<Rgba32>)image;
+                //// OpenGL has image origin in the bottom-left corner
+                imag32.ProcessPixelRows(accessor =>
+                {
+                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                    {
+                        //Loading the actual image.
+                        tmpThis.Load(gl, data, imageWidth, imageHeight);
+                    }
+                });
             }
-        });
-
-        //Deleting the img from imagesharp.
-        image.Dispose();
+            else if (image.PixelType.BitsPerPixel == 24)
+            {
+                Image<Rgb24> image24 = (Image<Rgb24>)image;
+                //// OpenGL has image origin in the bottom-left corner
+                image24.ProcessPixelRows(accessor =>
+                {
+                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                    {
+                        //Loading the actual image.
+                        tmpThis.Load(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb);
+                    }
+                });
+            }
+            else if (image.PixelType.BitsPerPixel == 48)
+            {
+                Image<Rgb48> image48 = (Image<Rgb48>)image;
+                //// OpenGL has image origin in the bottom-left corner
+                image48.ProcessPixelRows(accessor =>
+                {
+                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                    {
+                        //Loading the actual image.
+                        tmpThis.Load(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb);
+                    }
+                });
+            }
+            else if(image.PixelType.BitsPerPixel == 64)
+            {
+                Image<Rgba64> image64 = (Image<Rgba64>)image;
+                //// OpenGL has image origin in the bottom-left corner
+                image64.ProcessPixelRows(accessor =>
+                {
+                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                    {
+                        //Loading the actual image.
+                        tmpThis.Load(gl, data, imageWidth, imageHeight);
+                    }
+                });
+            }
+            //Deleting the img from imagesharp.
+            image.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Console.Write(ex.ToString());
+            throw;
+        }
     }
 
     public unsafe Texture(GL gl, Span<byte> data, uint width, uint height)
@@ -45,18 +101,32 @@ public struct Texture
         }
     }
 
-    private unsafe void Load(GL gl, void* data, uint width, uint height)
+    private unsafe void Load(GL gl,
+                             void* data,
+                             uint width,
+                             uint height,
+                             InternalFormat internalForamt = InternalFormat.Rgba,
+                             PixelFormat pixelFormat = PixelFormat.Rgba,
+                             PixelType pixelType = PixelType.UnsignedByte)
     {
         BindBy(gl);
-        gl.TexImage2D(GLEnum.Texture2D,
-                       0,
-                       (int)InternalFormat.Rgba,
-                       width,
-                       height,
-                       0,
-                       PixelFormat.Rgba,
-                       PixelType.UnsignedByte,
-                       data);
+        try
+        {
+            gl.TexImage2D(GLEnum.Texture2D,
+               0,
+               internalForamt,
+               width,
+               height,
+               0,
+               pixelFormat,
+               pixelType,
+               data);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
         //Setting some texture parameters so the texture behaves as expected.
         gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
         gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);

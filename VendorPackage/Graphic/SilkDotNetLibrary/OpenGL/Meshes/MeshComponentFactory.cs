@@ -1,4 +1,5 @@
-﻿using Silk.NET.Assimp;
+﻿using Microsoft.Extensions.Logging;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
@@ -10,29 +11,29 @@ namespace SilkDotNetLibrary.OpenGL.Meshes;
 
 public class MeshComponentFactory
 {
-    private readonly GL _gl;
     private readonly Assimp _assimp;
+    private ILogger<MeshComponentFactory> _logger;
     //private Dictionary<uint, MeshComponent> _meshTextureInfo;
-    public MeshComponentFactory(GL gl)
+    public MeshComponentFactory(ILogger<MeshComponentFactory> logger)
     {
-        _gl = gl;
         _assimp = Assimp.GetApi();
+        _logger = logger;
     }
 
-    public unsafe MeshComponent LoadModel(string path)
+    public unsafe MeshComponent LoadModel(GL gl, string path)
     {
 
         Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));
-        if (scene is not null ||
+        if (scene is null ||
             Convert.ToBoolean(scene->MFlags & Convert.ToUInt32(SceneFlags.Incomplete)) ||
-            scene->MRootNode is not null)
+            scene->MRootNode is null)
         {
-            Console.Write($"ERROR::ASSIMP:{_assimp.GetErrorStringS()}");
-            return null;
+            _logger.LogError(_assimp.GetErrorStringS());
+            throw new ApplicationException(_assimp.GetErrorStringS());
         }
 
         List<(Texture, string)> loadedTexture = new List<(Texture, string)>();
-        List<(Mesh, List<Texture>)> meshes = ProcessNode(loadedTexture, scene->MRootNode, scene);
+        List<(Mesh, List<Texture>)> meshes = ProcessNode(gl, ref loadedTexture, scene->MRootNode, scene);
         MeshComponent meshComponent = new()
         {
             Meshes = meshes,
@@ -42,27 +43,29 @@ public class MeshComponentFactory
         return meshComponent;
     }
 
-    private unsafe List<(Mesh, List<Texture>)> ProcessNode(List<(Texture, string)> loadedTexture, Node* node, Scene* scene)
+    private unsafe List<(Mesh, List<Texture>)> ProcessNode(GL gl, ref List<(Texture, string)> loadedTexture, Node* node, Scene* scene)
     {
         List<(Mesh, List<Texture>)> meshes = new();
         for (uint i = 0; i < node->MNumMeshes; i++)
         {
             Silk.NET.Assimp.Mesh* mesh = scene->MMeshes[node->MMeshes[i]];
-            meshes.Add(ProcessMesh(loadedTexture, mesh, scene));
+            meshes.Add(ProcessMesh(gl,ref loadedTexture, mesh, scene));
         }
         for (int i = 0; i < node->MNumChildren; i++)
         {
-            meshes.AddRange(ProcessNode(loadedTexture, node->MChildren[i], scene));
+            meshes.AddRange(ProcessNode(gl, ref loadedTexture, node->MChildren[i], scene));
         }
         return meshes;
     }
 
-    private unsafe (Mesh, List<Texture>) ProcessMesh(List<(Texture, string)> loadedTextures, Silk.NET.Assimp.Mesh* mesh, Scene* scene)
+    private unsafe (Mesh, List<Texture>) ProcessMesh(GL gl, ref List<(Texture, string)> loadedTextures, Silk.NET.Assimp.Mesh* mesh, Scene* scene)
     {
         int verticesSize = (int)mesh->MNumVertices;
         int indicesSize = (int)mesh->MNumFaces;
-        Span<Vertex> vertices = stackalloc Vertex[verticesSize];
-        Span<uint> indices = stackalloc uint[indicesSize];
+        //Span<Vertex> vertices = stackalloc Vertex[verticesSize];//blow up the stack...
+        Vertex[] vertices = new Vertex[verticesSize];//or Memory<T>?
+        uint[] indices = new uint[indicesSize];
+        //Span<uint> indices = stackalloc uint[indicesSize];
         List<Texture> textures = new();
         for (int i = 0; i < verticesSize; i++)
         {
@@ -99,16 +102,16 @@ public class MeshComponentFactory
         // specular: texture_specularN
         // normal: texture_normalN
 
-        textures.AddRange(LoadMaterialTextures(loadedTextures, material, TextureType.TextureTypeDiffuse));
-        textures.AddRange(LoadMaterialTextures(loadedTextures, material, TextureType.TextureTypeSpecular));
-        textures.AddRange(LoadMaterialTextures(loadedTextures, material, TextureType.TextureTypeNormals));
-        textures.AddRange(LoadMaterialTextures(loadedTextures, material, TextureType.TextureTypeHeight));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeDiffuse));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeSpecular));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeNormals));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeHeight));
 
-        return (new Mesh(_gl, vertices, indices), textures);
+        return (new Mesh(gl, vertices, indices), textures);
     }
 
-    private unsafe List<Texture> LoadMaterialTextures(
-        List<(Texture,string)> loadedTextures, 
+    private unsafe List<Texture> LoadMaterialTextures(GL gl,
+        ref List<(Texture,string)> loadedTextures, 
         Material* mat, TextureType type)
     {
         bool skip = false;
@@ -139,7 +142,7 @@ public class MeshComponentFactory
             
             if (skip) continue;
             // if texture hasn't been loaded already, load it
-            Texture texture = new(_gl, str.AsString, type);
+            Texture texture = new(gl, $"Assets/batman_free/{str.AsString}", type);
             textures.Add(texture);
             loadedTextures.Add((texture, str.AsString));  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }

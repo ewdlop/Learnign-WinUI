@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Apps;
+using SilkDotNetLibrary.OpenGL.Meshes;
 using SilkDotNetLibrary.OpenGL.Windows;
 using System;
 
@@ -16,6 +17,7 @@ public static class SilkDotNetOpenGLWindowServiceExtension
         return services.AddScoped(_ => Window.Create(windowOptions))
             .AddScoped<OpenGLContext>()
             .AddScoped<IWindowEventHandler,WindowEventHandler>()
+            .AddScoped<MeshComponentFactory>()
             .AddHostedService<App>();
     }
 }
