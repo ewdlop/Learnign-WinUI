@@ -1,4 +1,5 @@
 ﻿using SharedLibrary.Helpers;
+using System.Reflection;
 using WaveEngine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
@@ -34,8 +35,9 @@ public unsafe partial class VkContext
 
     private void CreateGraphicsPipeline()
     {
-        byte[] vertShaderCode = File.ReadAllBytes("Shaders/vert.spv");
-        byte[] fragShaderCode = File.ReadAllBytes("Shaders/frag.spv");
+        Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+        byte[] vertShaderCode = File.ReadAllBytes($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/vert.spv");
+        byte[] fragShaderCode = File.ReadAllBytes($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/frag.spv");
 
         VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);

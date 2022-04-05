@@ -71,5 +71,20 @@
       <IncludeAssets>build</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\compile.ps1" />
+    <None Include="Shaders\frag.spv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\shader.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\shader.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Shaders\vert.spv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>
