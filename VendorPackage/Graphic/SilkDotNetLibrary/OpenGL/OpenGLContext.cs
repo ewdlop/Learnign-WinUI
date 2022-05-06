@@ -110,11 +110,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
         MeshComponent = _meshComponentFactory.LoadModel(_gl,"Assets/batman_free/scene.gltf");
         MeshShader1 = new Shader(_gl);
-        MeshShader1.LoadBy(_gl, "Shaders/mesh.vert", "Shaders/mesh.frag");
+        MeshShader1.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
         MeshShader2 = new Shader(_gl);
-        MeshShader2.LoadBy(_gl, "Shaders/mesh.vert", "Shaders/mesh.frag");
+        MeshShader2.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
         MeshShader3 = new Shader(_gl);
-        MeshShader3.LoadBy(_gl, "Shaders/mesh.vert", "Shaders/mesh.frag");
+        MeshShader3.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
         return _gl;
     }
 

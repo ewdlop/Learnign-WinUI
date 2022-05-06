@@ -19,14 +19,14 @@ public struct MeshComponent//model is an entity? class?
         foreach((Mesh mesh, List<Texture> textures) in Meshes)
         {
             shaders[i].UseBy(gl);
-            var diffuseColor = new Vector3(1f);
-            var ambientColor = diffuseColor * new Vector3(1);
+            //var diffuseColor = new Vector3(1f);
+            //var ambientColor = diffuseColor * new Vector3(1);
             shaders[i].SetUniformBy(gl, "uModel", Matrix4x4.Identity);/* * Matrix4x4.CreateTranslation(new Vector3(0f, -1 * Time, 0f))*/
             shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
             shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
-            shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
-            shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
-            shaders[i].SetUniformBy(gl, "light.position", lampPosition);
+            //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
+            //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
+            //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
             mesh.Draw(gl, shaders[i++], textures);
         }
     }

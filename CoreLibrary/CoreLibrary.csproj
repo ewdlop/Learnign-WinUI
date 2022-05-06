@@ -71,6 +71,12 @@
     <None Update="Shaders\specular_lighting.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Shaders\test.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\test.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Shaders\texture.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
