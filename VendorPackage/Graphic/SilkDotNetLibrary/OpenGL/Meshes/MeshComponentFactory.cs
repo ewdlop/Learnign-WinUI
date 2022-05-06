@@ -106,7 +106,8 @@ public class MeshComponentFactory
         textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeSpecular));
         textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeNormals));
         textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeHeight));
-
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeBaseColor));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeMetalness));
         return (new Mesh(gl, vertices, indices), textures);
     }
 
