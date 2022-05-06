@@ -4,6 +4,12 @@ namespace SharedLibrary.Transforms;
 
 public struct Transform : ITransfrom
 {
+    public Transform()
+    {
+        Position = Vector3.Zero;
+        Rotation = Quaternion.Identity;
+        Scale = 1f;
+    }
     public Vector3 Position { get; set; } = new Vector3(0, 0, 0);
 
     public float Scale { get; set; } = 1f;

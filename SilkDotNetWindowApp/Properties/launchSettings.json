@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SilkDotNetWindowApp": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

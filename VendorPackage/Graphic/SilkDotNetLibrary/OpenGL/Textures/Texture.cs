@@ -30,57 +30,67 @@ public struct Texture
             image.Mutate(x => x.Flip(FlipMode.Vertical));
             uint imageWidth = (uint)image.Width;
             uint imageHeight = (uint)image.Height;
-            if (image.PixelType.BitsPerPixel == 32)
+            switch (image.PixelType.BitsPerPixel)
             {
-                Image<Rgba32> imag32 = (Image<Rgba32>)image;
-                //// OpenGL has image origin in the bottom-left corner
-                imag32.ProcessPixelRows(accessor =>
-                {
-                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                case 32:
                     {
-                        //Loading the actual image.
-                        tmpThis.Load(gl, data, imageWidth, imageHeight);
+                        Image<Rgba32> imag32 = (Image<Rgba32>)image;
+                        //// OpenGL has image origin in the bottom-left corner
+                        imag32.ProcessPixelRows(accessor =>
+                        {
+                            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                            {
+                                //Loading the actual image.
+                                tmpThis.Load(gl, data, imageWidth, imageHeight);
+                            }
+                        });
+                        break;
                     }
-                });
-            }
-            else if (image.PixelType.BitsPerPixel == 24)
-            {
-                Image<Rgb24> image24 = (Image<Rgb24>)image;
-                //// OpenGL has image origin in the bottom-left corner
-                image24.ProcessPixelRows(accessor =>
-                {
-                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+
+                case 24:
                     {
-                        //Loading the actual image.
-                        tmpThis.Load(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb);
+                        Image<Rgb24> image24 = (Image<Rgb24>)image;
+                        //// OpenGL has image origin in the bottom-left corner
+                        image24.ProcessPixelRows(accessor =>
+                        {
+                            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                            {
+                                //Loading the actual image.
+                                tmpThis.Load24BitTexuture(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb, PixelType.UnsignedByte);
+                            }
+                        });
+                        break;
                     }
-                });
-            }
-            else if (image.PixelType.BitsPerPixel == 48)
-            {
-                Image<Rgb48> image48 = (Image<Rgb48>)image;
-                //// OpenGL has image origin in the bottom-left corner
-                image48.ProcessPixelRows(accessor =>
-                {
-                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+
+                case 48:
                     {
-                        //Loading the actual image.
-                        tmpThis.Load(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb);
+                        Image<Rgb48> image48 = (Image<Rgb48>)image;
+                        //// OpenGL has image origin in the bottom-left corner
+                        image48.ProcessPixelRows(accessor =>
+                        {
+                            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                            {
+                                //Loading the actual image.
+                                tmpThis.Load(gl, data, imageWidth, imageHeight, InternalFormat.Rgb8, PixelFormat.Rgb);
+                            }
+                        });
+                        break;
                     }
-                });
-            }
-            else if(image.PixelType.BitsPerPixel == 64)
-            {
-                Image<Rgba64> image64 = (Image<Rgba64>)image;
-                //// OpenGL has image origin in the bottom-left corner
-                image64.ProcessPixelRows(accessor =>
-                {
-                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+
+                case 64:
                     {
-                        //Loading the actual image.
-                        tmpThis.Load(gl, data, imageWidth, imageHeight);
+                        Image<Rgba64> image64 = (Image<Rgba64>)image;
+                        //// OpenGL has image origin in the bottom-left corner
+                        image64.ProcessPixelRows(accessor =>
+                        {
+                            fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                            {
+                                //Loading the actual image.
+                                tmpThis.Load(gl, data, imageWidth, imageHeight);
+                            }
+                        });
+                        break;
                     }
-                });
             }
             //Deleting the img from imagesharp.
             image.Dispose();
@@ -100,6 +110,43 @@ public struct Texture
             Load(gl, d, width, height);
         }
     }
+
+    private unsafe void Load24BitTexuture(GL gl,
+                         void* data,
+                         uint width,
+                         uint height,
+                         InternalFormat internalForamt = InternalFormat.Rgba,
+                         PixelFormat pixelFormat = PixelFormat.Rgba,
+                         PixelType pixelType = PixelType.UnsignedByte)
+    {
+        BindBy(gl);
+        try
+        {
+            gl.TexImage2D(GLEnum.Texture2D,
+               0,
+               3,
+               width,
+               height,
+               0,
+               pixelFormat,
+               pixelType,
+               data);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        //Setting some texture parameters so the texture behaves as expected.
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.Repeat);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.Repeat);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+        gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
+
+        //Generating mipmaps.
+        gl.GenerateMipmap(TextureTarget.Texture2D);
+    }
+
 
     private unsafe void Load(GL gl,
                              void* data,
