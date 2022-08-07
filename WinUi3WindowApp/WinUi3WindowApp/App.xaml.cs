@@ -51,7 +51,7 @@ public partial class App : Application
         hInstance = Process.GetCurrentProcess().Handle;
         SetWindowSize(hWnd, WIDTH, HEIGHT);
         m_window.Activate();
-        vkWindowSurface = new VkWindowSurface(new VkWindowHandle(hWnd, hInstance));
+        vkWindowSurface = new VkWindowSurface(new WindowHandle(hWnd, hInstance));
         vkContext = new VkContext(WIDTH, HEIGHT, vkWindowSurface);
         vkContext.Init();
         MainLoop();

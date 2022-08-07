@@ -75,7 +75,8 @@
 		<Compile Include="Vulkan\VkContext.VkValidationLayer.cs">
 			<DependentUpon>VkContext.cs</DependentUpon>
 		</Compile>
+		<Compile Include="Vulkan\VkFrame.cs" />
 		<Compile Include="Window\VkWindowHandle.cs" />
-		<Compile Include="Window\VkWindowSurface.cs" />
+		<Compile Include="Vulkan\Window\VkWindowSurface.cs" />
 	</ItemGroup>
 </Project>

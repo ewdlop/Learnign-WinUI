@@ -45,7 +45,7 @@ public unsafe partial class VkContext
         return details;
     }
 
-    private static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(VkSurfaceFormatKHR[] availableFormats)
+    private static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(Span<VkSurfaceFormatKHR> availableFormats)
     {
         foreach (var availableFormat in availableFormats)
         {
@@ -58,7 +58,7 @@ public unsafe partial class VkContext
         return availableFormats[0];
     }
 
-    private VkPresentModeKHR ChooseSwapPresentMode(VkPresentModeKHR[] availablePresentModes)
+    private VkPresentModeKHR ChooseSwapPresentMode(Span<VkPresentModeKHR> availablePresentModes)
     {
         foreach (var availablePresentMode in availablePresentModes)
         {

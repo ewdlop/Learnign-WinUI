@@ -5,12 +5,12 @@ namespace WaveEngineDotNetLibrary.Window;
 
 public unsafe class VkWindowSurface : IVkSurface
 {
-    private readonly VkWindowHandle _vkWindowHandle;
+    private readonly WindowHandle _vkWindowHandle;
 
     private VkSurfaceKHR _vkWindowSurface;
     public VkSurfaceKHR SurfaceKHR => _vkWindowSurface;
 
-    public VkWindowSurface(VkWindowHandle vkWindowHandle)
+    public VkWindowSurface(WindowHandle vkWindowHandle)
     {
         _vkWindowHandle = vkWindowHandle;
     }

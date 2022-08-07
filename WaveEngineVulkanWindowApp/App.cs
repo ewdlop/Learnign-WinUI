@@ -22,7 +22,7 @@ internal class App
             FormBorderStyle = FormBorderStyle.FixedToolWindow
         };
         IntPtr hInstance = Process.GetCurrentProcess().Handle;
-        vkWindowSurface = new VkWindowSurface(new VkWindowHandle(window.Handle, hInstance));
+        vkWindowSurface = new VkWindowSurface(new WindowHandle(window.Handle, hInstance));
         vkContext = new VkContext(WIDTH, HEIGHT, vkWindowSurface);
     }
     public void Run()
