@@ -13,19 +13,20 @@ public unsafe partial class VkContext
         for (int i = 0; i < vkSwapChainImageViews.Length; i++)
         {
 
-            VkFramebufferCreateInfo framebufferInfo = new VkFramebufferCreateInfo();
-            framebufferInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = vkRenderPass;
-            framebufferInfo.attachmentCount = 1;
+            VkFramebufferCreateInfo framebufferInfo = new VkFramebufferCreateInfo
+            {
+                sType = VkStructureType.VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+                renderPass = vkRenderPass,
+                attachmentCount = 1,
+                width = vkSwapChainExtent.width,
+                height = vkSwapChainExtent.height,
+                layers = 1
+            };
 
             fixed (VkImageView* attachments = &vkSwapChainImageViews[i])
             {
                 framebufferInfo.pAttachments = attachments;
             }
-
-            framebufferInfo.width = vkSwapChainExtent.width;
-            framebufferInfo.height = vkSwapChainExtent.height;
-            framebufferInfo.layers = 1;
 
             fixed (VkFramebuffer* swapChainFramebufferPtr = &vkSwapChainFramebuffers[i])
             {

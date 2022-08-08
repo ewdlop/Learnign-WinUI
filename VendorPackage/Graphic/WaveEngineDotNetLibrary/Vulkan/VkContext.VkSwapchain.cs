@@ -102,35 +102,22 @@ public unsafe partial class VkContext
             imageCount = swapChainSupport.surfaceCapabilities.maxImageCount;
         }
 
-        VkSwapchainCreateInfoKHR createInfo = new()
+        VkSwapchainCreateInfoKHR createInfo = new VkSwapchainCreateInfoKHR
         {
-            sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
-            pNext = null,
-            flags = VkSwapchainCreateFlagsKHR.None,
-            surface = default,
-            minImageCount = 0,
-            imageFormat = VkFormat.VK_FORMAT_UNDEFINED,
-            imageColorSpace = VkColorSpaceKHR.VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-            imageExtent = default,
-            imageArrayLayers = 0,
-            imageUsage = VkImageUsageFlags.None,
-            imageSharingMode = VkSharingMode.VK_SHARING_MODE_EXCLUSIVE,
-            queueFamilyIndexCount = 0,
-            pQueueFamilyIndices = null,
-            preTransform = VkSurfaceTransformFlagsKHR.None,
-            compositeAlpha = VkCompositeAlphaFlagsKHR.None,
-            presentMode = VkPresentModeKHR.VK_PRESENT_MODE_IMMEDIATE_KHR,
-            clipped = default,
-            oldSwapchain = default
+            sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+            surface = _vkSurface.SurfaceKHR,
+            minImageCount = imageCount,
+            imageFormat = surfaceFormat.format,
+            imageColorSpace = surfaceFormat.colorSpace,
+            imageExtent = extent,
+            imageArrayLayers = 1,
+            imageUsage = VkImageUsageFlags.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+            preTransform = swapChainSupport.surfaceCapabilities.currentTransform,
+            compositeAlpha = VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+            presentMode = presentMode,
+            clipped = true,
+            oldSwapchain = 0
         };
-        createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = _vkSurface.SurfaceKHR;
-        createInfo.minImageCount = imageCount;
-        createInfo.imageFormat = surfaceFormat.format;
-        createInfo.imageColorSpace = surfaceFormat.colorSpace;
-        createInfo.imageExtent = extent;
-        createInfo.imageArrayLayers = 1;
-        createInfo.imageUsage = VkImageUsageFlags.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
         uint* queueFamilyIndices = stackalloc uint[] { indices.graphicsFamily.Value, indices.presentFamily.Value };
@@ -147,13 +134,7 @@ public unsafe partial class VkContext
             createInfo.queueFamilyIndexCount = 0; //Optional
             createInfo.pQueueFamilyIndices = null; //Optional
         }
-
-        createInfo.preTransform = swapChainSupport.surfaceCapabilities.currentTransform;
-        createInfo.compositeAlpha = VkCompositeAlphaFlagsKHR.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-        createInfo.presentMode = presentMode;
-        createInfo.clipped = true;
-        createInfo.oldSwapchain = 0;
-
+        
         fixed (VkSwapchainKHR* swapChainPtr = &vkSwapChain)
         {
             VkHelper.CheckErrors(VulkanNative.vkCreateSwapchainKHR(vkDevice, &createInfo, null, swapChainPtr));

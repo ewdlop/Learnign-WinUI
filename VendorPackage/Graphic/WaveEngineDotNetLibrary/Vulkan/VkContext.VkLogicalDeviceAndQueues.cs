@@ -47,18 +47,19 @@ public unsafe partial class VkContext
             deviceExtensionsArray[i] = Marshal.StringToHGlobalAnsi(extension);
         }
 
-        VkDeviceCreateInfo createInfo = new VkDeviceCreateInfo();
-        createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        VkDeviceCreateInfo createInfo = new VkDeviceCreateInfo
+        {
+            sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+            pEnabledFeatures = &deviceFeatures,
+            enabledExtensionCount = (uint)VkDeviceExtensionNames.Length,
+            ppEnabledExtensionNames = (byte**)deviceExtensionsArray
+        };
 
         fixed (VkDeviceQueueCreateInfo* queueCreateInfosArrayPtr = &queueCreateInfos[0])
         {
             createInfo.queueCreateInfoCount = (uint)queueCreateInfos.Length;
             createInfo.pQueueCreateInfos = queueCreateInfosArrayPtr;
         }
-
-        createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.enabledExtensionCount = (uint)VkDeviceExtensionNames.Length;
-        createInfo.ppEnabledExtensionNames = (byte**)deviceExtensionsArray;
 
         fixed (VkDevice* devicePtr = &vkDevice)
         {
