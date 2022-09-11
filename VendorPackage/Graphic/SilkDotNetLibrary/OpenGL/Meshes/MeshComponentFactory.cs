@@ -102,12 +102,12 @@ public class MeshComponentFactory
         // specular: texture_specularN
         // normal: texture_normalN
 
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeDiffuse));
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeSpecular));
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeNormals));
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeHeight));
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeBaseColor));
-        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.TextureTypeMetalness));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.Diffuse));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.Specular));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.Normals));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.Height));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.BaseColor));
+        textures.AddRange(LoadMaterialTextures(gl, ref loadedTextures, material, TextureType.Metalness));
         return (new Mesh(gl, vertices, indices), textures);
     }
 

@@ -219,16 +219,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         throw new NotImplementedException();
     }
 
-    void ISystem.OnLoad()
-    {
-        throw new NotImplementedException();
-    }
-
-    GL IOpenGLContext.OnLoad()
-    {
-        throw new NotImplementedException();
-    }
-
+    //void OnLoad()
+    //{
+    //    throw new NotImplementedException();
+    //}
+   
     public void OnUpdate(double dt)
     {
 
@@ -282,5 +277,10 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
+    }
+
+    void ISystem.OnLoad()
+    {
+        throw new NotImplementedException();
     }
 }

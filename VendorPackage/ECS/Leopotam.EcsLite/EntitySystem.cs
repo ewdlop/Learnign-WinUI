@@ -37,7 +37,7 @@ public class EntitySystem : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex.Message);
+            _logger.LogInformation("{message}",ex.Message);
             return false;
         }
     }
