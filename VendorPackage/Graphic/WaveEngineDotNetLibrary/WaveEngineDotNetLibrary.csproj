@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableDefaultCompileItems>False</EnableDefaultCompileItems>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.12.1.14" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
@@ -80,5 +76,8 @@
 		</Compile>
 		<Compile Include="Window\VkWindowHandle.cs" />
 		<Compile Include="Vulkan\Window\VkWindowSurface.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Evergine.Bindings.Vulkan" Version="2022.12.1.10" />
 	</ItemGroup>
 </Project>

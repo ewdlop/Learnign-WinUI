@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using SharedLibrary.Helpers;
 using System.Runtime.InteropServices;
-using WaveEngine.Bindings.Vulkan;
+using Evergine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 

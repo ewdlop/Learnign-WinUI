@@ -108,13 +108,13 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // draw as wireframe
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
-        MeshComponent = _meshComponentFactory.LoadModel(_gl,"Assets/batman_free/scene.gltf");
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
         MeshShader1 = new Shader(_gl);
-        MeshShader1.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
+        MeshShader1.LoadBy(_gl, "Shaders/model_loading.vert", "Shaders/model_loading.frag");
         MeshShader2 = new Shader(_gl);
-        MeshShader2.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
+        MeshShader2.LoadBy(_gl, "Shaders/model_loading.vert", "Shaders/model_loading.frag");
         MeshShader3 = new Shader(_gl);
-        MeshShader3.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
+        MeshShader3.LoadBy(_gl, "Shaders/model_loading.vert", "Shaders/model_loading.frag");
         return _gl;
     }
 
@@ -173,7 +173,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
         _gl.BindVertexArray(0);
 
-        //DrawMesh();
+        DrawMesh();
     }
 
     private void Reset()

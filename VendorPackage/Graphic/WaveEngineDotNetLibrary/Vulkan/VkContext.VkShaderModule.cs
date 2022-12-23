@@ -1,6 +1,6 @@
 ﻿using SharedLibrary.Helpers;
 using System.Reflection;
-using WaveEngine.Bindings.Vulkan;
+using Evergine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
@@ -15,7 +15,7 @@ public unsafe partial class VkContext
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
             pNext = null,
-            flags = VkShaderModuleCreateFlags.None,
+            flags = (uint)VkShaderModuleCreateFlags.None,
             codeSize = (UIntPtr)code.Length,
             pCode = null
         };
