@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using SharedLibrary.Extensions;
+using SilkDotNetLibrary.OpenGL.Apps;
 using System;
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -30,11 +31,14 @@ IHost host = builder.Build();
 try
 {
     Log.Information("Starting Host...");
-    using (host)
-    {
-        await host.StartAsync();
-        await host.WaitForShutdownAsync();
-    }
+    //using (host)
+    //{
+    //    await host.StartAsync();
+    //    await host.WaitForShutdownAsync();
+    //}
+    using IServiceScope scope = host.Services.CreateScope();
+    IApp app = scope.ServiceProvider.GetRequiredService<IApp>();
+    app.Start();
 }
 catch (Exception ex)
 {

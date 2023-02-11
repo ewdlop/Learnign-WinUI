@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 #endif
 
-namespace Leopotam.EcsLite
+namespace Leopotam.EcsLite.src.Custom
 {
 #if LEOECSLITE_FILTER_EVENTS
     public interface IEcsFilterEventListener {
@@ -23,7 +23,8 @@ namespace Leopotam.EcsLite
     [Il2CppSetOption (Option.NullChecks, false)]
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
-    public sealed class EcsFilter {
+    public sealed class EcsFilter
+    {
         readonly EcsWorld _world;
         readonly EcsWorld.Mask _mask;
         int[] _denseEntities;
@@ -37,7 +38,8 @@ namespace Leopotam.EcsLite
         int _eventListenersCount;
 #endif
 
-        internal EcsFilter (EcsWorld world, EcsWorld.Mask mask, int denseCapacity, int sparseCapacity) {
+        internal EcsFilter(EcsWorld world, EcsWorld.Mask mask, int denseCapacity, int sparseCapacity)
+        {
             _world = world;
             _mask = mask;
             _denseEntities = new int[denseCapacity];
@@ -48,30 +50,35 @@ namespace Leopotam.EcsLite
             _lockCount = 0;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public EcsWorld GetWorld () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EcsWorld GetWorld()
+        {
             return _world;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public int GetEntitiesCount () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetEntitiesCount()
+        {
             return _entitiesCount;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public int[] GetRawEntities () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int[] GetRawEntities()
+        {
             return _denseEntities;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public int[] GetSparseIndex () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int[] GetSparseIndex()
+        {
             return SparseEntities;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Enumerator GetEnumerator()
+        {
             _lockCount++;
-            return new Enumerator (this);
+            return new Enumerator(this);
         }
 
 #if LEOECSLITE_FILTER_EVENTS
@@ -101,21 +108,25 @@ namespace Leopotam.EcsLite
         }
 #endif
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        internal void ResizeSparseIndex (int capacity) {
-            Array.Resize (ref SparseEntities, capacity);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void ResizeSparseIndex(int capacity)
+        {
+            Array.Resize(ref SparseEntities, capacity);
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        internal EcsWorld.Mask GetMask () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal EcsWorld.Mask GetMask()
+        {
             return _mask;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        internal void AddEntity (int entity) {
-            if (AddDelayedOp (true, entity)) { return; }
-            if (_entitiesCount == _denseEntities.Length) {
-                Array.Resize (ref _denseEntities, _entitiesCount << 1);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void AddEntity(int entity)
+        {
+            if (AddDelayedOp(true, entity)) { return; }
+            if (_entitiesCount == _denseEntities.Length)
+            {
+                Array.Resize(ref _denseEntities, _entitiesCount << 1);
             }
             _denseEntities[_entitiesCount++] = entity;
             SparseEntities[entity] = _entitiesCount;
@@ -124,13 +135,15 @@ namespace Leopotam.EcsLite
 #endif
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        internal void RemoveEntity (int entity) {
-            if (AddDelayedOp (false, entity)) { return; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void RemoveEntity(int entity)
+        {
+            if (AddDelayedOp(false, entity)) { return; }
             var idx = SparseEntities[entity] - 1;
             SparseEntities[entity] = 0;
             _entitiesCount--;
-            if (idx < _entitiesCount) {
+            if (idx < _entitiesCount)
+            {
                 _denseEntities[idx] = _denseEntities[_entitiesCount];
                 SparseEntities[_denseEntities[idx]] = idx + 1;
             }
@@ -139,11 +152,13 @@ namespace Leopotam.EcsLite
 #endif
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        bool AddDelayedOp (bool added, int entity) {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool AddDelayedOp(bool added, int entity)
+        {
             if (_lockCount <= 0) { return false; }
-            if (_delayedOpsCount == _delayedOps.Length) {
-                Array.Resize (ref _delayedOps, _delayedOpsCount << 1);
+            if (_delayedOpsCount == _delayedOps.Length)
+            {
+                Array.Resize(ref _delayedOps, _delayedOpsCount << 1);
             }
             ref var op = ref _delayedOps[_delayedOpsCount++];
             op.Added = added;
@@ -151,21 +166,28 @@ namespace Leopotam.EcsLite
             return true;
         }
 
-        [MethodImpl (MethodImplOptions.AggressiveInlining)]
-        void Unlock () {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Unlock()
+        {
 #if DEBUG
-            if (_lockCount <= 0) {
-                throw new Exception ($"Invalid lock-unlock balance for \"{GetType ().Name}\".");
+            if (_lockCount <= 0)
+            {
+                throw new Exception($"Invalid lock-unlock balance for \"{GetType().Name}\".");
             }
 #endif
             _lockCount--;
-            if (_lockCount == 0 && _delayedOpsCount > 0) {
-                for (int i = 0, iMax = _delayedOpsCount; i < iMax; i++) {
+            if (_lockCount == 0 && _delayedOpsCount > 0)
+            {
+                for (int i = 0, iMax = _delayedOpsCount; i < iMax; i++)
+                {
                     ref var op = ref _delayedOps[i];
-                    if (op.Added) {
-                        AddEntity (op.Entity);
-                    } else {
-                        RemoveEntity (op.Entity);
+                    if (op.Added)
+                    {
+                        AddEntity(op.Entity);
+                    }
+                    else
+                    {
+                        RemoveEntity(op.Entity);
                     }
                 }
                 _delayedOpsCount = 0;
@@ -186,36 +208,42 @@ namespace Leopotam.EcsLite
         }
 #endif
 
-        public struct Enumerator : IDisposable {
+        public struct Enumerator : IDisposable
+        {
             readonly EcsFilter _filter;
             readonly int[] _entities;
             readonly int _count;
             int _idx;
 
-            public Enumerator (EcsFilter filter) {
+            public Enumerator(EcsFilter filter)
+            {
                 _filter = filter;
                 _entities = filter._denseEntities;
                 _count = filter._entitiesCount;
                 _idx = -1;
             }
 
-            public int Current {
-                [MethodImpl (MethodImplOptions.AggressiveInlining)]
+            public int Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => _entities[_idx];
             }
 
-            [MethodImpl (MethodImplOptions.AggressiveInlining)]
-            public bool MoveNext () {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext()
+            {
                 return ++_idx < _count;
             }
 
-            [MethodImpl (MethodImplOptions.AggressiveInlining)]
-            public void Dispose () {
-                _filter.Unlock ();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Dispose()
+            {
+                _filter.Unlock();
             }
         }
 
-        struct DelayedOp {
+        struct DelayedOp
+        {
             public bool Added;
             public int Entity;
         }

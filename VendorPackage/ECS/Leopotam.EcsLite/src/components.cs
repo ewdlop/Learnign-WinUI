@@ -11,7 +11,8 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 #endif
 
-namespace Leopotam.EcsLite {
+namespace Leopotam.EcsLite
+{
     public interface IEcsPool {
         void Resize (int capacity);
         bool Has (int entity);
