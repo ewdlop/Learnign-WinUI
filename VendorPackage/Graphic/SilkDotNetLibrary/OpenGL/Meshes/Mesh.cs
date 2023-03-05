@@ -54,7 +54,7 @@ public readonly record struct Mesh
                 TextureType.Diffuse => $"texture_diffuse{diffuseNr++}",
                 TextureType.Specular => $"texture_specular{specularNr++}",
                 TextureType.Normals => $"texture_normal{normalNr++}",
-                TextureType.TextureTypeHeight => $"texture_height{heightNr++}",
+                TextureType.Height => $"texture_height{heightNr++}",
                 _ => string.Empty
             };
 

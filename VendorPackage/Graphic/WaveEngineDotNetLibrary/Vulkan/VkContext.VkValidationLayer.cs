@@ -2,6 +2,7 @@
 using SharedLibrary.Helpers;
 using System.Runtime.InteropServices;
 using Evergine.Bindings.Vulkan;
+using SharedLibrary.Extensions;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
@@ -11,7 +12,7 @@ public unsafe partial class VkContext
                                                     VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                     VkDebugUtilsMessengerCallbackDataEXT pCallbackData,
                                                     void* pUserData);
-    private static DebugCallbackDelegate debugCallbackDelegate = new DebugCallbackDelegate(DebugCallback);
+    private static readonly DebugCallbackDelegate debugCallbackDelegate = new DebugCallbackDelegate(DebugCallback);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate VkResult vkCreateDebugUtilsMessengerEXTDelegate(VkInstance instance,
@@ -96,8 +97,7 @@ public unsafe partial class VkContext
             {
                 vkCreateDebugUtilsMessengerEXT_ptr = Marshal.GetDelegateForFunctionPointer<vkCreateDebugUtilsMessengerEXTDelegate>(funcPtr);
 
-                VkDebugUtilsMessengerCreateInfoEXT createInfo;
-                PopulateDebugMessengerCreateInfo(out createInfo);
+                PopulateDebugMessengerCreateInfo(out VkDebugUtilsMessengerCreateInfoEXT createInfo);
                 VkHelper.CheckErrors(vkCreateDebugUtilsMessengerEXT(vkInstance, &createInfo, null, debugMessengerPtr));
             }
         }

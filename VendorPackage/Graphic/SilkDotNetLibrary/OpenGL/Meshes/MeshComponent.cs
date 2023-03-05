@@ -13,6 +13,25 @@ public struct MeshComponent//model is an entity? class?
     //public Texture[] Textures { get; init; }
     public string Directory { get; init; }
     public bool GammaCoorection { get; init; }
+
+    public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, ICamera camera, Vector3 lampPosition)
+    {
+        int i = 0;
+        foreach ((Mesh mesh, List<Texture> textures) in Meshes)
+        {
+            shader.UseBy(gl);
+            //var diffuseColor = new Vector3(1f);
+            //var ambientColor = diffuseColor * new Vector3(1);
+            shader.SetUniformBy(gl, "uModel", Matrix4x4.Identity);/* * Matrix4x4.CreateTranslation(new Vector3(0f, -1 * Time, 0f))*/
+            shader.SetUniformBy(gl, "uView", camera.GetViewMatrix());
+            shader.SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
+            //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
+            //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
+            //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
+            mesh.Draw(gl, shader, textures);
+        }
+    }
+    
     public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader[] shaders, ICamera camera, Vector3 lampPosition)
     {
         int i = 0;

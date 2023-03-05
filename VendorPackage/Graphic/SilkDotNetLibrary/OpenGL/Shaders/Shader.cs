@@ -14,15 +14,15 @@ public readonly struct Shader : IShader
         ShaderProgramHandle = gl.CreateProgram();
     }
 
-    public void LoadBy(GL gl,string vertexPath, string fragmentPath)
+    public void LoadBy(GL gl,string vertex, string fragment)
     {
         //Load the individual shaders.
-        uint vertex = LoadShader(gl, ShaderType.VertexShader, vertexPath);
-        uint fragment = LoadShader(gl, ShaderType.FragmentShader, fragmentPath);
+        uint vertexShaderHandle = LoadShader(gl, ShaderType.VertexShader, vertex);
+        uint fragmentShaderHandle = LoadShader(gl, ShaderType.FragmentShader, fragment);
         //Create the shader program.
         //Attach the individual shaders.
-        gl.AttachShader(ShaderProgramHandle, vertex);
-        gl.AttachShader(ShaderProgramHandle, fragment);
+        gl.AttachShader(ShaderProgramHandle, vertexShaderHandle);
+        gl.AttachShader(ShaderProgramHandle, fragmentShaderHandle);
         gl.LinkProgram(ShaderProgramHandle);
         //Check for linking errors.
         gl.GetProgram(ShaderProgramHandle, GLEnum.LinkStatus, out var linkStatus);
@@ -31,10 +31,10 @@ public readonly struct Shader : IShader
             throw new Exception($"Program failed to link with error: {gl.GetProgramInfoLog(ShaderProgramHandle)}");
         }
         //Detach and delete the shaders
-        gl.DetachShader(ShaderProgramHandle, vertex);
-        gl.DetachShader(ShaderProgramHandle, fragment);
-        gl.DeleteShader(vertex);
-        gl.DeleteShader(fragment);
+        gl.DetachShader(ShaderProgramHandle, vertexShaderHandle);
+        gl.DetachShader(ShaderProgramHandle, fragmentShaderHandle);
+        gl.DeleteShader(vertexShaderHandle);
+        gl.DeleteShader(fragmentShaderHandle);
     }
 
     public async Task LoadAsync(GL gl,string vertexPath, string fragmentPath)
@@ -115,11 +115,10 @@ public readonly struct Shader : IShader
         gl.Uniform4(location, value.X, value.Y, value.Z, value.W);
     }
 
-    private static uint LoadShader(GL gl,ShaderType type, string path)
+    private static uint LoadShader(GL gl,ShaderType type, string text)
     {
-        string src = File.ReadAllText(path);
         uint handle = gl.CreateShader(type);
-        gl.ShaderSource(handle, src);
+        gl.ShaderSource(handle, text);
         gl.CompileShader(handle);
         string infoLog = gl.GetShaderInfoLog(handle);
         if (!string.IsNullOrWhiteSpace(infoLog))

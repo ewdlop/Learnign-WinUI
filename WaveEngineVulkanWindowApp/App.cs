@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using WaveEngineDotNetLibrary;
 using WaveEngineDotNetLibrary.Vulkan;
 using WaveEngineDotNetLibrary.Window;
@@ -7,36 +8,60 @@ namespace WaveEngineVulkanWindowApp;
 
 internal class App
 {
-    private readonly Form window;
-    private readonly IVkSurface vkWindowSurface;
-    private readonly VkContext vkContext;
+    private readonly Form _window;
+    private readonly Control _control;
+    private readonly IVkSurface _vkWindowSurface;
+    private readonly VkContext _vkContext;
     const uint WIDTH = 800;
     const uint HEIGHT = 600;
 
     public App()
     {
-        window = new Form()
+        _window = new Form()
         {
             Text = "Vulkan Triangle Rasterization",
             Size = new Size((int)WIDTH, (int)HEIGHT),
-            FormBorderStyle = FormBorderStyle.FixedToolWindow
+            FormBorderStyle = FormBorderStyle.FixedToolWindow,            
+        };
+        _control = new Control()
+        {
+            Dock = DockStyle.Fill,
+            BackColor = Color.Black,
         };
         IntPtr hInstance = Process.GetCurrentProcess().Handle;
-        vkWindowSurface = new VkWindowSurface(new WindowHandle(window.Handle, hInstance));
-        vkContext = new VkContext(WIDTH, HEIGHT, vkWindowSurface);
+        _vkWindowSurface = new VkWindowSurface(new WindowHandle(_window.Handle, hInstance));
+        _vkContext = new VkContext(WIDTH, HEIGHT, _vkWindowSurface);
     }
     public void Run()
     {
-        window.Show();
-        vkContext.Init();
+        SubscribeToControlEvent();
+        _window.Show();
+
+        Task<byte[]> loadVertShaderCode = File.ReadAllBytesAsync($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/vert.spv");
+        Task<byte[]> loadFragShaderCode = File.ReadAllBytesAsync($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/frag.spv");
+
+        Task.WaitAll(loadVertShaderCode, loadFragShaderCode);
+
+        _vkContext.Init(loadVertShaderCode.Result, loadFragShaderCode.Result);
+        
         MainLoop();
         CleanUp();
+    }
+
+    public IntPtr SubscribeToControlEvent()
+    {
+        //control.Resize += NativeWindow_Resize;
+        _control.MouseWheel += NativeWindow_MouseWheel;
+        _control.MouseMove += NativeWindow_MouseMove;
+        _control.MouseDown += NativeWindow_MouseDown;
+        //NativeWindow.KeyDown += NativeWindow_KeyDown;
+        return _control.Handle;
     }
 
     private void MainLoop()
     {
         bool isClosing = false;
-        window.FormClosing += (s, e) =>
+        _window.FormClosing += (s, e) =>
         {
             isClosing = true;
         };
@@ -45,16 +70,26 @@ internal class App
         {
             Application.DoEvents(); //Applicaiton event
 
-            vkContext.DrawFrame();
+            _vkContext.DrawFrame();
         }
 
-        vkContext.CheckDeviceWaitIdleError();
+        _vkContext.CheckDeviceWaitIdleError();
     }
+    private void NativeWindow_MouseWheel(object sender, MouseEventArgs e)
+    {
+    }
+    private void NativeWindow_MouseMove(object sender, MouseEventArgs e)
+    {
 
+    }
+    private void NativeWindow_MouseDown(object sender, MouseEventArgs e)
+    {
+
+    }
     private void CleanUp()
     {
-        vkContext.CleanUp();
-        window.Dispose();
-        window.Close();
+        _vkContext.CleanUp();
+        _window.Dispose();
+        _window.Close();
     }
 }

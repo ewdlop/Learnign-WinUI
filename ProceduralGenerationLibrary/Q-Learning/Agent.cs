@@ -26,17 +26,17 @@ public class Agent : IDisposable
     public int Iteration { get; private set; }
     public int CurrentGridX { get; private set; }
     public int CurrentGridY { get; private set; }
-    public (int, int)? PreviousState { get; private set; }
-    public AgentAction? PreviousAction { get; private set; }
-    public float? PreviousReward { get; private set; }
+    public (int, int)? PreviousState { get; private set; } 
+    public AgentAction PreviousAction { get; private set; } = AgentAction.None;
+    public float PreviousReward { get; private set; } = 0;
     [field: Range(0f, 1f)] public float LearningRate { get; private set; } = 1.0f;
     [field: Range(0f, 1f)] public float DiscountingFactor { get; private set; } = 1.0f;
     public int MinimumStateActionPairFrequencies { get; private set; } = 0;
     public float EstimatedBestPossibleRewardValue { get; private set; } = 10;
     public bool IsPause { get; set; }
     [field: Range(1, 30_000)] public int RestTime { get; private set; } = 1;
-    public object RoadBlock { get; private set; }
-    public object Goodies { get; private set; }
+    //public object RoadBlock { get; private set; }
+    //public object Goodies { get; private set; }
 
     public (int X, int Y) StartState { get; private set; }
     public (int X,int Y) FinalState { get; private set; } = FINAL_STATE;
@@ -60,11 +60,11 @@ public class Agent : IDisposable
     {
         AgentAction.Up, AgentAction.Down, AgentAction.Left, AgentAction.Right
     };
-    private readonly ConcurrentDictionary<((int,int)?,AgentAction?),float> _stateActionPairQValue;
-    private readonly ConcurrentDictionary<((int,int)?, AgentAction?),int> _stateActionPairFrequencies;
-    private readonly ConcurrentDictionary<(int, int), float> _stateRewardGrid;
-    private readonly ConcurrentDictionary<AgentAction,Task> _agentActionTaskDictionary;
-    public IReadOnlyDictionary<AgentAction, Task> AgentActionTaskDictionary => _agentActionTaskDictionary;
+    private readonly Dictionary<((int,int)?,AgentAction?),float> _stateActionPairQValue;
+    private readonly Dictionary<((int,int)?, AgentAction?),int> _stateActionPairFrequencies;
+    private readonly Dictionary<(int, int), float> _stateRewardGrid;
+    private readonly Dictionary<AgentAction,Action> _agentActionDictionary;
+    public IReadOnlyDictionary<AgentAction, Action> AgentActionDictionary => _agentActionDictionary;
     private CancellationTokenSource _stopTokenSource;
 
     //private readonly GUIController;
@@ -76,19 +76,27 @@ public class Agent : IDisposable
         //FinalState = Grid.GoalPosition;
         GridSizeX = gridSizeX;
         GridSizeY = gridSizeY;
-        _agentActionTaskDictionary = new ConcurrentDictionary<AgentAction, Task>(CONCURRENCY_LEVEL, POSSIBLE_AGENT_ACTIONS_COUNT)
+        //_agentActionTaskDictionary = new ConcurrentDictionary<AgentAction, Task>(CONCURRENCY_LEVEL, POSSIBLE_AGENT_ACTIONS_COUNT)
+        //{
+        //    [AgentAction.Left] = Left(),
+        //    [AgentAction.Right] = Right(),
+        //    [AgentAction.Up] = Up(),
+        //    [AgentAction.Down] = Down(),
+        //    [AgentAction.None] = None()
+        //};
+        _agentActionDictionary = new Dictionary<AgentAction, Action>(POSSIBLE_AGENT_ACTIONS_COUNT)
         {
-            [AgentAction.Left] = Left(),
-            [AgentAction.Right] = Right(),
-            [AgentAction.Up] = Up(),
-            [AgentAction.Down] = Down(),
-            [AgentAction.None] = None()
+            [AgentAction.Left] = Left,
+            [AgentAction.Right] = Right,
+            [AgentAction.Up] = Up,
+            [AgentAction.Down] = Down,
+            [AgentAction.None] = None
         };
         StartX = startX is not null? startX.Value : new Random().Next(0, GridSizeX);
         StartY = startY is not null? startY.Value : new Random().Next(0, GridSizeY);
-        _stateActionPairQValue = new ConcurrentDictionary<((int, int)?, AgentAction?), float>(CONCURRENCY_LEVEL,GridSizeX * GridSizeY);
-        _stateActionPairFrequencies = new ConcurrentDictionary<((int, int)?, AgentAction?), int>(CONCURRENCY_LEVEL,GridSizeX * GridSizeY * POSSIBLE_AGENT_ACTIONS_COUNT);
-        _stateRewardGrid = new ConcurrentDictionary<(int, int), float>(CONCURRENCY_LEVEL, GridSizeX * GridSizeY);
+        _stateActionPairQValue = new Dictionary<((int, int)?, AgentAction?), float>(GridSizeX * GridSizeY);
+        _stateActionPairFrequencies = new Dictionary<((int, int)?, AgentAction?), int>(GridSizeX * GridSizeY * POSSIBLE_AGENT_ACTIONS_COUNT);
+        _stateRewardGrid = new Dictionary<(int, int), float>(GridSizeX * GridSizeY);
         _stopTokenSource = new CancellationTokenSource();
         Initialized();
     }
@@ -97,25 +105,25 @@ public class Agent : IDisposable
     private AgentAction Q_Learning_Agent_Action((int,int) currentState, float rewardSignal)
     {
         UpdateStep();
-        if (PreviousState == FinalState)
+        if (PreviousState == FinalState && PreviousState is not null)
         {
             _stateActionPairQValue[(PreviousState.Value, AgentAction.None)] = rewardSignal;
         }
 
         if (PreviousState.HasValue)
         {
-            ((int, int), AgentAction?) stateActionPair = (PreviousState.Value, PreviousAction.Value);
+            ((int, int), AgentAction?) stateActionPair = (PreviousState.Value, PreviousAction);
             
             //StateActionPairFrequencies[stateActionPair]++;
             //StateActionPairQValue[stateActionPair] += LearningRate * (StateActionPairFrequencies[stateActionPair]) * (PreviousReward.Value +
             //    DiscountingFactor * MaxStateActionPairQValue(ref currentState) - StateActionPairQValue[stateActionPair]);
 
-            _stateActionPairQValue[stateActionPair] += LearningRate * (PreviousReward.Value + DiscountingFactor * MaxStateActionPairQValue(currentState)) - _stateActionPairQValue[stateActionPair];
+            _stateActionPairQValue[stateActionPair] += LearningRate * (PreviousReward + DiscountingFactor * MaxStateActionPairQValue(currentState)) - _stateActionPairQValue[stateActionPair];
         }
         PreviousState = currentState;
         PreviousAction = ArgMaxActionExploration(currentState);
         PreviousReward = rewardSignal;
-        return PreviousAction.Value;
+        return PreviousAction;
     }
 
     //Page 844
@@ -214,39 +222,39 @@ public class Agent : IDisposable
             ? EstimatedBestPossibleRewardValue : _stateActionPairQValue[(currentState, choice)];
     }
 
-    private Task Left()
+    private void Left()
     {
         _transform.Position -= new Vector3(1f, 0f, 0f);
         CurrentGridX--;
-        return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
+        //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private Task Right()
+    private void Right()
     {
         _transform.Position += new Vector3(1f, 0f, 0f);
         CurrentGridX++;
-        return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
+        //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private Task Up()
+    private void Up()
     {
         _transform.Position += new Vector3(0f, 0f, 1f);
         CurrentGridY++;
-        return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
+        //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private Task Down()
+    private void Down()
     {
         _transform.Position -= new Vector3(0f, 0f, 1f);
         CurrentGridY--;
-        return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
+        //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private Task None()
+    private void None()
     {
         ResetAgentToStart();
         UpdateIteration();
-        return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
+        //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
     private void ResetAgentToStart()
@@ -256,22 +264,37 @@ public class Agent : IDisposable
         CurrentGridY = StartState.Y;
     }
 
-    private async Task WaitThenAction(int waitTime, (int, int) gridCoordinate)
+    private void StartActions()
     {
-        await foreach (Task actionTask in Wait(waitTime, gridCoordinate))
+        foreach (Action action in NoWaitThenActions())
         {
-            await actionTask;
+            action();
         }
     }
-
-    private async IAsyncEnumerable<Task> Wait(
-        int waitTime,
-        (int, int) gridCoordinate)
+    private async Task StartActionsAsync(TimeSpan waitTime)
+    {
+        await foreach (Action action in WaitThenActionsAsync(waitTime))
+        {
+            action();
+        }
+    }
+    private IEnumerable<Action> NoWaitThenActions()
+    /*        (int, int) gridCoordinate*/
+    {
+        while (!IsPause && !_stopTokenSource.IsCancellationRequested)
+        {
+            yield return _agentActionDictionary[Q_Learning_Agent_Action((CurrentGridX, CurrentGridY), _stateRewardGrid[(CurrentGridX, CurrentGridY)])];
+        }
+    }
+    
+    private async IAsyncEnumerable<Action> WaitThenActionsAsync(
+        TimeSpan waitTime)
+/*        (int, int) gridCoordinate*/
     {
         while (!IsPause && !_stopTokenSource.IsCancellationRequested)
         {
             await Task.Delay(waitTime, _stopTokenSource.Token);
-            yield return _agentActionTaskDictionary[Q_Learning_Agent_Action(gridCoordinate, _stateRewardGrid[gridCoordinate])];
+            yield return _agentActionDictionary[Q_Learning_Agent_Action((CurrentGridX,CurrentGridY), _stateRewardGrid[(CurrentGridX, CurrentGridY)])];
         }
     }
 
@@ -361,8 +384,6 @@ public class Agent : IDisposable
     #region Run
     private void ReInitialized()
     {
-        PreviousAction = null;
-        PreviousReward = null;
         PreviousState = null;
         Step = 0;
         Iteration = 0;
@@ -394,10 +415,16 @@ public class Agent : IDisposable
         //Grid.instance.UpdateColor(CurrentGridX, CurrentGridY);
     }
 
-    public async Task StartExploringAsync()
+    public void StartExploring()
     {
         UpdateIteration();
-        await WaitThenAction(1000, StartState);
+        StartActions();
+    }
+    
+    public async Task StartExploringAsync(TimeSpan waitTime)
+    {
+        UpdateIteration();
+        await StartActionsAsync(waitTime);
     }
 
     public void Stop()

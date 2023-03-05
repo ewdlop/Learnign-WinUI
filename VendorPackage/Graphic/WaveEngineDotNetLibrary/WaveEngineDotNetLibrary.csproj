@@ -16,6 +16,12 @@
 		<None Update="Shaders\frag.spv">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="Shaders\mesh.frag.spv">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Shaders\mesh.vert.spv">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="Shaders\shader.frag">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

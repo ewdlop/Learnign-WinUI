@@ -4,11 +4,10 @@ using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 namespace SilkDotNetLibrary.OpenGL.Textures;
 
-public struct Texture
+public readonly struct Texture
 {
     public uint TextureHandle { get; }
     public TextureType TextureType { get; } = default;
@@ -18,16 +17,13 @@ public struct Texture
     /// <param name="gl"></param>
     /// <param name="imagePath"></param>
     /// <param name="textureType"></param>
-    public unsafe Texture(GL gl, string imagePath,TextureType textureType=default)
+    public unsafe Texture(GL gl, Image image,TextureType textureType=default)
     {
         try
         {
             TextureHandle = gl.GenTexture();
             TextureType = textureType;
-            //Loading an image using imagesharp.
-            Image image = Image.Load(imagePath);
             Texture tmpThis = this;
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
             uint imageWidth = (uint)image.Width;
             uint imageHeight = (uint)image.Height;
             switch (image.PixelType.BitsPerPixel)

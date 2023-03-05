@@ -45,7 +45,10 @@ public unsafe partial class VkContext
                                                                        &allocInfo,
                                                                        commandBuffersPtr));
         }
+    }
 
+    private void BeginCommandBuffers()
+    {
         for (uint i = 0; i < vkCommandBuffers.Length; i++)
         {
             VkCommandBufferBeginInfo beginInfo = new VkCommandBufferBeginInfo()

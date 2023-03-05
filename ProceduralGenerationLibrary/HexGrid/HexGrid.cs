@@ -2,8 +2,7 @@
 
 public class HexGrid
 {
-    private HexCell[][] hexCells;
-    public HexCell[][] HexCells { get => hexCells; private set => hexCells = value; }
+    public required HexCell[][] HexCells { get; set; }
     public HexGrid(in int gridX, in int gridY, in float size)
     {
         HexCells = new HexCell[gridY][];

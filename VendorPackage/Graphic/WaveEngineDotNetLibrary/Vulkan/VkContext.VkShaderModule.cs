@@ -1,6 +1,5 @@
-﻿using SharedLibrary.Helpers;
-using System.Reflection;
-using Evergine.Bindings.Vulkan;
+﻿using Evergine.Bindings.Vulkan;
+using SharedLibrary.Extensions;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
@@ -33,12 +32,9 @@ public unsafe partial class VkContext
 
     private void CreateGraphicsPipeline()
     {
-        Console.WriteLine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-        byte[] vertShaderCode = File.ReadAllBytes($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/vert.spv");
-        byte[] fragShaderCode = File.ReadAllBytes($"{System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/Shaders/frag.spv");
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+        VkShaderModule vertShaderModule = CreateShaderModule(_vertShaderCode);
+        VkShaderModule fragShaderModule = CreateShaderModule(_fragShaderCode);
 
         VkPipelineShaderStageCreateInfo vertShaderStageInfo = new()
         {
