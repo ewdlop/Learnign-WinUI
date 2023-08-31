@@ -40,6 +40,7 @@ public readonly struct Texture
 
                                 //Note 8/30/2023
                                 //Batman Metalness material breaks here
+                                //corrupted memoery
                                 tmpThis.Load(gl, data, imageWidth, imageHeight);
                             }
                         });
