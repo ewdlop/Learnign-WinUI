@@ -6,13 +6,13 @@ namespace SilkDotNetLibrary.OpenGL.Shaders;
 
 public readonly struct ShaderBulk
 {
-    public readonly Memory<uint> ShaderProgramHandles;
+    public readonly uint[] ShaderProgramHandles;
     public ShaderBulk(GL gl, int count)
     {
-        ShaderProgramHandles = MemoryPool<uint>.Shared.Rent(count).Memory;
+        ShaderProgramHandles = ArrayPool<uint>.Shared.Rent(count);
         for (int i = 0; i < count; i++)
         {
-            ShaderProgramHandles.Span[i] = gl.CreateProgram();
+            ShaderProgramHandles[i] = gl.CreateProgram();
         }
     }
 
@@ -20,7 +20,7 @@ public readonly struct ShaderBulk
     {
         for (int i = 0; i < ShaderProgramHandles.Length; i++)
         {
-            uint shaderProgram = ShaderProgramHandles.Span[i];
+            uint shaderProgram = ShaderProgramHandles[i];
             uint vertexShader = LoadShader(gl, ShaderType.VertexShader, vertex[i]);
             uint fragmentShader = LoadShader(gl, ShaderType.FragmentShader, fragment[i]);
             gl.ShaderSource(vertexShader, vertex[i]);

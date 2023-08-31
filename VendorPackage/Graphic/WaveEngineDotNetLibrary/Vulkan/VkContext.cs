@@ -109,9 +109,10 @@ public unsafe partial class VkContext
         CreateFramebuffers();
         CreateCommandPool();
         CreateCommandBuffers();
-        BeginCommandBuffers();
         
+        RecordCommandBuffers();
         
+        CreateFence();
         CreateSemaphores();
     }
     public void Init(byte[] vertShaderCode, byte[] fragShaderCode)
@@ -151,6 +152,7 @@ public unsafe partial class VkContext
 
     public void CleanUp()
     {
+        VulkanNative.vkDestroyFence(vkDevice, vkFence, null);
         VulkanNative.vkDestroySemaphore(vkDevice, vkRenderFinishedSemaphore, null);
         VulkanNative.vkDestroySemaphore(vkDevice, vkImageAvailableSemaphore, null);
 

@@ -68,21 +68,21 @@ internal class App
 
         while (!isClosing)
         {
+                    
             Application.DoEvents(); //Applicaiton event
-
             _vkContext.DrawFrame();
         }
 
         _vkContext.CheckDeviceWaitIdleError();
     }
-    private void NativeWindow_MouseWheel(object sender, MouseEventArgs e)
+    private void NativeWindow_MouseWheel(object? sender, MouseEventArgs e)
     {
     }
-    private void NativeWindow_MouseMove(object sender, MouseEventArgs e)
+    private void NativeWindow_MouseMove(object? sender, MouseEventArgs e)
     {
 
     }
-    private void NativeWindow_MouseDown(object sender, MouseEventArgs e)
+    private void NativeWindow_MouseDown(object? sender, MouseEventArgs e)
     {
 
     }

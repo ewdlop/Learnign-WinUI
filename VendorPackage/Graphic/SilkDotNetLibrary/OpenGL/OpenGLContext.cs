@@ -56,7 +56,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private MeshComponent MeshComponent { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow window, ICamera camera, ILogger<OpenGLContext> logger, MeshComponentFactory meshComponentFactory)
+    public OpenGLContext(
+        IWindow window,
+        ICamera camera,
+        ILogger<OpenGLContext> logger,
+        MeshComponentFactory meshComponentFactory)
     {
         _window = window;
         _camera = camera;

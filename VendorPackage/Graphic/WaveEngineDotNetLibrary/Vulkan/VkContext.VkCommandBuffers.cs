@@ -47,7 +47,7 @@ public unsafe partial class VkContext
         }
     }
 
-    private void BeginCommandBuffers()
+    private void RecordCommandBuffers()
     {
         for (uint i = 0; i < vkCommandBuffers.Length; i++)
         {

@@ -8,7 +8,7 @@ public unsafe partial class VkContext
     private VkPipelineLayout vkPipelineLayout;
     private VkPipeline vkGraphicsPipeline;
 
-    private VkShaderModule CreateShaderModule(byte[] code)
+    private VkShaderModule CreateShaderModule(ReadOnlySpan<byte> code)
     {
         VkShaderModuleCreateInfo createInfo = new VkShaderModuleCreateInfo
         {
@@ -51,12 +51,42 @@ public unsafe partial class VkContext
             module = fragShaderModule,
             pName = "main".ToPointer(),
         };
+        
 
         VkPipelineShaderStageCreateInfo* shaderStages = stackalloc VkPipelineShaderStageCreateInfo[] 
         {  
             vertShaderStageInfo, 
             fragShaderStageInfo
         };
+
+
+        //VkVertexInputAttributeDescription* attributeDescriptions = stackalloc VkVertexInputAttributeDescription[]
+        //{
+        //    new VkVertexInputAttributeDescription
+        //    {
+        //        binding = 0,
+        //        location = 0,
+        //        format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
+        //        offset = 0
+        //    },
+        //    new VkVertexInputAttributeDescription
+        //    {
+        //        binding = 0,
+        //        location = 1,
+        //        format = VkFormat.VK_FORMAT_R32G32B32_SFLOAT,
+        //        offset = 12
+        //    }
+        //};
+
+        //VkVertexInputBindingDescription* bindingDescriptions = stackalloc VkVertexInputBindingDescription[]
+        //{
+        //    new VkVertexInputBindingDescription
+        //    {
+        //        binding = 0,
+        //        stride = 24,
+        //        inputRate = VkVertexInputRate.VK_VERTEX_INPUT_RATE_VERTEX
+        //    }
+        //};
 
         // Vertex Input
         VkPipelineVertexInputStateCreateInfo vertexInputInfo = new()
@@ -161,6 +191,13 @@ public unsafe partial class VkContext
             blendConstants_3 = 0.0f, // Optional
         };
 
+        //VkPushConstantRange vkPushConstantRange = new()
+        //{
+        //    stageFlags = VkShaderStageFlags.VK_SHADER_STAGE_VERTEX_BIT,
+        //    offset = 0,
+        //    size = (uint)sizeof(Matrix4x4)
+        //};
+        
         VkPipelineLayoutCreateInfo pipelineLayoutInfo = new()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,

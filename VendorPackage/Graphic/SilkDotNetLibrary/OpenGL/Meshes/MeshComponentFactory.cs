@@ -14,7 +14,8 @@ namespace SilkDotNetLibrary.OpenGL.Meshes;
 public class MeshComponentFactory
 {
     private readonly Assimp _assimp;
-    private ILogger<MeshComponentFactory> _logger;
+    private readonly ILogger<MeshComponentFactory> _logger;
+    
     //private Dictionary<uint, MeshComponent> _meshTextureInfo;
     public MeshComponentFactory(ILogger<MeshComponentFactory> logger)
     {
@@ -24,7 +25,6 @@ public class MeshComponentFactory
 
     public unsafe MeshComponent LoadModel(GL gl, string path)
     {
-
         Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));
         if (scene is null ||
             Convert.ToBoolean(scene->MFlags & Convert.ToUInt32(SceneFlags.Incomplete)) ||
@@ -140,6 +140,7 @@ public class MeshComponentFactory
                 if (!string.Equals(textureName, str.AsString)) continue;
                 textures.Add(loadedTexture);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                _logger.LogInformation($"Texture loaded: {str.AsString}");
                 break;
             }
             

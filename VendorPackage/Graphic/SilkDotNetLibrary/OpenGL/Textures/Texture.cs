@@ -37,6 +37,9 @@ public readonly struct Texture
                             fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
                             {
                                 //Loading the actual image.
+
+                                //Note 8/30/2023
+                                //Batman Metalness material breaks here
                                 tmpThis.Load(gl, data, imageWidth, imageHeight);
                             }
                         });

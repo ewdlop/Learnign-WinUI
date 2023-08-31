@@ -45,8 +45,13 @@ public unsafe partial class VkContext
         {
             VkSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkPhysicalDevice);
             swapChainAdequate = (swapChainSupport.surfaceFormats.Length != 0 && swapChainSupport.presentModes.Length != 0);
+            #if DEBUG
+            for (int i = 0; i < swapChainSupport.presentModes.Length; i++)
+            {
+                Console.WriteLine(swapChainSupport.presentModes[i]);
+            }
+            #endif
         }
-
         return indices.IsComplete() && extensionsSupported && swapChainAdequate;
     }
 
@@ -88,7 +93,6 @@ public unsafe partial class VkContext
             }
             VkBool32 presentSupport = false;
             VkHelper.CheckErrors(VulkanNative.vkGetPhysicalDeviceSurfaceSupportKHR(vkPhysicalDevice, i, _vkSurface.SurfaceKHR, &presentSupport));
-
             if (presentSupport)
             {
                 queueFamilyIndices.presentFamily = i;

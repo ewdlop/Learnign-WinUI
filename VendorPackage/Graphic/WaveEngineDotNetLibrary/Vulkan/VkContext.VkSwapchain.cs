@@ -122,6 +122,8 @@ public unsafe partial class VkContext
         QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
         uint* queueFamilyIndices = stackalloc uint[] { indices.graphicsFamily.Value, indices.presentFamily.Value };
 
+        // If graphics and present queues are different, we either have to explicitly transfer ownership of images between the queues,
+        // or we have to create the swapchain with imageSharingMode as VK_SHARING_MODE_CONCURRENT
         if (indices.graphicsFamily != indices.presentFamily)
         {
             createInfo.imageSharingMode = VkSharingMode.VK_SHARING_MODE_CONCURRENT;

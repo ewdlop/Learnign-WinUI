@@ -2,13 +2,8 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace SilkDotNetLibrary.OpenGL.Meshes;
+namespace SilkDotNetLibrary.OpenGL.Tests;
 
-//https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/model.h
-
-/// <summary>
-/// Is not using property for now. Marshal.OffsetOf is not working with properties.
-/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public record struct Vertex
 {
@@ -24,8 +19,12 @@ public record struct Vertex
     public const uint UvOffset = 24;
     public const uint ColorOffset = 32;
 
-    //public const int MAX_BONE_INFLUENCE = 4;
+    public const int MAX_BONE_INFLUENCE = 4;
 
-    //public Memory<int> BoneIds = Array.Empty<int>();
-    //public Memory<float> Weights = Array.Empty<float>();
+    public Memory<int> BoneIds = Array.Empty<int>();
+    public Memory<float> Weights = Array.Empty<float>();
+
+    public Vertex()
+    {
+    }
 }

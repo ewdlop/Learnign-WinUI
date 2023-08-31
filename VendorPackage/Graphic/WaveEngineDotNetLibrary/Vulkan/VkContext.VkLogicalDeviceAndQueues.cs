@@ -20,7 +20,7 @@ public unsafe partial class VkContext
         float queuePriority = 1.0f;
 
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice);
-        VkDeviceQueueCreateInfo[] queueCreateInfos = {
+        Span<VkDeviceQueueCreateInfo> queueCreateInfos = stackalloc VkDeviceQueueCreateInfo[2] {
             new()
             {
                 sType = VkStructureType.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -55,7 +55,7 @@ public unsafe partial class VkContext
             ppEnabledExtensionNames = (byte**)deviceExtensionsArray
         };
 
-        fixed (VkDeviceQueueCreateInfo* queueCreateInfosArrayPtr = &queueCreateInfos[0])
+        fixed (VkDeviceQueueCreateInfo* queueCreateInfosArrayPtr = queueCreateInfos)
         {
             createInfo.queueCreateInfoCount = (uint)queueCreateInfos.Length;
             createInfo.pQueueCreateInfos = queueCreateInfosArrayPtr;

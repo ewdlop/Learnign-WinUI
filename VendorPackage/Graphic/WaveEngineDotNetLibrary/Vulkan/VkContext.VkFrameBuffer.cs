@@ -10,6 +10,7 @@ public unsafe partial class VkContext
     {
         vkSwapChainFramebuffers = new VkFramebuffer[vkSwapChainImageViews.Length];
 
+
         for (int i = 0; i < vkSwapChainImageViews.Length; i++)
         {
 
