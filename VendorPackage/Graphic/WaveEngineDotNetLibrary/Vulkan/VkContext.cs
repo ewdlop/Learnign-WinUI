@@ -2,7 +2,8 @@
 using SharedLibrary.Helpers;
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
-using WaveEngine.Bindings.Vulkan;
+using Evergine.Bindings.Vulkan;
+using SharedLibrary.Extensions;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
@@ -12,7 +13,8 @@ public unsafe partial class VkContext
     private readonly uint _width;
     private readonly uint _height;
     private VkInstance vkInstance;
-
+    private byte[] _vertShaderCode = Array.Empty<byte>();
+    private byte[] _fragShaderCode = Array.Empty<byte>();
     public VkContext(uint width, uint height, IVkSurface vkSurface)
     {
         _width = width;
@@ -38,10 +40,10 @@ public unsafe partial class VkContext
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             pApplicationName = "Hello Triangle".ToPointer(),
-            applicationVersion = Helper.Version(1, 0, 0),
+            applicationVersion = Helper.IsValidVersion(1, 0, 0),
             pEngineName = "No Engine".ToPointer(),
-            engineVersion = Helper.Version(1, 0, 0),
-            apiVersion = Helper.Version(1, 2, 0)
+            engineVersion = Helper.IsValidVersion(1, 0, 0),
+            apiVersion = Helper.IsValidVersion(1, 2, 0)
         };
 
         VkInstanceCreateInfo createInfo = default;
@@ -107,7 +109,17 @@ public unsafe partial class VkContext
         CreateFramebuffers();
         CreateCommandPool();
         CreateCommandBuffers();
+        
+        RecordCommandBuffers();
+        
+        CreateFence();
         CreateSemaphores();
+    }
+    public void Init(byte[] vertShaderCode, byte[] fragShaderCode)
+    {
+        _vertShaderCode = vertShaderCode;
+        _fragShaderCode = fragShaderCode;
+        Init();
     }
 
     private void GetAllInstanceExtensionsAvailables()
@@ -140,13 +152,15 @@ public unsafe partial class VkContext
 
     public void CleanUp()
     {
+        VulkanNative.vkDestroyFence(vkDevice, vkFence, null);
         VulkanNative.vkDestroySemaphore(vkDevice, vkRenderFinishedSemaphore, null);
         VulkanNative.vkDestroySemaphore(vkDevice, vkImageAvailableSemaphore, null);
 
         VulkanNative.vkDestroyCommandPool(vkDevice, vkCommandPool, null);
 
-        foreach (VkFramebuffer framebuffer in vkSwapChainFramebuffers)
+        for (int i = 0; i < vkSwapChainFramebuffers.Length; i++)
         {
+            VkFramebuffer framebuffer = vkSwapChainFramebuffers[i];
             VulkanNative.vkDestroyFramebuffer(vkDevice, framebuffer, null);
         }
 
@@ -156,8 +170,9 @@ public unsafe partial class VkContext
 
         VulkanNative.vkDestroyRenderPass(vkDevice, vkRenderPass, null);
 
-        foreach (var imageView in vkSwapChainImageViews)
+        for (int i = 0; i < vkSwapChainImageViews.Length; i++)
         {
+            VkImageView imageView = vkSwapChainImageViews[i];
             VulkanNative.vkDestroyImageView(vkDevice, imageView, null);
         }
 

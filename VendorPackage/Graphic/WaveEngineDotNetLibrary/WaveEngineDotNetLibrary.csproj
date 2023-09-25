@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableDefaultCompileItems>False</EnableDefaultCompileItems>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="WaveEngine.Bindings.Vulkan" Version="2021.12.1.14" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
@@ -19,6 +15,12 @@
 	<ItemGroup>
 		<None Update="Shaders\frag.spv">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Shaders\mesh.frag.spv">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Shaders\mesh.vert.spv">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="Shaders\shader.frag">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -33,6 +35,7 @@
 	<ItemGroup>
 		<Compile Include="Vulkan\IVkSurface.cs" />
 		<Compile Include="Vulkan\VkContext.cs" />
+		<Compile Include="Vulkan\VkContext.Fence.cs" />
 		<Compile Include="Vulkan\VkContext.VkCommandBuffers.cs">
 			<DependentUpon>VkContext.cs</DependentUpon>
 		</Compile>
@@ -78,7 +81,13 @@
 		<Compile Include="Vulkan\VkContext.VkFrame.cs">
 			<DependentUpon>VkContext.cs</DependentUpon>
 		</Compile>
+		<Compile Include="Vulkan\VkContext.Fence.cs">
+			<DependentUpon>VkContext.cs</DependentUpon>
+		</Compile>
 		<Compile Include="Window\VkWindowHandle.cs" />
 		<Compile Include="Vulkan\Window\VkWindowSurface.cs" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Evergine.Bindings.Vulkan" Version="2023.8.1.18" />
 	</ItemGroup>
 </Project>

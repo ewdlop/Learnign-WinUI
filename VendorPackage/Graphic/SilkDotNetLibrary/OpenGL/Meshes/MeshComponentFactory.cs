@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 using Texture = SilkDotNetLibrary.OpenGL.Textures.Texture;
 
 namespace SilkDotNetLibrary.OpenGL.Meshes;
@@ -12,7 +14,8 @@ namespace SilkDotNetLibrary.OpenGL.Meshes;
 public class MeshComponentFactory
 {
     private readonly Assimp _assimp;
-    private ILogger<MeshComponentFactory> _logger;
+    private readonly ILogger<MeshComponentFactory> _logger;
+    
     //private Dictionary<uint, MeshComponent> _meshTextureInfo;
     public MeshComponentFactory(ILogger<MeshComponentFactory> logger)
     {
@@ -22,7 +25,6 @@ public class MeshComponentFactory
 
     public unsafe MeshComponent LoadModel(GL gl, string path)
     {
-
         Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));
         if (scene is null ||
             Convert.ToBoolean(scene->MFlags & Convert.ToUInt32(SceneFlags.Incomplete)) ||
@@ -138,12 +140,16 @@ public class MeshComponentFactory
                 if (!string.Equals(textureName, str.AsString)) continue;
                 textures.Add(loadedTexture);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                _logger.LogInformation($"Texture loaded: {str.AsString}");
                 break;
             }
             
             if (skip) continue;
             // if texture hasn't been loaded already, load it
-            Texture texture = new(gl, $"Assets/batman_free/{str.AsString}", type);
+            //hard code for the moment, relative path issue
+            Image texutreImage = Image.Load($"Assets/batman_free/{str.AsString}");
+            //Image texutreImage = Image.Load($"{str.AsString}");
+            Texture texture = new(gl, texutreImage, type);
             textures.Add(texture);
             loadedTextures.Add((texture, str.AsString));  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
         }

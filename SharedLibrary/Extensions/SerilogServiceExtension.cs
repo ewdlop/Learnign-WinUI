@@ -16,16 +16,19 @@ namespace SharedLibrary.Extensions
                 .MinimumLevel.Verbose()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
-                .Enrich.WithEnvironmentUserName()
-                .Enrich.WithThreadId()
-                .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+                .WriteTo.Async(configure=>configure.Console(
+                    outputTemplate: "[{Timestamp:MM/dd/HH:mm:ss}({ThreadId}){Level:u3}]{Message:lj}{NewLine}{Exception}",
+                    theme: SystemConsoleTheme.Literate).Enrich.WithThreadId())
                 .WriteTo.Async(configure => configure.File("Logs/log.txt",
                     fileSizeLimitBytes: 1_000_000,
                     rollOnFileSizeLimit: true,
                     shared: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1),
                     rollingInterval: RollingInterval.Day)).CreateLogger();
-            services.AddLogging(builder => builder.AddSerilog(dispose: true));
+            services.AddLogging(builder => {
+                builder.ClearProviders();
+                builder.AddSerilog(dispose: true);
+            });
             return services;
         }
 

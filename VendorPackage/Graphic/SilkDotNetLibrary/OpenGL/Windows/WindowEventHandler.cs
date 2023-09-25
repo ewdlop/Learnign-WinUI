@@ -58,6 +58,16 @@ public class WindowEventHandler : IWindowEventHandler
             _window?.Run();
         }, cancellationToken);
     }
+
+    public virtual void Start()
+    {
+        _window.Load += OnLoad;
+        _window.Update += OnUpdate;
+        _window.Render += OnRender;
+        _window.Closing += OnClosing;
+        _window.FramebufferResize += OnFrameBufferResize;
+        _window?.Run();
+    }
     public virtual Task Stop(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Window Closing...");
@@ -67,6 +77,12 @@ public class WindowEventHandler : IWindowEventHandler
         }, cancellationToken);
     }
 
+    public virtual void Stop()
+    {
+        _logger.LogInformation("Window Closing...");
+        _window?.Close();
+    }
+    
     public void OnLoad()
     {
         InputContext = _window.CreateInput();

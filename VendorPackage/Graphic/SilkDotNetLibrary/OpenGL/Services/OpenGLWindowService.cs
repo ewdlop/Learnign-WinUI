@@ -16,8 +16,9 @@ public static class SilkDotNetOpenGLWindowServiceExtension
         configure(windowOptions);
         return services.AddScoped(_ => Window.Create(windowOptions))
             .AddScoped<OpenGLContext>()
-            .AddScoped<IWindowEventHandler,WindowEventHandler>()
+            .AddScoped<IWindowEventHandler, WindowEventHandler>()
             .AddScoped<MeshComponentFactory>()
-            .AddHostedService<App>();
+            .AddScoped<IApp, App>();
+            //.AddHostedService<App>();
     }
 }

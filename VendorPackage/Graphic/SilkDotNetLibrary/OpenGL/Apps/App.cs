@@ -9,7 +9,7 @@ namespace SilkDotNetLibrary.OpenGL.Apps;
 //possibly not using IHostService
 public class App : IApp
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<App> _logger;
     private readonly IWindowEventHandler _windowEventHandler;
     protected bool _disposedValue;
 
@@ -20,19 +20,33 @@ public class App : IApp
         _windowEventHandler = windowEventHandler;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public void Start()
     {
         _logger.LogInformation("App Starting...");
         _logger.LogInformation("App Starting thread ID: {threadId}", Environment.CurrentManagedThreadId);
-        await _windowEventHandler.Start(cancellationToken);
+        _windowEventHandler.Start();
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    public void Stop()
     {
         _logger.LogInformation("Window App Stopping...");
         _logger.LogInformation("Window App Stopping thread ID: {threadId}", Environment.CurrentManagedThreadId);
-        await _windowEventHandler.Stop(cancellationToken);
+        _windowEventHandler.Stop();
     }
+
+    //public async Task StartAsync(CancellationToken cancellationToken)
+    //{
+    //    _logger.LogInformation("App Starting...");
+    //    _logger.LogInformation("App Starting thread ID: {threadId}", Environment.CurrentManagedThreadId);
+    //    await _windowEventHandler.Start(cancellationToken);
+    //}
+
+    //public async Task StopAsync(CancellationToken cancellationToken)
+    //{
+    //    _logger.LogInformation("Window App Stopping...");
+    //    _logger.LogInformation("Window App Stopping thread ID: {threadId}", Environment.CurrentManagedThreadId);
+    //    await _windowEventHandler.Stop(cancellationToken);
+    //}
     protected virtual void OnDispose()
     {
         _windowEventHandler.Dispose();

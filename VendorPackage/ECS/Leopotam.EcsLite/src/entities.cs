@@ -10,8 +10,9 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 #endif
 
-namespace Leopotam.EcsLite {
-    public ref struct EcsPackedEntity {
+namespace Leopotam.EcsLite
+{
+    public struct EcsPackedEntity {
         internal int Id;
         internal int Gen;
     }

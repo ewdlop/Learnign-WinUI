@@ -11,7 +11,8 @@ using System.Runtime.CompilerServices;
 using Unity.IL2CPP.CompilerServices;
 #endif
 
-namespace Leopotam.EcsLite {
+namespace Leopotam.EcsLite
+{
 #if LEOECSLITE_FILTER_EVENTS
     public interface IEcsFilterEventListener {
         void OnEntityAdded (int entity);

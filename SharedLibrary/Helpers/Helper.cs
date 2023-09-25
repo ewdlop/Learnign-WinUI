@@ -2,7 +2,7 @@
 
 public static unsafe class Helper
 {
-    public static uint Version(uint major, uint minor, uint patch)
+    public static uint IsValidVersion(uint major, uint minor, uint patch)
     {
         return major << 22 | minor << 12 | patch;
     }

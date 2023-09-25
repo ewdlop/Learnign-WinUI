@@ -16,6 +16,9 @@ using Silk.NET.SDL;
 using SilkDotNetLibrary.OpenGL.Textures;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 using SilkDotNetLibrary.OpenGL.Meshes;
+using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -53,7 +56,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private MeshComponent MeshComponent { get; set; }
 
     //Setup the camera's location, and relative up and right directions
-    public OpenGLContext(IWindow window, ICamera camera, ILogger<OpenGLContext> logger, MeshComponentFactory meshComponentFactory)
+    public OpenGLContext(
+        IWindow window,
+        ICamera camera,
+        ILogger<OpenGLContext> logger,
+        MeshComponentFactory meshComponentFactory)
     {
         _window = window;
         _camera = camera;
@@ -84,13 +91,32 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         ScreenShader = new Shader(_gl);
         LightingShader = new Shader(_gl);
         LampShader = new Shader(_gl); ;
-        
-        ScreenShader.LoadBy(_gl, "Shaders/screen.vert", "Shaders/screen.frag");
-        LightingShader.LoadBy(_gl, "Shaders/basic.vert", "Shaders/material.frag");
-        LampShader.LoadBy(_gl, "Shaders/basic.vert", "Shaders/white.frag");
 
-        DiffuseMap = new Textures.Texture(_gl, "Textures/silkBoxed.png");
-        SpecularMap = new Textures.Texture(_gl, "Textures/silkSpecular.png");
+        Task<string> screenVertexShaderTask = File.ReadAllTextAsync("Shaders/screen.vert");
+        Task<string> screenFragmentShaderTask = File.ReadAllTextAsync("Shaders/screen.frag");
+        Task<string> lightingVertexShaderTask = File.ReadAllTextAsync("Shaders/basic.vert");
+        Task<string> lightingFragmentShaderTask = File.ReadAllTextAsync("Shaders/material.frag");
+        Task<string> lampVertexShaderTask = File.ReadAllTextAsync("Shaders/basic.vert");
+        Task<string> lampFragmentShaderTask = File.ReadAllTextAsync("Shaders/white.frag");
+
+        Task.WaitAll(screenVertexShaderTask,
+                     screenFragmentShaderTask,
+                     lightingVertexShaderTask,
+                     lightingFragmentShaderTask,
+                     lampVertexShaderTask,
+                     lampFragmentShaderTask);
+        
+        ScreenShader.LoadBy(_gl, screenVertexShaderTask.Result, screenFragmentShaderTask.Result);
+        LightingShader.LoadBy(_gl, lightingVertexShaderTask.Result, lightingFragmentShaderTask.Result);
+        LampShader.LoadBy(_gl, lampVertexShaderTask.Result, lampFragmentShaderTask.Result);
+
+        Task<Image> diffuseTextureTask = Image.LoadAsync("Textures/silkBoxed.png");
+        Task<Image> specularTextureTask = Image.LoadAsync("Textures/silkSpecular.png");
+        Task.WaitAll(diffuseTextureTask, specularTextureTask);
+        diffuseTextureTask.Result.Mutate(x => x.Flip(FlipMode.Vertical));
+        specularTextureTask.Result.Mutate(x => x.Flip(FlipMode.Vertical));
+        DiffuseMap = new Textures.Texture(_gl, diffuseTextureTask.Result);
+        SpecularMap = new Textures.Texture(_gl, specularTextureTask.Result);
 
         ScreenShader.UseBy(_gl);
         ScreenShader.SetUniformBy(_gl, "screenTexture", 2);
@@ -108,13 +134,17 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // draw as wireframe
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
-        MeshComponent = _meshComponentFactory.LoadModel(_gl,"Assets/batman_free/scene.gltf");
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
+
+        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
+        Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
         MeshShader1 = new Shader(_gl);
-        MeshShader1.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
-        MeshShader2 = new Shader(_gl);
-        MeshShader2.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
-        MeshShader3 = new Shader(_gl);
-        MeshShader3.LoadBy(_gl, "Shaders/test.vert", "Shaders/test.frag");
+        MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        //MeshShader2 = new Shader(_gl);
+        //MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        //MeshShader3 = new Shader(_gl);
+        //MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
         return _gl;
     }
 
@@ -124,7 +154,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     }
     private void DrawMesh()
     {
-        MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
+        //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
+        MeshComponent.Draw(_gl, MeshShader1, _camera, _lampPosition);
     }
     private void RenderScene(double dt)
     {
@@ -173,7 +204,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
         _gl.BindVertexArray(0);
 
-        //DrawMesh();
+        DrawMesh();
     }
 
     private void Reset()

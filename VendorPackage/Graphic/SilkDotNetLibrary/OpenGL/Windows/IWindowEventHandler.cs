@@ -10,6 +10,8 @@ public interface IWindowEventHandler : ISystem, IKeyboardInputHandler, IMouseInp
 {
     Task Start(CancellationToken cancellationToken);
     Task Stop(CancellationToken cancellationToken);
+    void Start();
+    void Stop();
     void OnRender(double dt);
     void OnClosing();
 

@@ -43,26 +43,26 @@ public readonly record struct Mesh
         uint specularNr = 1;
         uint normalNr = 1;
         uint heightNr = 1;
-        //for (int i = 0; i < textures.Count; i++)
-        //{
-        //    gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
-            
-        //    // retrieve texture number (the N in diffuse_textureN)
+        for (int i = 0; i < textures.Count; i++)
+        {
+            gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
 
-        //    string combined = textures[i].TextureType switch
-        //    {
-        //        TextureType.TextureTypeDiffuse => $"texture_diffuse{diffuseNr++}",
-        //        TextureType.TextureTypeSpecular => $"texture_specular{specularNr++}",
-        //        TextureType.TextureTypeNormals => $"texture_normal{normalNr++}",
-        //        TextureType.TextureTypeHeight => $"texture_height{heightNr++}",
-        //        _ => string.Empty
-        //    };
+            // retrieve texture number (the N in diffuse_textureN)
 
-        //    // now set the sampler to the correct texture unit
-        //    gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, combined), i);
-        //    // and finally bind the texture
-        //    gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);
-        //}
+            string combined = textures[i].TextureType switch
+            {
+                TextureType.Diffuse => $"texture_diffuse{diffuseNr++}",
+                TextureType.Specular => $"texture_specular{specularNr++}",
+                TextureType.Normals => $"texture_normal{normalNr++}",
+                TextureType.Height => $"texture_height{heightNr++}",
+                _ => string.Empty
+            };
+
+            // now set the sampler to the correct texture unit
+            gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, combined), i);
+            // and finally bind the texture
+            gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);
+        }
         // draw mesh
         Vao.BindBy(gl);
         gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);

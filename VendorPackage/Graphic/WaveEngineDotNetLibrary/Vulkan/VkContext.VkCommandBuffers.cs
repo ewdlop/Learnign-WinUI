@@ -1,4 +1,4 @@
-﻿using WaveEngine.Bindings.Vulkan;
+﻿using Evergine.Bindings.Vulkan;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
@@ -45,7 +45,10 @@ public unsafe partial class VkContext
                                                                        &allocInfo,
                                                                        commandBuffersPtr));
         }
+    }
 
+    private void RecordCommandBuffers()
+    {
         for (uint i = 0; i < vkCommandBuffers.Length; i++)
         {
             VkCommandBufferBeginInfo beginInfo = new VkCommandBufferBeginInfo()
