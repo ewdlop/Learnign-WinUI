@@ -65,3 +65,13 @@ Windows 10 SDK, version 1809 (10.0.17763.0) or later
 ### .NET RID(Runtime Identifier) Catalog
 
 <https://learn.microsoft.com/en-gb/dotnet/core/rid-catalog#windows-rids>
+
+### GPU Driver Vendors
+
+<https://www.nvidia.com/en-us/drivers/>
+
+<https://www.vulkan.org/tools#vulkan-gpu-resources>
+
+## Vulkan SDK
+
+<https://vulkan.lunarg.com/>
