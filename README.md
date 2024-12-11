@@ -7,19 +7,30 @@
 
 # Reference codes
 
-https://github.com/ewdlop/Silk.NET/tree/main/examples/CSharp/OpenGL%20Tutorials
 
-https://github.com/ewdlop/Silk.NET/tree/main/examples/CSharp/Direct3D11%20Tutorials
 
-https://github.com/EvergineTeam/Vulkan.NET/tree/master/VulkanGen/HelloTriangle
 
-https://github.com/EvergineTeam/Vulkan.NET/tree/master/VulkanGen/KHRRTXHelloTriangle
+<https://github.com/dotnet/Silk.NET/tree/main/examples/CSharp/Direct3D11%20Tutorials>
+
+<https://github.com/dotnet/Silk.NET/blob/main/examples/CSharp/OpenCL%20Demos/HelloWorld/Program.cs>
+
+<https://github.com/dotnet/Silk.NET/tree/main/examples/CSharp/OpenGL%20Tutorials>
+
+<https://github.com/EvergineTeam/Vulkan.NET/tree/master/VulkanGen/HelloTriangle>
+
+<https://github.com/EvergineTeam/Vulkan.NET/tree/master/VulkanGen/KHRRTXHelloTriangle>
+
 
 ## Memory Alignment
 
 <https://en.wikipedia.org/wiki/Data_structure_alignment>
 
 <https://learn.microsoft.com/en-us/cpp/cpp/alignment-cpp-declarations?view=msvc-170>
+
+$$
+\text{padding} = (\text{alignment} - (\text{current-offset} \bmod \text{alignment})) \bmod \text{alignment}
+$$
+
 
 ## ECS
 
