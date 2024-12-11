@@ -6,13 +6,9 @@ using System.Threading.Tasks;
 
 namespace SilkDotNetLibrary.OpenGL.Shaders;
 
-public readonly struct Shader : IShader
+public readonly struct Shader(GL gl) : IShader
 {
-    public uint ShaderProgramHandle { get; }
-    public Shader(GL gl)
-    {
-        ShaderProgramHandle = gl.CreateProgram();
-    }
+    public uint ShaderProgramHandle { get; } = gl.CreateProgram();
 
     public void LoadBy(GL gl,string vertex, string fragment)
     {

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SharedLibrary.Components;
 
-namespace Leopotam.EcsLite;
+namespace Leopotam.EcsLite.Sys;
 
 public class ComponentSystem<T> where T : struct, IComponent
 {
@@ -26,7 +26,7 @@ public class ComponentSystem<T> where T : struct, IComponent
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex.Message);
+            _logger.LogInformation("{Message}", ex.Message);
             return false;
         }
     }
@@ -41,7 +41,7 @@ public class ComponentSystem<T> where T : struct, IComponent
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex.Message);
+            _logger.LogInformation("{Message}", ex.Message);
             return false;
         }
     }
@@ -56,7 +56,7 @@ public class ComponentSystem<T> where T : struct, IComponent
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex.Message);
+            _logger.LogInformation("{Message}", ex.Message);
             return false;
         }
     }

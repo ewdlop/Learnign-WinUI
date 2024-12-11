@@ -4,6 +4,9 @@ using System.Diagnostics;
 using WaveEngineDotNetLibrary;
 using WaveEngineDotNetLibrary.Vulkan;
 using WaveEngineDotNetLibrary.Window;
+//using Windows.Win32;
+//using Windows.Win32.Foundation;
+//using Windows.Win32.UI.WindowsAndMessaging;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -58,10 +61,10 @@ public partial class App : Application
         CleanUp();
     }
 
-    private void SetWindowSize(IntPtr hwnd, int width, int height)
+    private static void SetWindowSize(IntPtr hwnd, int width, int height)
     {
         // Win32 uses pixels and WinUI 3 uses effective pixels, so you should apply the DPI scale factor
-        var dpi = PInvoke.User32.GetDpiForWindow(hwnd);
+        int dpi = PInvoke.User32.GetDpiForWindow(hwnd);
         float scalingFactor = (float)dpi / 96;
         width = (int)(width * scalingFactor);
         height = (int)(height * scalingFactor);

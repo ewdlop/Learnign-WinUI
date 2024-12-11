@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -88,6 +88,6 @@
 		<Compile Include="Vulkan\Window\VkWindowSurface.cs" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Evergine.Bindings.Vulkan" Version="2023.8.1.18" />
+	  <PackageReference Include="Evergine.Bindings.Vulkan" Version="2024.11.1.33" />
 	</ItemGroup>
 </Project>

@@ -7,32 +7,26 @@ using SharedLibrary.Extensions;
 
 namespace WaveEngineDotNetLibrary.Vulkan;
 
-public unsafe partial class VkContext
+public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurface)
 {
-    private readonly IVkSurface _vkSurface;
-    private readonly uint _width;
-    private readonly uint _height;
+    private readonly IVkSurface _vkSurface = vkSurface;
+    private readonly uint _width = width;
+    private readonly uint _height = height;
     private VkInstance vkInstance;
-    private byte[] _vertShaderCode = Array.Empty<byte>();
-    private byte[] _fragShaderCode = Array.Empty<byte>();
-    public VkContext(uint width, uint height, IVkSurface vkSurface)
-    {
-        _width = width;
-        _height = height;
-        _vkSurface = vkSurface;
-    }
+    private byte[] _vertShaderCode = [];
+    private byte[] _fragShaderCode = [];
 
-    private ImmutableArray<string> VkValidationLayerNames { get; init; } = new string[]
-    {
+    private ImmutableArray<string> VkValidationLayerNames { get; init; } =
+    [
         "VK_LAYER_KHRONOS_validation"
-    }.ToImmutableArray();
+    ];
 
-    private ImmutableArray<string> VkExtensionNames { get; init; } = new string[]
-    {
+    private ImmutableArray<string> VkExtensionNames { get; init; } =
+    [
         "VK_KHR_surface",
         "VK_KHR_win32_surface",
         "VK_EXT_debug_utils",
-    }.ToImmutableArray();
+    ];
 
     public void CreateInstance()
     {

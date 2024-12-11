@@ -7,7 +7,7 @@ using Texture = SilkDotNetLibrary.OpenGL.Textures.Texture;
 
 namespace SilkDotNetLibrary.OpenGL.Meshes;
 
-public struct MeshComponent//model is an entity? class?
+public readonly struct MeshComponent//model is an entity? class?
 {
     public List<(Mesh, List<Texture>)> Meshes { get; init; }
     //public Texture[] Textures { get; init; }
@@ -16,7 +16,6 @@ public struct MeshComponent//model is an entity? class?
 
     public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, ICamera camera, Vector3 lampPosition)
     {
-        int i = 0;
         foreach ((Mesh mesh, List<Texture> textures) in Meshes)
         {
             shader.UseBy(gl);

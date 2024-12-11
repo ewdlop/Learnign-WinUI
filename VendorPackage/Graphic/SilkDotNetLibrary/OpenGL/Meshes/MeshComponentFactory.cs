@@ -6,22 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
-using System.Threading.Tasks;
 using Texture = SilkDotNetLibrary.OpenGL.Textures.Texture;
 
 namespace SilkDotNetLibrary.OpenGL.Meshes;
 
-public class MeshComponentFactory
+public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
 {
-    private readonly Assimp _assimp;
-    private readonly ILogger<MeshComponentFactory> _logger;
-    
-    //private Dictionary<uint, MeshComponent> _meshTextureInfo;
-    public MeshComponentFactory(ILogger<MeshComponentFactory> logger)
-    {
-        _assimp = Assimp.GetApi();
-        _logger = logger;
-    }
+    private readonly Assimp _assimp = Assimp.GetApi();
+    private readonly ILogger<MeshComponentFactory> _logger = logger;
 
     public unsafe MeshComponent LoadModel(GL gl, string path)
     {
@@ -34,7 +26,7 @@ public class MeshComponentFactory
             throw new ApplicationException(_assimp.GetErrorStringS());
         }
 
-        List<(Texture, string)> loadedTexture = new List<(Texture, string)>();
+        List<(Texture, string)> loadedTexture = [];
         List<(Mesh, List<Texture>)> meshes = ProcessNode(gl, ref loadedTexture, scene->MRootNode, scene);
         MeshComponent meshComponent = new()
         {
@@ -47,7 +39,7 @@ public class MeshComponentFactory
 
     private unsafe List<(Mesh, List<Texture>)> ProcessNode(GL gl, ref List<(Texture, string)> loadedTexture, Node* node, Scene* scene)
     {
-        List<(Mesh, List<Texture>)> meshes = new();
+        List<(Mesh, List<Texture>)> meshes = [];
         for (uint i = 0; i < node->MNumMeshes; i++)
         {
             Silk.NET.Assimp.Mesh* mesh = scene->MMeshes[node->MMeshes[i]];
@@ -68,7 +60,7 @@ public class MeshComponentFactory
         Vertex[] vertices = new Vertex[verticesSize];//or Memory<T>?
         uint[] indices = new uint[indicesSize];
         //Span<uint> indices = stackalloc uint[indicesSize];
-        List<Texture> textures = new();
+        List<Texture> textures = [];
         for (int i = 0; i < verticesSize; i++)
         {
             Vertex vertex = new()
@@ -118,7 +110,7 @@ public class MeshComponentFactory
         Material* mat, TextureType type)
     {
         bool skip = false;
-        List<Texture> textures = new List<Texture>();
+        List<Texture> textures = [];
         for (int i = 0; i < _assimp.GetMaterialTextureCount(mat,type); i++)
         {
             AssimpString str;
@@ -140,7 +132,7 @@ public class MeshComponentFactory
                 if (!string.Equals(textureName, str.AsString)) continue;
                 textures.Add(loadedTexture);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-                _logger.LogInformation($"Texture loaded: {str.AsString}");
+                _logger.LogInformation("Texture loaded: {AssimpString}", str.AsString);
                 break;
             }
             

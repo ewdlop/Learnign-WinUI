@@ -1,7 +1,9 @@
+using Leopotam.EcsLite;
+using Leopotam.EcsLite.Sys;
 using Microsoft.Extensions.DependencyInjection;
 using SharedLibrary.Components;
 
-namespace Leopotam.EcsLite;
+namespace CoreLibrary.Services;
 
 public static class EcsServiceExtension
 {

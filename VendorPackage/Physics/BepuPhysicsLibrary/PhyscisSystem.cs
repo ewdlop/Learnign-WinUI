@@ -22,7 +22,7 @@ public abstract class PhysicsSystem : ISystem, IDisposable
     {
         _logger = logger;
         _bufferPool = new BufferPool();
-        var targetThreadCount = Math.Max(1,
+        int targetThreadCount = Math.Max(1,
             Environment.ProcessorCount > 4 ? Environment.ProcessorCount - 2 : Environment.ProcessorCount - 1);
         //ThreadDispatcher = new ThreadDispatcher(targetThreadCount);
     }

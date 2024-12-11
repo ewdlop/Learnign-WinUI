@@ -32,6 +32,7 @@ internal class App
         _vkWindowSurface = new VkWindowSurface(new WindowHandle(_window.Handle, hInstance));
         _vkContext = new VkContext(WIDTH, HEIGHT, _vkWindowSurface);
     }
+
     public void Run()
     {
         SubscribeToControlEvent();

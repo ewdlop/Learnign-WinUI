@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
-using SharedLibrary.Components;
 
-namespace Leopotam.EcsLite;
+namespace Leopotam.EcsLite.Sys;
 
 public class EntitySystem : IDisposable
 {
@@ -37,7 +36,7 @@ public class EntitySystem : IDisposable
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("{message}",ex.Message);
+            _logger.LogInformation("{message}", ex.Message);
             return false;
         }
     }

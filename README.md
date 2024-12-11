@@ -4,15 +4,13 @@
 
 ![Vulkan](Vulkan.PNG)
 
+## Memory Alignment
 
-# Memory Alignment
+<https://en.wikipedia.org/wiki/Data_structure_alignment>
 
-https://en.wikipedia.org/wiki/Data_structure_alignment
+<https://learn.microsoft.com/en-us/cpp/cpp/alignment-cpp-declarations?view=msvc-170>
 
-https://learn.microsoft.com/en-us/cpp/cpp/alignment-cpp-declarations?view=msvc-170
-
-
-# ECS
+## ECS
 
 An ECS (Entity-Component-System) is an architectural pattern primarily used in game development, but it also finds applications in other areas that require efficient, modular, and high-performance processing of many objects or entities. In the ECS pattern:
 
@@ -23,6 +21,7 @@ An ECS (Entity-Component-System) is an architectural pattern primarily used in g
 3. **System**: Systems contain the logic and behavior in the ECS pattern. Each system operates on entities with specific sets of components. For example, a "movement system" would update the positions of all entities that have both "position" and "velocity" components. Systems are designed to be isolated from each other, focusing on a specific function or behavior.
 
 ### How ECS Works
+
 In an ECS setup, the application continuously runs through its systems, which each act on entities with relevant components. Here’s a general flow:
 
 - **Data-driven design**: ECS separates data (in components) from behavior (in systems), making it easier to modify or expand without affecting other parts of the code.
@@ -31,6 +30,7 @@ In an ECS setup, the application continuously runs through its systems, which ea
 - **Parallelism**: Many ECS implementations can take advantage of parallel processing by updating systems independently when they don’t share data.
 
 ### Example
+
 Let’s say you’re making a game with player and enemy entities. The player and enemies may need similar components, such as "Position" and "Health," but may also have unique ones, like a "PlayerInput" component for the player and an "AI" component for enemies.
 
 In this case:
@@ -41,8 +41,27 @@ In this case:
 - A **Render System** will display all entities with Position and Sprite components on the screen.
 
 ### Benefits and Use Cases
+
 ECS is especially effective in applications that require complex object hierarchies and frequent updates across many objects, such as:
 
 - **Game development**: ECS is widely adopted in games for its ability to handle many entities (e.g., Unity's DOTS architecture).
 - **Simulation and Physics engines**: Efficiently process multiple dynamic entities with diverse behaviors.
 - **Interactive software**: Applications that involve many updatable objects with different sets of properties, like VR/AR applications.
+
+### Thiry-Party Library References
+
+<https://github.com/bepu/bepuphysics2>
+
+<https://github.com/Leopotam/ecslite>
+
+### Windows SDK-Archive
+
+<https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/>
+
+### The minimum Windows version required to use WinUI 3
+
+Windows 10 SDK, version 1809 (10.0.17763.0) or later
+
+### .NET RID(Runtime Identifier) Catalog
+
+<https://learn.microsoft.com/en-gb/dotnet/core/rid-catalog#windows-rids>

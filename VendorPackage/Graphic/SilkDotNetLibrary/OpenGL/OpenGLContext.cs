@@ -8,11 +8,9 @@ using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using SilkDotNetLibrary.OpenGL.Primitives;
 using System;
-using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
 using SharedLibrary.Systems;
-using Silk.NET.SDL;
 using SilkDotNetLibrary.OpenGL.Textures;
 using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 using SilkDotNetLibrary.OpenGL.Meshes;
@@ -134,17 +132,19 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         // draw as wireframe
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
-        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
+        #region Mesh
+        //MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
 
-        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
-        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
-        Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
-        MeshShader1 = new Shader(_gl);
-        MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        //Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
+        //Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
+        //Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
+        //MeshShader1 = new Shader(_gl);
+        //MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
         //MeshShader2 = new Shader(_gl);
         //MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
         //MeshShader3 = new Shader(_gl);
         //MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        #endregion
         return _gl;
     }
 
@@ -204,7 +204,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
         _gl.BindVertexArray(0);
 
-        DrawMesh();
+        #region mesh
+        //DrawMesh();
+        #endregion
     }
 
     private void Reset()

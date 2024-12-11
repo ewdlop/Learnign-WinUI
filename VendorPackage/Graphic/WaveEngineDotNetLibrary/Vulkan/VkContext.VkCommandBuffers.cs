@@ -11,6 +11,11 @@ public unsafe partial class VkContext
     {
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice);
 
+        if (!queueFamilyIndices.graphicsFamily.HasValue)
+        {
+            throw new InvalidOperationException("Queue family indices are not complete");
+        }
+
         VkCommandPoolCreateInfo poolInfo = new VkCommandPoolCreateInfo()
         {
             sType = VkStructureType.VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,

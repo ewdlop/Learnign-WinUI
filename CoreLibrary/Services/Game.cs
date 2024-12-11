@@ -1,5 +1,6 @@
 ﻿using System;
 using Leopotam.EcsLite;
+using Leopotam.EcsLite.Sys;
 using Microsoft.Extensions.Logging;
 using SharedLibrary.Components;
 using SharedLibrary.Event.Handler;

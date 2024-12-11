@@ -7,9 +7,6 @@ public unsafe partial class VkContext
         public uint? graphicsFamily;
         public uint? presentFamily;
 
-        public bool IsComplete()
-        {
-            return graphicsFamily.HasValue && presentFamily.HasValue;
-        }
+        public readonly bool IsComplete() => graphicsFamily.HasValue && presentFamily.HasValue;
     }
 }

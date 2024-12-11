@@ -24,7 +24,7 @@ public unsafe partial class VkContext
                                                           VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
                                                           VkAllocationCallbacks* pAllocator,
                                                           VkDebugUtilsMessengerEXT* pMessenger)
-      => vkCreateDebugUtilsMessengerEXT_ptr(instance, pCreateInfo, pAllocator, pMessenger);
+      => vkCreateDebugUtilsMessengerEXT_ptr?.Invoke(instance, pCreateInfo, pAllocator, pMessenger) ?? throw new InvalidOperationException("vkCreateDebugUtilsMessengerEXT_ptr is null");
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate void vkDestroyDebugUtilsMessengerEXTDelegate(VkInstance instance,
@@ -32,7 +32,7 @@ public unsafe partial class VkContext
                                                                   VkAllocationCallbacks* pAllocator);
     private static vkDestroyDebugUtilsMessengerEXTDelegate? vkDestroyDebugUtilsMessengerEXT_ptr;
     private static void vkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT messenger, VkAllocationCallbacks* pAllocator)
-        => vkDestroyDebugUtilsMessengerEXT_ptr(instance, messenger, pAllocator);
+        => vkDestroyDebugUtilsMessengerEXT_ptr?.Invoke(instance, messenger, pAllocator);
 
 
     private readonly VkDebugUtilsMessengerEXT vkDebugMessenger;
@@ -110,7 +110,7 @@ public unsafe partial class VkContext
         return false;
     }
 
-    private void PopulateDebugMessengerCreateInfo(out VkDebugUtilsMessengerCreateInfoEXT createInfo)
+    private static void PopulateDebugMessengerCreateInfo(out VkDebugUtilsMessengerCreateInfoEXT createInfo)
     {
         createInfo = default;
         createInfo.sType = VkStructureType.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
