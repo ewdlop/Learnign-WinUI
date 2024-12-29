@@ -1,5 +1,23 @@
 # Learnign-WinUI
 
+This repository contains various projects and libraries related to game development, procedural generation, and graphics rendering.
+
+## Main Projects and Libraries
+
+- **CoreLibrary**: Includes services for ECS (Entity-Component-System) architecture.
+  - `CoreLibrary/Services/EcsServiceExtension.cs`
+  - `CoreLibrary/Services/Game.cs`
+- **ProceduralGenerationLibrary**: Contains classes for hex grid and maze generation.
+  - `ProceduralGenerationLibrary/HexGrid/HexCell.cs`
+  - `ProceduralGenerationLibrary/Maze/Cell.cs`
+- **SharedLibrary**: Provides shared components, event handlers, and transforms.
+  - `SharedLibrary/Event/Handler/EventHandler.cs`
+  - `SharedLibrary/Transforms/Transform.cs`
+
+## Purpose and Goals
+
+The purpose of this repository is to provide a collection of tools and libraries for game development, procedural generation, and graphics rendering. The goal is to create a modular and efficient codebase that can be easily extended and reused in various projects.
+
 ![OpenGL](OpenGL.PNG)
 
 ![Vulkan](Vulkan.PNG)
