@@ -4,9 +4,9 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkFramebuffer[] vkSwapChainFramebuffers;
+    protected VkFramebuffer[] vkSwapChainFramebuffers;
 
-    private void CreateFramebuffers()
+    protected virtual void CreateFramebuffers()
     {
         vkSwapChainFramebuffers = new VkFramebuffer[vkSwapChainImageViews.Length];
 

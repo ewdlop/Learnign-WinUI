@@ -4,6 +4,6 @@ namespace WaveEngineDotNetLibrary;
 
 public interface IVkSurface
 {
-    void CreateSurface(VkInstance vkInstance);
+    abstract void CreateSurface(VkInstance vkInstance);
     VkSurfaceKHR SurfaceKHR { get; }
 }

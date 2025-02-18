@@ -4,9 +4,9 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkFence vkFence;
-    
-    private void CreateFence()
+    protected VkFence vkFence;
+
+    protected virtual void CreateFence()
     {
         VkFenceCreateInfo vkFenceCreateInfo = new VkFenceCreateInfo()
         {

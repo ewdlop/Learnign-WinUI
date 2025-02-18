@@ -9,26 +9,26 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurface)
 {
-    private readonly IVkSurface _vkSurface = vkSurface;
-    private readonly uint _width = width;
-    private readonly uint _height = height;
-    private VkInstance vkInstance;
-    private byte[] _vertShaderCode = [];
-    private byte[] _fragShaderCode = [];
+    protected readonly IVkSurface _vkSurface = vkSurface;
+    protected readonly uint _width = width;
+    protected readonly uint _height = height;
+    protected VkInstance vkInstance;
+    protected byte[] _vertShaderCode = [];
+    protected byte[] _fragShaderCode = [];
 
-    private ImmutableArray<string> VkValidationLayerNames { get; init; } =
+    protected ImmutableArray<string> VkValidationLayerNames { get; init; } =
     [
         "VK_LAYER_KHRONOS_validation"
     ];
 
-    private ImmutableArray<string> VkExtensionNames { get; init; } =
+    protected ImmutableArray<string> VkExtensionNames { get; init; } =
     [
         "VK_KHR_surface",
         "VK_KHR_win32_surface",
         "VK_EXT_debug_utils",
     ];
 
-    public void CreateInstance()
+    public virtual void CreateInstance()
     {
         VkApplicationInfo vkApplicationInfo = new()
         {
@@ -83,7 +83,7 @@ public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurf
         }
     }
 
-    public void Init()
+    public virtual void Init()
     {
         CreateInstance();
 
@@ -109,14 +109,14 @@ public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurf
         CreateFence();
         CreateSemaphores();
     }
-    public void Init(byte[] vertShaderCode, byte[] fragShaderCode)
+    public virtual void Init(byte[] vertShaderCode, byte[] fragShaderCode)
     {
         _vertShaderCode = vertShaderCode;
         _fragShaderCode = fragShaderCode;
         Init();
     }
 
-    private void GetAllInstanceExtensionsAvailables()
+    protected virtual void GetAllInstanceExtensionsAvailables()
     {
         uint extensionCount;
         VkHelper.CheckErrors(VulkanNative.vkEnumerateInstanceExtensionProperties(null, &extensionCount, null));
@@ -144,7 +144,7 @@ public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurf
         //Extension: VK_NV_external_memory_capabilities version: 1
     }
 
-    public void CleanUp()
+    public virtual void CleanUp()
     {
         VulkanNative.vkDestroyFence(vkDevice, vkFence, null);
         VulkanNative.vkDestroySemaphore(vkDevice, vkRenderFinishedSemaphore, null);
@@ -181,7 +181,7 @@ public unsafe partial class VkContext(uint width, uint height, IVkSurface vkSurf
         VulkanNative.vkDestroyInstance(vkInstance, null);
     }
 
-    public void CheckDeviceWaitIdleError()
+    public virtual void CheckDeviceWaitIdleError()
     {
         VkHelper.CheckErrors(VulkanNative.vkDeviceWaitIdle(vkDevice));
     }

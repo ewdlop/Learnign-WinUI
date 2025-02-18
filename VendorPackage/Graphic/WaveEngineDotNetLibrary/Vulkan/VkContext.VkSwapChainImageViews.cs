@@ -4,9 +4,9 @@ namespace WaveEngineDotNetLibrary.Vulkan
 {
     public unsafe partial class VkContext
     {
-        private VkImageView[] vkSwapChainImageViews;
+        protected VkImageView[] vkSwapChainImageViews;
 
-        private void CreateImageViews()
+        protected void CreateImageViews()
         {
             vkSwapChainImageViews = new VkImageView[vkSwapChainImages.Length];
 

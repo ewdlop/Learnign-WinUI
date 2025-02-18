@@ -2,7 +2,7 @@
 
 public unsafe partial class VkContext
 {
-    private ref struct QueueFamilyIndices
+    protected ref struct QueueFamilyIndices
     {
         public uint? graphicsFamily;
         public uint? presentFamily;

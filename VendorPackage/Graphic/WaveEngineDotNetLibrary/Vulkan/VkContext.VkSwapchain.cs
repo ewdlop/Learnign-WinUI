@@ -4,12 +4,12 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkSwapchainKHR vkSwapChain;
-    private VkImage[] vkSwapChainImages;
-    private VkFormat vkSwapChainImageFormat;
-    private VkExtent2D vkSwapChainExtent;
+    protected VkSwapchainKHR vkSwapChain;
+    protected VkImage[] vkSwapChainImages;
+    protected VkFormat vkSwapChainImageFormat;
+    protected VkExtent2D vkSwapChainExtent;
 
-    private VkSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice vkPhysicalDevice)
+    protected virtual VkSwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice vkPhysicalDevice)
     {
         VkSwapChainSupportDetails details = default;
 
@@ -45,7 +45,7 @@ public unsafe partial class VkContext
         return details;
     }
 
-    private static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(Span<VkSurfaceFormatKHR> availableFormats)
+    protected static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(Span<VkSurfaceFormatKHR> availableFormats)
     {
         foreach (var availableFormat in availableFormats)
         {
@@ -58,7 +58,7 @@ public unsafe partial class VkContext
         return availableFormats[0];
     }
 
-    private VkPresentModeKHR ChooseSwapPresentMode(Span<VkPresentModeKHR> availablePresentModes)
+    protected virtual VkPresentModeKHR ChooseSwapPresentMode(Span<VkPresentModeKHR> availablePresentModes)
     {
         foreach (var availablePresentMode in availablePresentModes)
         {
@@ -71,7 +71,7 @@ public unsafe partial class VkContext
         return VkPresentModeKHR.VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D ChooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities)
+    protected virtual VkExtent2D ChooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities)
     {
         if (capabilities.currentExtent.width != uint.MaxValue)
         {
@@ -88,7 +88,7 @@ public unsafe partial class VkContext
         }
     }
 
-    private void CreateSwapChain()
+    protected virtual void CreateSwapChain()
     {
         // Create SwapChain
         VkSwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(vkPhysicalDevice);

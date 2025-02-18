@@ -5,8 +5,8 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkPhysicalDevice vkPhysicalDevice; //strange
-    private void PickPhysicalDevice()
+    protected VkPhysicalDevice vkPhysicalDevice; //strange
+    protected void PickPhysicalDevice()
     {
         uint deviceCount = 0;
         VkHelper.CheckErrors(VulkanNative.vkEnumeratePhysicalDevices(vkInstance, &deviceCount, null));
@@ -34,7 +34,7 @@ public unsafe partial class VkContext
         }
     }
 
-    private bool IsPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
+    protected bool IsPhysicalDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
     {
         QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
 
@@ -55,7 +55,7 @@ public unsafe partial class VkContext
         return indices.IsComplete() && extensionsSupported && swapChainAdequate;
     }
 
-    private bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice)
+    protected bool CheckPhysicalDeviceExtensionSupport(VkPhysicalDevice vkPhysicalDevice)
     {
         uint extensionCount;
         VkHelper.CheckErrors(VulkanNative.vkEnumerateDeviceExtensionProperties(vkPhysicalDevice, null, &extensionCount, null));
@@ -74,7 +74,7 @@ public unsafe partial class VkContext
         return requiredExtensions.Count == 0;
     }
 
-    private QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice)
+    protected QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice vkPhysicalDevice)
     {
         QueueFamilyIndices queueFamilyIndices = default;
 
@@ -107,7 +107,7 @@ public unsafe partial class VkContext
         return queueFamilyIndices;
     }
 
-    private bool IsDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
+    protected bool IsDeviceSuitable(VkPhysicalDevice vkPhysicalDevice)
     {
         QueueFamilyIndices indices = FindQueueFamilies(vkPhysicalDevice);
 

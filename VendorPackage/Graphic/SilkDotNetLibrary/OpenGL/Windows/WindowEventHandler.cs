@@ -16,18 +16,18 @@ namespace SilkDotNetLibrary.OpenGL.Windows;
 public class WindowEventHandler : IWindowEventHandler
 {
     protected bool _disposedValue;
-    private GL GL { get; set; }
-    private readonly OpenGLContext _openGLContext;
-    private readonly IEventHandler _eventHandler;
-    private readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
-    private readonly ILogger<WindowEventHandler> _logger;
-    private readonly IWindow _window;
-    private IKeyboard PrimaryKeyboard { get; set; }
-    private IInputContext InputContext { get; set; }
-    private ImGuiController ImGuiController { get; set; }
-    private Vector2 LastMousePosition { get; set; }
+    protected GL GL { get; set; }
+    protected readonly OpenGLContext _openGLContext;
+    protected readonly IEventHandler _eventHandler;
+    protected readonly IReadOnlyDictionary<Key, string> _keyBoardKeyMap;
+    protected readonly ILogger<WindowEventHandler> _logger;
+    protected readonly IWindow _window;
+    protected IKeyboard PrimaryKeyboard { get; set; }
+    protected IInputContext InputContext { get; set; }
+    protected ImGuiController ImGuiController { get; set; }
+    protected Vector2 LastMousePosition { get; set; }
 
-    //private EventHandler<>
+    //protected EventHandler<>
     public WindowEventHandler(IWindow window,
                               OpenGLContext openGLContext,
                               IEventHandler eventHandler,

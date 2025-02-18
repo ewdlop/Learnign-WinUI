@@ -5,9 +5,9 @@ namespace WaveEngineDotNetLibrary.Window;
 
 public unsafe class VkWindowSurface : IVkSurface
 {
-    private readonly WindowHandle _vkWindowHandle;
+    protected readonly WindowHandle _vkWindowHandle;
 
-    private VkSurfaceKHR _vkWindowSurface;
+    protected VkSurfaceKHR _vkWindowSurface;
     public VkSurfaceKHR SurfaceKHR => _vkWindowSurface;
 
     public VkWindowSurface(WindowHandle vkWindowHandle)
@@ -15,7 +15,7 @@ public unsafe class VkWindowSurface : IVkSurface
         _vkWindowHandle = vkWindowHandle;
     }
 
-    public void CreateSurface(VkInstance vkInstance)
+    public virtual void CreateSurface(VkInstance vkInstance)
     {
         VkWin32SurfaceCreateInfoKHR createInfo = new VkWin32SurfaceCreateInfoKHR()
         {

@@ -4,10 +4,10 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkCommandPool vkCommandPool;
-    private VkCommandBuffer[] vkCommandBuffers;
+    protected VkCommandPool vkCommandPool;
+    protected VkCommandBuffer[] vkCommandBuffers;
 
-    private void CreateCommandPool()
+    protected virtual void CreateCommandPool()
     {
         QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(vkPhysicalDevice);
 
@@ -32,7 +32,7 @@ public unsafe partial class VkContext
         }
     }
 
-    private void CreateCommandBuffers()
+    protected virtual void CreateCommandBuffers()
     {
         vkCommandBuffers = new VkCommandBuffer[vkSwapChainFramebuffers.Length];
 
@@ -52,7 +52,7 @@ public unsafe partial class VkContext
         }
     }
 
-    private void RecordCommandBuffers()
+    protected virtual void RecordCommandBuffers()
     {
         for (uint i = 0; i < vkCommandBuffers.Length; i++)
         {

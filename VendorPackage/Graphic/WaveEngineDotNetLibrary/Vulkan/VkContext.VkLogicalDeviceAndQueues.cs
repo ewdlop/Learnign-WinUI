@@ -6,16 +6,16 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkDevice vkDevice;
-    private VkQueue vkGraphicsQueue;
-    private VkQueue vkPresentQueue;
+    protected VkDevice vkDevice;
+    protected VkQueue vkGraphicsQueue;
+    protected VkQueue vkPresentQueue;
 
-    private ImmutableArray<string> VkDeviceExtensionNames { get; } =
+    protected ImmutableArray<string> VkDeviceExtensionNames { get; } =
     [
         "VK_KHR_swapchain"
     ];
 
-    private void CreateLogicalDevice()
+    protected void CreateLogicalDevice()
     {
         float queuePriority = 1.0f;
 

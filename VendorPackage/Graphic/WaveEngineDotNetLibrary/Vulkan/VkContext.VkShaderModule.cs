@@ -5,10 +5,10 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkPipelineLayout vkPipelineLayout;
-    private VkPipeline vkGraphicsPipeline;
+    protected VkPipelineLayout vkPipelineLayout;
+    protected VkPipeline vkGraphicsPipeline;
 
-    private VkShaderModule CreateShaderModule(ReadOnlySpan<byte> code)
+    protected virtual VkShaderModule CreateShaderModule(ReadOnlySpan<byte> code)
     {
         VkShaderModuleCreateInfo createInfo = new VkShaderModuleCreateInfo
         {
@@ -30,7 +30,7 @@ public unsafe partial class VkContext
         return shaderModule;
     }
 
-    private void CreateGraphicsPipeline()
+    protected virtual void CreateGraphicsPipeline()
     {
 
         VkShaderModule vertShaderModule = CreateShaderModule(_vertShaderCode);

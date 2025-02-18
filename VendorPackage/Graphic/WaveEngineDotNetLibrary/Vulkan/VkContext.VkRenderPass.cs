@@ -4,9 +4,9 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkRenderPass vkRenderPass;
+    protected VkRenderPass vkRenderPass;
 
-    private void CreateRenderPass()
+    protected virtual void CreateRenderPass()
     {
         VkAttachmentDescription colorAttachment = new VkAttachmentDescription()
         {

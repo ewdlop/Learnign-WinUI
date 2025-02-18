@@ -4,7 +4,7 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private ref struct VkSwapChainSupportDetails
+    protected ref struct VkSwapChainSupportDetails
     {
         public VkSurfaceCapabilitiesKHR surfaceCapabilities;
         public Span<VkSurfaceFormatKHR> surfaceFormats;

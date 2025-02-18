@@ -4,10 +4,10 @@ namespace WaveEngineDotNetLibrary.Vulkan;
 
 public unsafe partial class VkContext
 {
-    private VkSemaphore vkImageAvailableSemaphore;
-    private VkSemaphore vkRenderFinishedSemaphore;
-    
-    private void CreateSemaphores()
+    protected VkSemaphore vkImageAvailableSemaphore;
+    protected VkSemaphore vkRenderFinishedSemaphore;
+
+    protected virtual void CreateSemaphores()
     {
         VkSemaphoreCreateInfo semaphoreInfo = new VkSemaphoreCreateInfo()
         {
@@ -25,7 +25,7 @@ public unsafe partial class VkContext
         }
     }
 
-    public void DrawFrame()
+    public virtual void DrawFrame()
     {
         // Acquiring and image from the swap chain
         uint imageIndex;
