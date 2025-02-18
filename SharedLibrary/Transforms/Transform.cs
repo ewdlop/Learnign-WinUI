@@ -16,5 +16,8 @@ public struct Transform : ITransfrom
 
     public Quaternion Rotation { get; set; } = Quaternion.Identity;
 
-    public Matrix4x4 ViewMatrix => Matrix4x4.Identity * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateTranslation(Position);
+    /// <summary>
+    /// MVP Matrix
+    /// </summary>
+    public readonly Matrix4x4 ViewMatrix => Matrix4x4.Identity * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateScale(Scale) * Matrix4x4.CreateTranslation(Position);
 }

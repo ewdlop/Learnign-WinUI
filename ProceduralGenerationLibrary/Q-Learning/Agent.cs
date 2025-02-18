@@ -10,7 +10,7 @@ namespace ProceduralGenerationLibrary;
 /// Very likely not thread safe
 /// Possible Parallel for 4 direction?
 /// </summary>
-public class Agent : IDisposable
+public class Agent : IDisposable, IAsyncDisposable
 {
     public enum AgentAction
     {
@@ -46,26 +46,26 @@ public class Agent : IDisposable
     public int GridSizeY { get; private set; }
 
 
-    private const int POSSIBLE_AGENT_ACTIONS_COUNT = 5;
-    private const float FINAL_REWARD = 100f;
-    private const int CONCURRENCY_LEVEL = 8;
-    private static readonly (int, int) FINAL_STATE = (7, 9);
-    private Transform _transform;
-    private bool disposedValue;
-    private static readonly AgentAction[] AgentActions = new AgentAction[POSSIBLE_AGENT_ACTIONS_COUNT]
+    protected const int POSSIBLE_AGENT_ACTIONS_COUNT = 5;
+    protected const float FINAL_REWARD = 100f;
+    protected const int CONCURRENCY_LEVEL = 8;
+    protected static readonly (int, int) FINAL_STATE = (7, 9);
+    protected Transform _transform;
+    protected bool disposedValue;
+    protected static readonly AgentAction[] AgentActions = new AgentAction[POSSIBLE_AGENT_ACTIONS_COUNT]
     {
          AgentAction.None, AgentAction.Up, AgentAction.Down, AgentAction.Left, AgentAction.Right
     };
-    private static readonly AgentAction[] NoneIdleAgentActions = new AgentAction[POSSIBLE_AGENT_ACTIONS_COUNT - 1]
+    protected static readonly AgentAction[] NoneIdleAgentActions = new AgentAction[POSSIBLE_AGENT_ACTIONS_COUNT - 1]
     {
         AgentAction.Up, AgentAction.Down, AgentAction.Left, AgentAction.Right
     };
-    private readonly Dictionary<((int,int)?,AgentAction?),float> _stateActionPairQValue;
-    private readonly Dictionary<((int,int)?, AgentAction?),int> _stateActionPairFrequencies;
-    private readonly Dictionary<(int, int), float> _stateRewardGrid;
-    private readonly Dictionary<AgentAction,Action> _agentActionDictionary;
+    protected readonly Dictionary<((int,int)?,AgentAction?),float> _stateActionPairQValue;
+    protected readonly Dictionary<((int,int)?, AgentAction?),int> _stateActionPairFrequencies;
+    protected readonly Dictionary<(int, int), float> _stateRewardGrid;
+    protected readonly Dictionary<AgentAction,Action> _agentActionDictionary;
     public IReadOnlyDictionary<AgentAction, Action> AgentActionDictionary => _agentActionDictionary;
-    private CancellationTokenSource _stopTokenSource;
+    protected CancellationTokenSource _stopTokenSource;
 
     //private readonly GUIController;
     //private readonly Grid;
@@ -102,7 +102,7 @@ public class Agent : IDisposable
     }
 
     #region  Q_Learning_Agent
-    private AgentAction Q_Learning_Agent_Action((int,int) currentState, float rewardSignal)
+    protected virtual AgentAction Q_Learning_Agent_Action((int,int) currentState, float rewardSignal)
     {
         UpdateStep();
         if (PreviousState == FinalState && PreviousState is not null)
@@ -127,7 +127,7 @@ public class Agent : IDisposable
     }
 
     //Page 844
-    private float MaxStateActionPairQValue((int, int) currentState)
+    protected virtual float MaxStateActionPairQValue((int, int) currentState)
     {
         if (currentState == FinalState)
         {
@@ -145,12 +145,12 @@ public class Agent : IDisposable
         return max;
     }
 
-    private static AgentAction[] ShuffledActions()
+    protected static AgentAction[] ShuffledActions()
     {
         Random random = new Random();
         return NoneIdleAgentActions.OrderBy(_ => random.Next()).ToArray();
     }
-    
+
     #region not working
     //private AgentAction ArgMaxActionExploration(ref (int, int) currentState)
     //{
@@ -195,7 +195,7 @@ public class Agent : IDisposable
     //}
     #endregion
 
-    private AgentAction ArgMaxActionExploration((int, int) currentState)
+    protected virtual AgentAction ArgMaxActionExploration((int, int) currentState)
     {
         if (currentState == FinalState) return AgentAction.None;
 
@@ -216,69 +216,70 @@ public class Agent : IDisposable
 
     //Give the agent the option to have the incentives to explore more?
     //Page 842, this function is not well defined apparently 
-    private float ExplorationFunction(ref (int, int) currentState, AgentAction choice)
+    protected virtual float ExplorationFunction(ref (int, int) currentState, AgentAction choice)
     {
         return _stateActionPairFrequencies[(currentState,choice)] < MinimumStateActionPairFrequencies 
             ? EstimatedBestPossibleRewardValue : _stateActionPairQValue[(currentState, choice)];
     }
 
-    private void Left()
+    protected virtual void Left()
     {
         _transform.Position -= new Vector3(1f, 0f, 0f);
         CurrentGridX--;
         //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private void Right()
+    protected virtual void Right()
     {
         _transform.Position += new Vector3(1f, 0f, 0f);
         CurrentGridX++;
         //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private void Up()
+    protected virtual void Up()
     {
         _transform.Position += new Vector3(0f, 0f, 1f);
         CurrentGridY++;
         //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private void Down()
+    protected virtual void Down()
     {
         _transform.Position -= new Vector3(0f, 0f, 1f);
         CurrentGridY--;
         //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private void None()
+    protected virtual void None()
     {
         ResetAgentToStart();
         UpdateIteration();
         //return WaitThenAction(RestTime, (CurrentGridX, CurrentGridY));
     }
 
-    private void ResetAgentToStart()
+    protected virtual void ResetAgentToStart()
     {
         _transform.Position = new Vector3(StartState.X, 1f, StartState.Y);
         CurrentGridX = StartState.X;
         CurrentGridY = StartState.Y;
     }
 
-    private void StartActions()
+    protected virtual void StartActions()
     {
         foreach (Action action in NoWaitThenActions())
         {
             action();
         }
     }
-    private async Task StartActionsAsync(TimeSpan waitTime)
+    protected virtual async Task StartActionsAsync(TimeSpan waitTime)
     {
         await foreach (Action action in WaitThenActionsAsync(waitTime))
         {
             action();
         }
     }
-    private IEnumerable<Action> NoWaitThenActions()
+
+    protected virtual IEnumerable<Action> NoWaitThenActions()
     /*        (int, int) gridCoordinate*/
     {
         while (!IsPause && !_stopTokenSource.IsCancellationRequested)
@@ -286,8 +287,8 @@ public class Agent : IDisposable
             yield return _agentActionDictionary[Q_Learning_Agent_Action((CurrentGridX, CurrentGridY), _stateRewardGrid[(CurrentGridX, CurrentGridY)])];
         }
     }
-    
-    private async IAsyncEnumerable<Action> WaitThenActionsAsync(
+
+    protected virtual async IAsyncEnumerable<Action> WaitThenActionsAsync(
         TimeSpan waitTime)
 /*        (int, int) gridCoordinate*/
     {
@@ -300,7 +301,7 @@ public class Agent : IDisposable
 
     #endregion
 
-    private void Initialized()
+    protected virtual void Initialized()
     {
         _transform.Position = new Vector3(StartX, 1f, StartY);
         StartState = (StartX, StartY);
@@ -367,7 +368,7 @@ public class Agent : IDisposable
         }
     }
 
-    private void ResetActionGrid()
+    protected virtual void ResetActionGrid()
     {
         for (int i = 0; i < GridSizeX; i++)
         {
@@ -382,7 +383,7 @@ public class Agent : IDisposable
     }
 
     #region Run
-    private void ReInitialized()
+    protected virtual void ReInitialized()
     {
         PreviousState = null;
         Step = 0;
@@ -410,12 +411,12 @@ public class Agent : IDisposable
             }
         }
     }
-    private void Update()
+    protected virtual void Update()
     {
         //Grid.instance.UpdateColor(CurrentGridX, CurrentGridY);
     }
 
-    public void StartExploring()
+    protected virtual void StartExploring()
     {
         UpdateIteration();
         StartActions();
@@ -427,25 +428,25 @@ public class Agent : IDisposable
         await StartActionsAsync(waitTime);
     }
 
-    public void Stop()
+    public virtual void Stop()
     {
         _stopTokenSource.Cancel();
         _stopTokenSource.Dispose();
     }
     
-    public void Reset()
+    public virtual void Reset()
     {
         _stopTokenSource = new CancellationTokenSource();
         ReInitialized();
     }
 
-    private void UpdateStep()
+    protected virtual void UpdateStep()
     {
         Step++;
         //GUIController?.UpdateStepText(Step.ToString());
     }
 
-    private void UpdateIteration()
+    protected void UpdateIteration()
     {
         Iteration++;
         //GUIController?.UpdateInterationText(Iteration.ToString());
@@ -463,10 +464,31 @@ public class Agent : IDisposable
             disposedValue = true;
         }
     }
+
+    protected virtual async ValueTask DisposeAsync(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                await _stopTokenSource.CancelAsync();
+                _stopTokenSource.Dispose();
+            }
+            disposedValue = true;
+        }
+    }
+
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsync(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
     #endregion
 }

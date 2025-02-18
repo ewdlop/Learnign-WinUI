@@ -4,10 +4,11 @@ public class Grid{
 
     public int _rows;
     public int _columns;
-    private readonly Cell?[,] _cells;
+    protected readonly Cell?[,] _cells;
     public object _floorPrefab;
     public object _wallPrefab;
     public object _cornerWallPrefab;
+
     public Grid(int rows, int columns, object floorPrefab, object wallPrefab, object cornerWallPrefab)
     {
         _rows = rows;
@@ -54,4 +55,20 @@ public class Grid{
     public Cell? GetRandomCell() => _cells[new Random().Next(0, _rows), new Random().Next(0, _columns)]??null;
 
     public int Size => _rows * _columns;
+
+
+#if false
+    public Grid Copy()
+    {
+        Grid newGrid = new Grid(_rows, _columns, _floorPrefab, _wallPrefab, _cornerWallPrefab);
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
+            {
+                newGrid[i, j] = new Cell(i, j);
+            }
+        }
+        return newGrid;
+    }
+#endif
 }
