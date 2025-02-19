@@ -46,7 +46,7 @@ public class WindowEventHandler : IWindowEventHandler
         _logger = logger;
     }
 
-    public virtual Task Start(CancellationToken cancellationToken)
+    public virtual Task Start(CancellationToken cancellationToken = default)
     {
         _window.Load += OnLoad;
         _window.Update += OnUpdate;
@@ -68,7 +68,7 @@ public class WindowEventHandler : IWindowEventHandler
         _window.FramebufferResize += OnFrameBufferResize;
         _window?.Run();
     }
-    public virtual Task Stop(CancellationToken cancellationToken)
+    public virtual Task Stop(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Window Closing...");
         return Task.Run(() =>

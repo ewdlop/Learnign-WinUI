@@ -269,7 +269,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
     private void OnDispose()
     {
-        _logger.LogInformation("OpnGLContext Disposing...");
+        _logger.LogInformation("OpenGLContext Disposing...");
         QuadVbo.DisposeBy(_gl);
         QuadVao.DisposeBy(_gl);
         CubeVbo.DisposeBy(_gl);
@@ -282,7 +282,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         SpecularMap.DisposeBy(_gl);
     }
 
-    private void Dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
         if(!_disposedValue)
         {
@@ -295,7 +295,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
             // TODO: set large fields to null
             _disposedValue = true;
         }
-        _logger.LogInformation("OpnGLContext Already Disposed...");
+        _logger.LogInformation("OpenGLContext Already Disposed...");
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
