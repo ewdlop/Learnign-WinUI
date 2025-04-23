@@ -236,6 +236,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
             // Load the texture
             try
             {
+                //metalic texture texture load issue
                 using Image textureImage = Image.Load(fullPath);
                 _logger.LogInformation("Loaded texture: {Path}, Width: {Width}, Height: {Height}",
                     texturePath, textureImage.Width, textureImage.Height);
