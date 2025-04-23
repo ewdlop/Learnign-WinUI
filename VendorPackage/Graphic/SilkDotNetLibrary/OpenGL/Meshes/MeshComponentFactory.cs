@@ -5,6 +5,7 @@ using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using Texture = SilkDotNetLibrary.OpenGL.Textures.Texture;
 
@@ -54,6 +55,8 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         for (int i = 0; i < node->MNumChildren; i++)
         {
             meshes.AddRange(ProcessNode(gl, ref loadedTexture, node->MChildren[i], scene));
+
+            _logger.LogInformation("Node loaded: {Name}", node->MChildren[i]->MName);
         }
         return meshes;
     }
@@ -116,18 +119,83 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         return (new Mesh(gl, vertices, indices), textures);
     }
 
+    //private unsafe List<Texture> LoadMaterialTextures(GL gl,
+    //    ref List<(Texture,string)> loadedTextures, 
+    //    Material* mat, TextureType type)
+    //{
+    //    _logger.LogInformation("Material type: {Type}", type);
+    //    bool skip = false;
+    //    List<Texture> textures = [];
+    //    for (int i = 0; i < _assimp.GetMaterialTextureCount(mat,type); i++)
+    //    {
+    //        AssimpString str;
+
+    //        //material->GetTexture(type, i, &str);
+    //        _assimp.GetMaterialTexture(mat,
+    //                                   type,
+    //                                   (uint)i,
+    //                                   &str,
+    //                                   mapping: null,
+    //                                   uvindex: null,
+    //                                   blend: null,
+    //                                   op: null,
+    //                                   mapmode:null,
+    //                                   flags:null);
+    //        _logger.LogInformation("Texture path: {Path}", str.AsString);
+
+    //        // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+    //        foreach ((Texture loadedTexture, string textureName) in loadedTextures)
+    //        {
+    //            if (!string.Equals(textureName, str.AsString)) continue;
+    //            textures.Add(loadedTexture);
+    //            skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+    //            _logger.LogInformation("Texture loaded: {AssimpString}", str.AsString);
+    //            break;
+    //        }
+
+    //        if (skip)
+    //        {
+    //            _logger.LogInformation("Texture already loaded: {AssimpString}", str.AsString);
+    //            continue;
+    //        }
+    //        // if texture hasn't been loaded already, load it
+    //        //hard code for the moment, relative path issue
+            
+    //        Image texutreImage = Image.Load($"Assets/batman_free/{str.AsString}");
+
+    //        _logger.LogInformation("Height: {Height}", texutreImage.Height);
+    //        _logger.LogInformation("Width: {PixelType}", texutreImage.Width);
+    //        _logger.LogInformation("PixelType: {PixelType}", texutreImage.PixelType);
+    //        _logger.LogInformation("BitsPerPixel: {TextureImage}", texutreImage.PixelType.BitsPerPixel);
+    //        _logger.LogInformation("AlphaRepresentation: {AlphaRepresentation}", texutreImage.PixelType.AlphaRepresentation);
+
+    //        //Image texutreImage = Image.Load($"{str.AsString}");
+    //        Texture texture = new(gl, texutreImage, type);
+    //        textures.Add(texture);
+    //        loadedTextures.Add((texture, str.AsString));  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+    //    }
+    //    return textures;
+    //}
+
     private unsafe List<Texture> LoadMaterialTextures(GL gl,
-        ref List<(Texture,string)> loadedTextures, 
-        Material* mat, TextureType type)
+    ref List<(Texture, string)> loadedTextures,
+    Material* mat, TextureType type)
     {
-        _logger.LogInformation("Material type: {Type}", type);
-        bool skip = false;
-        List<Texture> textures = [];
-        for (int i = 0; i < _assimp.GetMaterialTextureCount(mat,type); i++)
+        _logger.LogInformation("Processing material type: {Type}", type);
+
+        // Validate texture type
+        if (!Enum.IsDefined(typeof(TextureType), type))
+        {
+            _logger.LogWarning("Unsupported texture type: {Type}", type);
+            return new List<Texture>();
+        }
+
+        List<Texture> textures = new();
+        for (int i = 0; i < _assimp.GetMaterialTextureCount(mat, type); i++)
         {
             AssimpString str;
 
-            //material->GetTexture(type, i, &str);
+            // Get the texture path
             _assimp.GetMaterialTexture(mat,
                                        type,
                                        (uint)i,
@@ -136,40 +204,52 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
                                        uvindex: null,
                                        blend: null,
                                        op: null,
-                                       mapmode:null,
-                                       flags:null);
-            _logger.LogInformation("Texture path: {Path}", str.AsString);
+                                       mapmode: null,
+                                       flags: null);
 
-            // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
-            foreach ((Texture loadedTexture, string textureName) in loadedTextures)
-            {
-                if (!string.Equals(textureName, str.AsString)) continue;
-                textures.Add(loadedTexture);
-                skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
-                _logger.LogInformation("Texture loaded: {AssimpString}", str.AsString);
-                break;
-            }
+            string texturePath = str.AsString;
+            _logger.LogInformation("Texture path: {Path}", texturePath);
 
-            if (skip)
+            // Validate texture path
+            if (string.IsNullOrWhiteSpace(texturePath))
             {
-                _logger.LogInformation("Texture already loaded: {AssimpString}", str.AsString);
+                _logger.LogWarning("Texture path is invalid or empty.");
                 continue;
             }
-            // if texture hasn't been loaded already, load it
-            //hard code for the moment, relative path issue
-            Image texutreImage = Image.Load($"Assets/batman_free/{str.AsString}");
 
-            _logger.LogInformation("Height: {Height}", texutreImage.Height);
-            _logger.LogInformation("Width: {PixelType}", texutreImage.Width);
-            _logger.LogInformation("PixelType: {PixelType}", texutreImage.PixelType);
-            _logger.LogInformation("BitsPerPixel: {TextureImage}", texutreImage.PixelType.BitsPerPixel);
-            _logger.LogInformation("AlphaRepresentation: {AlphaRepresentation}", texutreImage.PixelType.AlphaRepresentation);
+            string fullPath = Path.Combine("Assets/batman_free", texturePath);
+            if (!System.IO.File.Exists(fullPath))
+            {
+                _logger.LogWarning("Texture file not found: {FullPath}", fullPath);
+                continue;
+            }
 
-            //Image texutreImage = Image.Load($"{str.AsString}");
-            Texture texture = new(gl, texutreImage, type);
-            textures.Add(texture);
-            loadedTextures.Add((texture, str.AsString));  // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+            // Check if texture is already loaded
+            (Texture, string) existingTexture = loadedTextures.FirstOrDefault(t => t.Item2 == texturePath);
+            if (!EqualityComparer<(Texture, string)>.Default.Equals(existingTexture, default))
+            {
+                _logger.LogInformation("Texture already loaded: {Path}", texturePath);
+                textures.Add(existingTexture.Item1);
+                continue;
+            }
+
+            // Load the texture
+            try
+            {
+                using Image textureImage = Image.Load(fullPath);
+                _logger.LogInformation("Loaded texture: {Path}, Width: {Width}, Height: {Height}",
+                    texturePath, textureImage.Width, textureImage.Height);
+
+                Texture texture = new(gl, textureImage, type);
+                textures.Add(texture);
+                loadedTextures.Add((texture, texturePath)); // Track the loaded texture
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load texture: {Path}", texturePath);
+            }
         }
+
         return textures;
     }
 }
