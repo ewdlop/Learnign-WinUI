@@ -133,17 +133,24 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
         #region Mesh
-        //MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
 
-        //Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
-        //Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
-        //Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
-        //MeshShader1 = new Shader(_gl);
-        //MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        //MeshShader2 = new Shader(_gl);
-        //MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        //MeshShader3 = new Shader(_gl);
-        //MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
+        Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
+        MeshShader1 = new Shader(_gl);
+        MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+
+        _logger.LogInformation("MeshShader1: {MeshShader1}", meshVertexShaderTask.Result);
+
+        MeshShader2 = new Shader(_gl);
+        MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        
+        _logger.LogInformation("MeshShader2: {MeshShader2}", meshVertexShaderTask.Result);
+        MeshShader3 = new Shader(_gl);
+        MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        
+        _logger.LogInformation("MeshShader3: {MeshShader3}", meshFragmentShaderTask.Result);
         #endregion
         return _gl;
     }
@@ -205,8 +212,14 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _gl.BindVertexArray(0);
 
         #region mesh
-        //DrawMesh();
+        DrawMesh();
         #endregion
+
+        var error = _gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            _logger.LogError("OpenGL Error: {Error}", error);
+        }
     }
 
     private void Reset()

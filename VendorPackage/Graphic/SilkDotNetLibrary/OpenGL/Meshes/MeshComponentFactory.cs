@@ -25,6 +25,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
             _logger.LogError(_assimp.GetErrorStringS());
             throw new ApplicationException(_assimp.GetErrorStringS());
         }
+        _logger.LogInformation("Model loaded: {Path}", path);
 
         List<(Texture, string)> loadedTexture = [];
         List<(Mesh, List<Texture>)> meshes = ProcessNode(gl, ref loadedTexture, scene->MRootNode, scene);
@@ -42,8 +43,13 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         List<(Mesh, List<Texture>)> meshes = [];
         for (uint i = 0; i < node->MNumMeshes; i++)
         {
+            //Process each mesh located at the node
+            //and append it to the list of meshes
+
             Silk.NET.Assimp.Mesh* mesh = scene->MMeshes[node->MMeshes[i]];
             meshes.Add(ProcessMesh(gl,ref loadedTexture, mesh, scene));
+
+            _logger.LogInformation("Mesh loaded: {Name}", mesh->MName);
         }
         for (int i = 0; i < node->MNumChildren; i++)
         {
@@ -61,6 +67,11 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         uint[] indices = new uint[indicesSize];
         //Span<uint> indices = stackalloc uint[indicesSize];
         List<Texture> textures = [];
+
+        // process vertex data
+        _logger.LogInformation("Mesh vertices: {Vertices}", verticesSize);
+        _logger.LogInformation("Mesh indices: {Indices}", indicesSize);
+
         for (int i = 0; i < verticesSize; i++)
         {
             Vertex vertex = new()
@@ -109,6 +120,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         ref List<(Texture,string)> loadedTextures, 
         Material* mat, TextureType type)
     {
+        _logger.LogInformation("Material type: {Type}", type);
         bool skip = false;
         List<Texture> textures = [];
         for (int i = 0; i < _assimp.GetMaterialTextureCount(mat,type); i++)
@@ -126,6 +138,8 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
                                        op: null,
                                        mapmode:null,
                                        flags:null);
+            _logger.LogInformation("Texture path: {Path}", str.AsString);
+
             // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
             foreach ((Texture loadedTexture, string textureName) in loadedTextures)
             {
@@ -135,11 +149,22 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
                 _logger.LogInformation("Texture loaded: {AssimpString}", str.AsString);
                 break;
             }
-            
-            if (skip) continue;
+
+            if (skip)
+            {
+                _logger.LogInformation("Texture already loaded: {AssimpString}", str.AsString);
+                continue;
+            }
             // if texture hasn't been loaded already, load it
             //hard code for the moment, relative path issue
             Image texutreImage = Image.Load($"Assets/batman_free/{str.AsString}");
+
+            _logger.LogInformation("Height: {Height}", texutreImage.Height);
+            _logger.LogInformation("Width: {PixelType}", texutreImage.Width);
+            _logger.LogInformation("PixelType: {PixelType}", texutreImage.PixelType);
+            _logger.LogInformation("BitsPerPixel: {TextureImage}", texutreImage.PixelType.BitsPerPixel);
+            _logger.LogInformation("AlphaRepresentation: {AlphaRepresentation}", texutreImage.PixelType.AlphaRepresentation);
+
             //Image texutreImage = Image.Load($"{str.AsString}");
             Texture texture = new(gl, texutreImage, type);
             textures.Add(texture);
