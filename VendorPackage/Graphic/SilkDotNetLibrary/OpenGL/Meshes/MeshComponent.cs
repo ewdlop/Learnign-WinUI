@@ -79,6 +79,25 @@ public readonly struct MeshComponent//model is an entity? class?
 
 
     }
+
+    public void DrawWithoutTexture(GL gl, ReadOnlySpan<SilkDotNetLibrary.OpenGL.Shaders.Shader> shaders, ICamera camera, Vector3 lampPosition)
+    {
+        int i = 0;
+        foreach ((Mesh mesh, List<Texture> textures) in Meshes)
+        {
+            shaders[i].UseBy(gl);
+            //var diffuseColor = new Vector3(1f);
+            //var ambientColor = diffuseColor * new Vector3(1);
+            shaders[i].SetUniformBy(gl, "uModel", Matrix4x4.Identity);
+            shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
+            shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
+            //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
+            //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
+            //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
+            mesh.Draw(gl);
+            i++;
+        }
+    }
 }
 
 //public unsafe ref struct RefVertex

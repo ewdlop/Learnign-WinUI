@@ -166,7 +166,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
         _logger.LogInformation("Drawing MeshComponent with MeshShaders...");
         _logger.LogInformation("MeshComponent Meshes Count: {Count}", MeshComponent.Meshes.Count);
-        MeshComponent.Draw(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
+        //MeshComponent.Draw(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
+        MeshComponent.DrawWithoutTexture(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
     }
     private void RenderScene(double dt)
     {

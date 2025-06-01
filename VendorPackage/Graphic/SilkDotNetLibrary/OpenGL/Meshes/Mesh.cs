@@ -38,6 +38,28 @@ public readonly record struct Mesh
             Marshal.OffsetOf(typeof(Vertex), "BiTangent").ToInt32());
     }
 
+    public  void Draw(GL gl)
+    {
+        //Draw the mesh without textures
+        Console.WriteLine($"Drawing {IndicesLength} indices without textures");
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+        // Check if we're actually calling draw
+        Vao.BindBy(gl);
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+        Console.WriteLine(
+            "About to call DrawElements...");
+        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        Console.WriteLine(
+            "DrawElements called.");
+#if DEBUG
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Console.WriteLine($"OpenGL Error after draw: {error}");
+        }
+#endif
+    }
+
     public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, List<Texture> textures)
     {
         uint diffuseNr = 0;
