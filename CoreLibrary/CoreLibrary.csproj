@@ -122,6 +122,12 @@
     <None Update="Shaders\ambient_lighting.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Shaders\avocado.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\avocado.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Shaders\basic.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -133,23 +133,31 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
         #region Mesh
+
+        _logger.LogInformation("Loading MeshComponent...");
+
+        //Load the mesh component with a glTF model of an avocado
         MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/avocado/avocado.gltf");
 
+        //Load the mesh shaders
+        _logger.LogInformation("Reading Mesh Shaders...");
         Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
         Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
+
         Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
+
+        //Create the mesh shaders
+        _logger.LogInformation("Loading Mesh Shaders...");
         MeshShader1 = new Shader(_gl);
         MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
 
-        _logger.LogInformation("MeshShader1: {MeshShader1}", meshVertexShaderTask.Result);
-
         MeshShader2 = new Shader(_gl);
         MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        
+
         _logger.LogInformation("MeshShader2: {MeshShader2}", meshVertexShaderTask.Result);
         MeshShader3 = new Shader(_gl);
         MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        
+
         _logger.LogInformation("MeshShader3: {MeshShader3}", meshFragmentShaderTask.Result);
         #endregion
         return _gl;
@@ -162,7 +170,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void DrawMesh()
     {
         //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
-        MeshComponent.Draw(_gl, MeshShader1, _camera, _lampPosition);
+        _logger.LogInformation("Drawing MeshComponent with MeshShaders...");
+        MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
     }
     private void RenderScene(double dt)
     {
