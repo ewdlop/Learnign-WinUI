@@ -96,7 +96,13 @@ public readonly record struct Mesh
 #endif
         }
         //uniform int num_diffuse_textures;
-        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
+        int location = gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures");
+        if (location == -1)
+        {
+            Console.WriteLine("Uniform 'num_diffuse_textures' not found!");
+        }
+        else
+            gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
 #if DEBUG
         var error = gl.GetError();
         if (error != GLEnum.NoError)
@@ -107,6 +113,7 @@ public readonly record struct Mesh
 #endif
         //uniform int num_normal_textures;
         gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
+
         error = gl.GetError();
         if (error != GLEnum.NoError)
         {
