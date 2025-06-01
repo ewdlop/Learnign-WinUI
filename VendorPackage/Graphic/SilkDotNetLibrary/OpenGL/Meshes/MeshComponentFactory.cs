@@ -183,10 +183,17 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
     {
         _logger.LogInformation("Processing material type: {Type}", type);
 
-        // Validate texture type
-        if (!Enum.IsDefined(typeof(TextureType), type))
+        //// Validate texture type
+        //if (!Enum.IsDefined(typeof(TextureType), type))
+        //{
+        //    _logger.LogWarning("Unsupported texture type: {Type}", type);
+        //    return new List<Texture>();
+        //}
+
+        uint textureCount = _assimp.GetMaterialTextureCount(mat, type);
+        if(textureCount == 0)
         {
-            _logger.LogWarning("Unsupported texture type: {Type}", type);
+            _logger.LogInformation("No textures found for material type: {Type}", type);
             return new List<Texture>();
         }
 
@@ -217,7 +224,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
                 continue;
             }
 
-            string fullPath = Path.Combine("Assets/batman_free", texturePath);
+            string fullPath = Path.Combine("Assets/avocado", texturePath);
             if (!System.IO.File.Exists(fullPath))
             {
                 _logger.LogWarning("Texture file not found: {FullPath}", fullPath);

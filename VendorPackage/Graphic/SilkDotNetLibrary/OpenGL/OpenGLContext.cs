@@ -133,7 +133,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
         #region Mesh
-        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/avocado/avocado.gltf");
 
         Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
         Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");

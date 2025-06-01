@@ -23,6 +23,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\avocado\Avocado.bin">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\avocado\Avocado.gltf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\avocado\Avocado_baseColor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\avocado\Avocado_normal.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\avocado\Avocado_roughnessMetallic.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\batman_free\scene.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
