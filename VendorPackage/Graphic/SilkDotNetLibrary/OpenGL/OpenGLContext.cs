@@ -141,7 +141,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //Load the mesh shaders
         _logger.LogInformation("Reading Mesh Shaders...");
         Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/avocado_simple.vert");
-        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_simple.frag");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_simple2.frag");
 
         Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
 

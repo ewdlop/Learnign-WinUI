@@ -96,13 +96,7 @@ public readonly record struct Mesh
 #endif
         }
         //uniform int num_diffuse_textures;
-        int location = gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures");
-        if (location == -1)
-        {
-            Console.WriteLine("Uniform 'num_diffuse_textures' not found!");
-        }
-        else
-            gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
+        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
 #if DEBUG
         var error = gl.GetError();
         if (error != GLEnum.NoError)
@@ -112,8 +106,7 @@ public readonly record struct Mesh
         }
 #endif
         //uniform int num_normal_textures;
-        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
-
+        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
         error = gl.GetError();
         if (error != GLEnum.NoError)
         {
@@ -121,7 +114,7 @@ public readonly record struct Mesh
             Log.Error("OpenGL Error: {Error}", error);
         }
         //uniform int num_specular_textures;
-        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), specularNr);
+        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), specularNr);
 #if DEBUG
         error = gl.GetError();
         if (error != GLEnum.NoError)
@@ -130,7 +123,7 @@ public readonly record struct Mesh
             Log.Error("OpenGL Error: {Error}", error);
         }
         //uniform int num_height_textures;
-        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), heightNr);
+        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), heightNr);
 #endif
         error = gl.GetError();
         if (error != GLEnum.NoError)

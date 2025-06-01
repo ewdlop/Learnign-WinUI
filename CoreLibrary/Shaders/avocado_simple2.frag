@@ -1,0 +1,92 @@
+#version 330 core
+
+// Inputs from vertex shader
+in vec3 fPos;
+in vec3 fNormal;
+in vec2 fTexCoords;
+
+// Texture array uniforms - more flexible approach
+#define MAX_DIFFUSE_TEXTURES 4
+#define MAX_NORMAL_TEXTURES 4
+#define MAX_SPECULAR_TEXTURES 4
+#define MAX_HEIGHT_TEXTURES 4
+
+uniform sampler2D texture_diffuse[MAX_DIFFUSE_TEXTURES];
+uniform sampler2D texture_normal[MAX_NORMAL_TEXTURES];
+uniform sampler2D texture_specular[MAX_SPECULAR_TEXTURES];
+uniform sampler2D texture_height[MAX_HEIGHT_TEXTURES];
+
+
+
+// Light structure following project conventions
+struct Light {
+    vec3 position;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
+uniform Light light;
+uniform vec3 viewPos;
+
+// Output
+out vec4 FragColor;
+
+// Function to sample diffuse textures (blend multiple if available)
+vec4 GetDiffuseColor()
+{
+
+    
+    vec4 result = texture(texture_diffuse[0], fTexCoords);
+    
+    // Blend additional diffuse textures if available
+    for (int i = 1; i < 4 && i < MAX_DIFFUSE_TEXTURES; i++) {
+        vec4 additional = texture(texture_diffuse[i], fTexCoords);
+        result = mix(result, additional, 0.5); // Simple blending
+    }
+    
+    return result;
+}
+
+// Function to sample specular/metallic-roughness textures
+vec3 GetMetallicRoughness()
+{
+        return texture(texture_specular[0], fTexCoords).rgb;
+}
+
+void main()
+{
+    // Sample textures using helper functions
+    vec4 baseColor = GetDiffuseColor();
+    vec3 metallicRoughness = GetMetallicRoughness();
+    
+    // Extract material properties from metallic-roughness texture
+    // Following glTF 2.0 specification: R=unused, G=roughness, B=metallic
+    float roughness = metallicRoughness.g;
+    float metallic = metallicRoughness.b;
+    
+    // Use vertex normal (no normal mapping without tangent space)
+    vec3 norm = normalize(fNormal);
+    
+    // Calculate lighting vectors
+    vec3 lightDirection = normalize(light.position - fPos);
+    vec3 viewDirection = normalize(viewPos - fPos);
+    vec3 reflectDirection = reflect(-lightDirection, norm);
+    
+    // Ambient lighting
+    vec3 ambient = light.ambient * baseColor.rgb;
+    
+    // Diffuse lighting
+    float diff = max(dot(norm, lightDirection), 0.0);
+    vec3 diffuse = light.diffuse * diff * baseColor.rgb;
+    
+    // Specular lighting with metallic/roughness consideration
+    float shininess = mix(32.0, 128.0, 1.0 - roughness); // Higher roughness = lower shininess
+    float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), shininess);
+    vec3 specular = light.specular * spec * mix(vec3(0.04), baseColor.rgb, metallic);
+    
+    // Combine lighting components
+    vec3 result = ambient + diffuse + specular;
+    
+    FragColor = vec4(result, baseColor.a);
+} 
