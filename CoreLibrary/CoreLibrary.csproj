@@ -128,6 +128,12 @@
     <None Update="Shaders\avocado.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Shaders\avocado_debug.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\avocado_debug.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Shaders\avocado_simple2.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -132,15 +132,24 @@ public readonly record struct Mesh
             Log.Error("OpenGL Error: {Error}", error);
         }
         // draw mesh
+        Console.WriteLine($"Drawing {IndicesLength} indices");
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+
+        // Check if we're actually calling draw
         Vao.BindBy(gl);
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+
+        Console.WriteLine("About to call DrawElements...");
+        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        Console.WriteLine("DrawElements called.");
+
+        // Check for OpenGL errors
 #if DEBUG
-        error = gl.GetError();
+         error = gl.GetError();
         if (error != GLEnum.NoError)
         {
-            Log.Error($"Vao.BindBy(gl);");
-            Log.Error("OpenGL Error: {Error}", error);
+            Console.WriteLine($"OpenGL Error after draw: {error}");
         }
-        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
 #endif
         error = gl.GetError();
         if (error != GLEnum.NoError)
