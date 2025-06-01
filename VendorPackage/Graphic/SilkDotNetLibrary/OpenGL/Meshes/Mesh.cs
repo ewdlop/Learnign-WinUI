@@ -1,4 +1,5 @@
-﻿using Silk.NET.Assimp;
+﻿using Serilog;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using System;
@@ -45,38 +46,127 @@ public readonly record struct Mesh
         uint heightNr = 0;
         for (int i = 0; i < textures.Count; i++)
         {
+            Log.Debug("Binding texture {TextureIndex} of type {TextureType}", i, textures[i].TextureType);
             gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
 
             // retrieve texture number (the N in diffuse_textureN)
 
-            string combined = textures[i].TextureType switch
+            string combined = string.Empty;
+            switch (textures[i].TextureType)
             {
-                TextureType.Diffuse => $"texture_diffuse[{diffuseNr++}]",
-                TextureType.Specular => $"texture_specular[{specularNr++}]",
-                TextureType.Normals => $"texture_normal[{normalNr++}]",
-                TextureType.Height => $"texture_height[{heightNr++}]",
-                _ => string.Empty
-            };
+                case TextureType.Diffuse:
+                    combined = $"texture_diffuse[{diffuseNr}]";
+                    diffuseNr++;
+                    break;
+                case TextureType.Specular:
+                    combined = $"texture_specular[{specularNr}]";
+                    specularNr++;
+                    break;
+                case TextureType.Normals:
+                    combined = $"texture_normal[{normalNr}]";
+                    normalNr++;
+                    break;
+                case TextureType.Height:
+                    combined = $"texture_height[{heightNr}]";
+                    heightNr++;
+                    break;
+                default:
+                    break;
+            }
 
             // now set the sampler to the correct texture unit
             gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, combined), i);
+#if DEBUG
+            var error2 = gl.GetError();
+            if (error2 != GLEnum.NoError)
+            {
+                Log.Error($"gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, {combined}), i);");
+                Log.Error("OpenGL Error: {Error}", error2);
+            }
+#endif
             // and finally bind the texture
             gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);
+#if DEBUG
+            error2 = gl.GetError();
+            if (error2 != GLEnum.NoError)
+            {
+                Log.Error("gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);;");
+                Log.Error("OpenGL Error: {Error}", error2);
+            }
+#endif
         }
         //uniform int num_diffuse_textures;
         gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
+#if DEBUG
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_diffuse_textures\"), {diffuseNr});");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
         //uniform int num_normal_textures;
         gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_normal_textures\"), normalNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         //uniform int num_specular_textures;
         gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), specularNr);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_specular_textures\"), specularNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         //uniform int num_height_textures;
         gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), heightNr);
-
+#endif
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_height_textures\"), heightNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         // draw mesh
         Vao.BindBy(gl);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"Vao.BindBy(gl);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+#endif
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         gl.BindVertexArray(0);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.BindVertexArray(0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
         // always good practice to set everything back to defaults once configured.
         gl.ActiveTexture(GLEnum.Texture0);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+
+            Log.Error($"gl.ActiveTexture(GLEnum.Texture0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
     }
 }
