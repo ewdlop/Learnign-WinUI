@@ -18,7 +18,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
 
     public unsafe MeshComponent LoadModel(GL gl, string path)
     {
-        Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.FlipUVs));
+        Scene* scene = _assimp.ImportFile(path, Convert.ToUInt32(PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals| PostProcessSteps.FlipUVs | PostProcessSteps.CalculateTangentSpace));
         if (scene is null ||
             Convert.ToBoolean(scene->MFlags & Convert.ToUInt32(SceneFlags.Incomplete)) ||
             scene->MRootNode is null)
@@ -64,16 +64,21 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
     private unsafe (Mesh, List<Texture>) ProcessMesh(GL gl, ref List<(Texture, string)> loadedTextures, Silk.NET.Assimp.Mesh* mesh, Scene* scene)
     {
         int verticesSize = (int)mesh->MNumVertices;
-        int indicesSize = (int)mesh->MNumFaces;
-        //Span<Vertex> vertices = stackalloc Vertex[verticesSize];//blow up the stack...
-        Vertex[] vertices = new Vertex[verticesSize];//or Memory<T>?
-        uint[] indices = new uint[indicesSize];
-        //Span<uint> indices = stackalloc uint[indicesSize];
+        
+        // Calculate total number of indices properly
+        int totalIndices = 0;
+        for (int i = 0; i < mesh->MNumFaces; i++)
+        {
+            totalIndices += (int)mesh->MFaces[i].MNumIndices;
+        }
+        
+        Vertex[] vertices = new Vertex[verticesSize];
+        uint[] indices = new uint[totalIndices];
         List<Texture> textures = [];
 
         // process vertex data
         _logger.LogInformation("Mesh vertices: {Vertices}", verticesSize);
-        _logger.LogInformation("Mesh indices: {Indices}", indicesSize);
+        _logger.LogInformation("Mesh indices: {Indices}", totalIndices);
 
         for (int i = 0; i < verticesSize; i++)
         {
@@ -91,13 +96,16 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
             };
             vertices[i] = vertex;
         }
+        
+        // Fix the critical index processing bug
+        int indexCounter = 0;
         for (int i = 0; i < mesh->MNumFaces; i++)
         {
             Face face = mesh->MFaces[i];
             // retrieve all indices of the face and store them in the indices vector
             for (int j = 0; j < face.MNumIndices; j++)
             {
-                indices[i]=face.MIndices[j];
+                indices[indexCounter++] = face.MIndices[j];
             }
         }
 

@@ -118,7 +118,7 @@ public readonly record struct Mesh
 #endif
         }
         //uniform int num_diffuse_textures;
-        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), (int)diffuseNr);
 #if DEBUG
         var error = gl.GetError();
         if (error != GLEnum.NoError)
@@ -128,15 +128,17 @@ public readonly record struct Mesh
         }
 #endif
         //uniform int num_normal_textures;
-        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), (int)normalNr);
+#if DEBUG
         error = gl.GetError();
         if (error != GLEnum.NoError)
         {
             Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_normal_textures\"), normalNr);");
             Log.Error("OpenGL Error: {Error}", error);
         }
+#endif
         //uniform int num_specular_textures;
-        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), specularNr);
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), (int)specularNr);
 #if DEBUG
         error = gl.GetError();
         if (error != GLEnum.NoError)
@@ -144,15 +146,17 @@ public readonly record struct Mesh
             Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_specular_textures\"), specularNr);");
             Log.Error("OpenGL Error: {Error}", error);
         }
-        //uniform int num_height_textures;
-        //gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), heightNr);
 #endif
+        //uniform int num_height_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), (int)heightNr);
+#if DEBUG
         error = gl.GetError();
         if (error != GLEnum.NoError)
         {
             Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_height_textures\"), heightNr);");
             Log.Error("OpenGL Error: {Error}", error);
         }
+#endif
         // draw mesh
         Console.WriteLine($"Drawing {IndicesLength} indices");
         Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");

@@ -88,7 +88,8 @@ public readonly struct MeshComponent//model is an entity? class?
             shaders[i].UseBy(gl);
             //var diffuseColor = new Vector3(1f);
             //var ambientColor = diffuseColor * new Vector3(1);
-            shaders[i].SetUniformBy(gl, "uModel", Matrix4x4.Identity);
+            Matrix4x4 scale = Matrix4x4.CreateScale(100); // 10x bigger
+            shaders[i].SetUniformBy(gl, "uModel", scale);
             shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
             shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
             //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
