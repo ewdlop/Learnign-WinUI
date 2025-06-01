@@ -39,10 +39,10 @@ public readonly record struct Mesh
 
     public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, List<Texture> textures)
     {
-        uint diffuseNr = 1;
-        uint specularNr = 1;
-        uint normalNr = 1;
-        uint heightNr = 1;
+        uint diffuseNr = 0;
+        uint specularNr = 0;
+        uint normalNr = 0;
+        uint heightNr = 0;
         for (int i = 0; i < textures.Count; i++)
         {
             gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
@@ -51,10 +51,10 @@ public readonly record struct Mesh
 
             string combined = textures[i].TextureType switch
             {
-                TextureType.Diffuse => $"texture_diffuse{diffuseNr++}",
-                TextureType.Specular => $"texture_specular{specularNr++}",
-                TextureType.Normals => $"texture_normal{normalNr++}",
-                TextureType.Height => $"texture_height{heightNr++}",
+                TextureType.Diffuse => $"texture_diffuse[{diffuseNr++}]",
+                TextureType.Specular => $"texture_specular[{specularNr++}]",
+                TextureType.Normals => $"texture_normal[{normalNr++}]",
+                TextureType.Height => $"texture_height[{heightNr++}]",
                 _ => string.Empty
             };
 
@@ -63,6 +63,15 @@ public readonly record struct Mesh
             // and finally bind the texture
             gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);
         }
+        //uniform int num_diffuse_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), diffuseNr);
+        //uniform int num_normal_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), normalNr);
+        //uniform int num_specular_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), specularNr);
+        //uniform int num_height_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), heightNr);
+
         // draw mesh
         Vao.BindBy(gl);
         gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);

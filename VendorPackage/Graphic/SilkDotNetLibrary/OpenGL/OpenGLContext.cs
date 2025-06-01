@@ -17,6 +17,7 @@ using SilkDotNetLibrary.OpenGL.Meshes;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Serilog;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -42,9 +43,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private Shader LightingShader { get; set; }
     private Shader LampShader { get; set; }
     private Shader ScreenShader { get; set; }
-    private Shader MeshShader1 { get; set; }
-    private Shader MeshShader2 { get; set; }
-    private Shader MeshShader3 { get; set; }
+    private Shader[] MeshShaders { get; set; } = new Shader[3];
 
     //private Textures.Texture Texture { get; set; }
     private Textures.Texture DiffuseMap { get; set; }
@@ -141,24 +140,18 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
         //Load the mesh shaders
         _logger.LogInformation("Reading Mesh Shaders...");
-        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
-        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
+        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/avocado_simple.vert");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_simple.frag");
 
         Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
 
         //Create the mesh shaders
         _logger.LogInformation("Loading Mesh Shaders...");
-        MeshShader1 = new Shader(_gl);
-        MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-
-        MeshShader2 = new Shader(_gl);
-        MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-
-        _logger.LogInformation("MeshShader2: {MeshShader2}", meshVertexShaderTask.Result);
-        MeshShader3 = new Shader(_gl);
-        MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-
-        _logger.LogInformation("MeshShader3: {MeshShader3}", meshFragmentShaderTask.Result);
+        for (int i = 0; i < 3; i++)
+        {
+            MeshShaders[i] = new Shader(_gl);
+            MeshShaders[i].LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        }
         #endregion
         return _gl;
     }
@@ -171,11 +164,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     {
         //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
         _logger.LogInformation("Drawing MeshComponent with MeshShaders...");
-        MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
+        _logger.LogInformation("MeshComponent Meshes Count: {Count}", MeshComponent.Meshes.Count);
+        MeshComponent.Draw(_gl, MeshShaders.AsSpan().Slice(0, MeshComponent.Meshes.Count), _camera, _lampPosition);
     }
     private void RenderScene(double dt)
     {
-
         DiffuseMap.BindBy(_gl, TextureUnit.Texture0);
         SpecularMap.BindBy(_gl, TextureUnit.Texture1);
 

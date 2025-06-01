@@ -31,7 +31,7 @@ public readonly struct MeshComponent//model is an entity? class?
         }
     }
     
-    public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader[] shaders, ICamera camera, Vector3 lampPosition)
+    public void Draw(GL gl, ReadOnlySpan<SilkDotNetLibrary.OpenGL.Shaders.Shader> shaders, ICamera camera, Vector3 lampPosition)
     {
         int i = 0;
         foreach((Mesh mesh, List<Texture> textures) in Meshes)

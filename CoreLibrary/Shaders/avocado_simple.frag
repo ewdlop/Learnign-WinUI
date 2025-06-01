@@ -4,9 +4,6 @@
 in vec3 fPos;
 in vec3 fNormal;
 in vec2 fTexCoords;
-in vec3 fTangent;
-in vec3 fBiTangent;
-in mat3 fTBN;
 
 // Texture array uniforms - more flexible approach
 #define MAX_DIFFUSE_TEXTURES 4
@@ -38,16 +35,6 @@ uniform vec3 viewPos;
 
 // Output
 out vec4 FragColor;
-
-// Function to get normal from normal map
-vec3 GetNormalFromMap()
-{
-    if (num_normal_textures > 0) {
-        vec3 tangentNormal = texture(texture_normal[0], fTexCoords).xyz * 2.0 - 1.0;
-        return normalize(fTBN * tangentNormal);
-    }
-    return normalize(fNormal); // Fallback to vertex normal if no normal map
-}
 
 // Function to sample diffuse textures (blend multiple if available)
 vec4 GetDiffuseColor()
@@ -87,8 +74,8 @@ void main()
     float roughness = metallicRoughness.g;
     float metallic = metallicRoughness.b;
     
-    // Get normal from normal map
-    vec3 norm = GetNormalFromMap();
+    // Use vertex normal (no normal mapping without tangent space)
+    vec3 norm = normalize(fNormal);
     
     // Calculate lighting vectors
     vec3 lightDirection = normalize(light.position - fPos);
