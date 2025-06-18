@@ -38,6 +38,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private BufferObject<float> CubeVbo { get; set; }
     private BufferObject<uint> CubeEbo { get; set; }
     private VertexArrayBufferObject<float, uint> CubeVao { get; set; }
+    
+    // 二十面體 (Icosahedron) 相關的緩衝區
+    private BufferObject<float> IcosahedronVbo { get; set; }
+    private BufferObject<uint> IcosahedronEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> IcosahedronVao { get; set; }
+    
     private BufferObject<float> QuadVbo { get; set; }
     private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
     private Shader LightingShader { get; set; }
@@ -77,6 +83,19 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 0);
         CubeVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 3);
         CubeVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 6);
+
+        // 初始化二十面體 (Icosahedron) - 使用完整的頂點屬性
+        IcosahedronEbo = new BufferObject<uint>(_gl, FullIcosahedron.Indices, BufferTargetARB.ElementArrayBuffer);
+        IcosahedronVbo = new BufferObject<float>(_gl, FullIcosahedron.Vertices, BufferTargetARB.ArrayBuffer);
+        IcosahedronVao = new VertexArrayBufferObject<float, uint>(_gl, IcosahedronVbo, IcosahedronEbo);
+        
+        // 設定所有頂點屬性指標以匹配 Vertex 結構 (17 floats total)
+        IcosahedronVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 0);  // Position
+        IcosahedronVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 3);  // Normal  
+        IcosahedronVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 6);  // TexCoords
+        IcosahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 8);  // Tangent
+        IcosahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 11); // BiTangent
+        IcosahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 14); // Color
 
         ////for sceen
         QuadVbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
@@ -169,7 +188,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //MeshComponent.Draw(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
         MeshComponent.DrawWithoutTexture(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
     }
-    private void RenderScene(double dt)
+    private unsafe void RenderScene(double dt)
     {
         DiffuseMap.BindBy(_gl, TextureUnit.Texture0);
         SpecularMap.BindBy(_gl, TextureUnit.Texture1);
@@ -199,6 +218,15 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
         CubeVao.BindBy(_gl);
         _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length / TexturedNormaledCube.VerticeSize);
+
+        // 渲染二十面體 (Icosahedron) - 位置稍微偏移以避免與立方體重疊
+        var icosahedronModel = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.5f)) 
+                               * Matrix4x4.CreateTranslation(new Vector3(3f, 0.0f, 0.0f))
+                               * Matrix4x4.CreateScale(0.5f);
+        LightingShader.SetUniformBy(_gl, "uModel", icosahedronModel);
+        
+        IcosahedronVao.BindBy(_gl);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)FullIcosahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
 
         LampShader.UseBy(_gl);
 
@@ -292,6 +320,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVbo.DisposeBy(_gl);
         CubeEbo.DisposeBy(_gl);
         CubeVao.DisposeBy(_gl);
+        
+        // 清理二十面體資源
+        IcosahedronVbo.DisposeBy(_gl);
+        IcosahedronEbo.DisposeBy(_gl);
+        IcosahedronVao.DisposeBy(_gl);
+        
         ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);
