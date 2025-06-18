@@ -2,6 +2,7 @@
 using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
+using SilkDotNetLibrary.OpenGL.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -56,7 +57,7 @@ public readonly record struct Mesh
     //        Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
     //}
 
-    public  void Draw(GL gl)
+    public unsafe void Draw(GL gl)
     {
         //Draw the mesh without textures
         Console.WriteLine($"Drawing {IndicesLength} indices without textures");
@@ -66,7 +67,7 @@ public readonly record struct Mesh
         Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
         Console.WriteLine(
             "About to call DrawElements...");
-        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        gl.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, IndicesLength, DrawElementsType.UnsignedInt, (void*)0);
         Console.WriteLine(
             "DrawElements called.");
 #if DEBUG
