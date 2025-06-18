@@ -17,6 +17,7 @@ using SilkDotNetLibrary.OpenGL.Meshes;
 using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Serilog;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -37,14 +38,18 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private BufferObject<float> CubeVbo { get; set; }
     private BufferObject<uint> CubeEbo { get; set; }
     private VertexArrayBufferObject<float, uint> CubeVao { get; set; }
+    
+    // 二十面體 (Icosahedron) 相關的緩衝區
+    private BufferObject<float> IcosahedronVbo { get; set; }
+    private BufferObject<uint> IcosahedronEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> IcosahedronVao { get; set; }
+    
     private BufferObject<float> QuadVbo { get; set; }
     private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
     private Shader LightingShader { get; set; }
     private Shader LampShader { get; set; }
     private Shader ScreenShader { get; set; }
-    private Shader MeshShader1 { get; set; }
-    private Shader MeshShader2 { get; set; }
-    private Shader MeshShader3 { get; set; }
+    private Shader[] MeshShaders { get; set; } = new Shader[3];
 
     //private Textures.Texture Texture { get; set; }
     private Textures.Texture DiffuseMap { get; set; }
@@ -78,6 +83,19 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 0);
         CubeVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 3);
         CubeVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 6);
+
+        // 初始化二十面體 (Icosahedron) - 使用完整的頂點屬性
+        IcosahedronEbo = new BufferObject<uint>(_gl, FullIcosahedron.Indices, BufferTargetARB.ElementArrayBuffer);
+        IcosahedronVbo = new BufferObject<float>(_gl, FullIcosahedron.Vertices, BufferTargetARB.ArrayBuffer);
+        IcosahedronVao = new VertexArrayBufferObject<float, uint>(_gl, IcosahedronVbo, IcosahedronEbo);
+        
+        // 設定所有頂點屬性指標以匹配 Vertex 結構 (17 floats total)
+        IcosahedronVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 0);  // Position
+        IcosahedronVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 3);  // Normal  
+        IcosahedronVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 6);  // TexCoords
+        IcosahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 8);  // Tangent
+        IcosahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 11); // BiTangent
+        IcosahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 14); // Color
 
         ////for sceen
         QuadVbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
@@ -133,17 +151,27 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //_gl.PolygonMode(GLEnum.FrontAndBack, GLEnum.Line);
 
         #region Mesh
-        //MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/batman_free/scene.gltf");
 
-        //Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/model_loading.vert");
-        //Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/model_loading.frag");
-        //Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
-        //MeshShader1 = new Shader(_gl);
-        //MeshShader1.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        //MeshShader2 = new Shader(_gl);
-        //MeshShader2.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
-        //MeshShader3 = new Shader(_gl);
-        //MeshShader3.LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        _logger.LogInformation("Loading MeshComponent...");
+
+        //Load the mesh component with a glTF model of an avocado
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/avocado/avocado.gltf");
+
+        //Load the mesh shaders
+        _logger.LogInformation("Reading Mesh Shaders...");
+        Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/avocado_debug.vert");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_debug.frag");
+
+        Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
+
+        //Create the mesh shaders
+        _logger.LogInformation("Loading Mesh Shaders...");
+        for (int i = 0; i < MeshComponent.Meshes.Count; i++)
+        {
+            _logger.LogInformation("Loading MeshShader {Index}...", i + 1);
+            MeshShaders[i] = new Shader(_gl);
+            MeshShaders[i].LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
+        }
         #endregion
         return _gl;
     }
@@ -155,11 +183,13 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void DrawMesh()
     {
         //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
-        MeshComponent.Draw(_gl, MeshShader1, _camera, _lampPosition);
+        _logger.LogInformation("Drawing MeshComponent with MeshShaders...");
+        _logger.LogInformation("MeshComponent Meshes Count: {Count}", MeshComponent.Meshes.Count);
+        //MeshComponent.Draw(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
+        MeshComponent.DrawWithoutTexture(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
     }
-    private void RenderScene(double dt)
+    private unsafe void RenderScene(double dt)
     {
-
         DiffuseMap.BindBy(_gl, TextureUnit.Texture0);
         SpecularMap.BindBy(_gl, TextureUnit.Texture1);
 
@@ -189,6 +219,16 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVao.BindBy(_gl);
         _gl.DrawArrays(PrimitiveType.Triangles, 0, (uint)TexturedNormaledCube.Vertices.Length / TexturedNormaledCube.VerticeSize);
 
+        // 渲染二十面體 (Icosahedron) - 位置稍微偏移以避免與立方體重疊
+        var icosahedronModel = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.5f)) 
+                               * Matrix4x4.CreateTranslation(new Vector3(3f, 0.0f, 0.0f))
+                               * Matrix4x4.CreateScale(0.5f);
+        LightingShader.SetUniformBy(_gl, "uModel", icosahedronModel);
+        
+        IcosahedronVao.BindBy(_gl);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)FullIcosahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
+
+        // 切換到燈光著色器並重新綁定立方體 VAO 用於燈光渲染
         LampShader.UseBy(_gl);
 
         var lampMatrix = Matrix4x4.Identity
@@ -200,13 +240,21 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LampShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LampShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
 
+        // 重新綁定立方體 VAO 用於燈光渲染
+        CubeVao.BindBy(_gl);
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
         _gl.BindVertexArray(0);
 
         #region mesh
-        //DrawMesh();
+        DrawMesh();
         #endregion
+
+        var error = _gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            _logger.LogError("OpenGL Error: {Error}", error);
+        }
     }
 
     private void Reset()
@@ -275,6 +323,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVbo.DisposeBy(_gl);
         CubeEbo.DisposeBy(_gl);
         CubeVao.DisposeBy(_gl);
+        
+        // 清理二十面體資源
+        IcosahedronVbo.DisposeBy(_gl);
+        IcosahedronEbo.DisposeBy(_gl);
+        IcosahedronVao.DisposeBy(_gl);
+        
         ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);

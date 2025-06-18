@@ -1,4 +1,5 @@
-﻿using Silk.NET.Assimp;
+﻿using Serilog;
+using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
 using System;
@@ -28,46 +29,179 @@ public readonly record struct Mesh
         Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 1, 
             0);
         Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "Normal").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "Normal"));
         Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "TexCoords").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "TexCoords"));
         Vao.VertexAttributePointer(gl, 3, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "Tangent").ToInt32());
+           Marshal.OffsetOf(typeof(Vertex), "Tangent"));
         Vao.VertexAttributePointer(gl, 4, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "BiTangent").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
+    }
+
+    public  void Draw(GL gl)
+    {
+        //Draw the mesh without textures
+        Console.WriteLine($"Drawing {IndicesLength} indices without textures");
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+        // Check if we're actually calling draw
+        Vao.BindBy(gl);
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+        Console.WriteLine(
+            "About to call DrawElements...");
+        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        Console.WriteLine(
+            "DrawElements called.");
+#if DEBUG
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Console.WriteLine($"OpenGL Error after draw: {error}");
+        }
+#endif
     }
 
     public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader shader, List<Texture> textures)
     {
-        uint diffuseNr = 1;
-        uint specularNr = 1;
-        uint normalNr = 1;
-        uint heightNr = 1;
+        uint diffuseNr = 0;
+        uint specularNr = 0;
+        uint normalNr = 0;
+        uint heightNr = 0;
         for (int i = 0; i < textures.Count; i++)
         {
+            Log.Debug("Binding texture {TextureIndex} of type {TextureType}", i, textures[i].TextureType);
             gl.ActiveTexture(GLEnum.Texture0 + i); // active proper texture unit before binding
 
             // retrieve texture number (the N in diffuse_textureN)
 
-            string combined = textures[i].TextureType switch
+            string combined = string.Empty;
+            switch (textures[i].TextureType)
             {
-                TextureType.Diffuse => $"texture_diffuse{diffuseNr++}",
-                TextureType.Specular => $"texture_specular{specularNr++}",
-                TextureType.Normals => $"texture_normal{normalNr++}",
-                TextureType.Height => $"texture_height{heightNr++}",
-                _ => string.Empty
-            };
+                case TextureType.Diffuse:
+                    combined = $"texture_diffuse[{diffuseNr}]";
+                    diffuseNr++;
+                    break;
+                case TextureType.Specular:
+                    combined = $"texture_specular[{specularNr}]";
+                    specularNr++;
+                    break;
+                case TextureType.Normals:
+                    combined = $"texture_normal[{normalNr}]";
+                    normalNr++;
+                    break;
+                case TextureType.Height:
+                    combined = $"texture_height[{heightNr}]";
+                    heightNr++;
+                    break;
+                default:
+                    break;
+            }
 
             // now set the sampler to the correct texture unit
             gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, combined), i);
+#if DEBUG
+            var error2 = gl.GetError();
+            if (error2 != GLEnum.NoError)
+            {
+                Log.Error($"gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, {combined}), i);");
+                Log.Error("OpenGL Error: {Error}", error2);
+            }
+#endif
             // and finally bind the texture
             gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);
+#if DEBUG
+            error2 = gl.GetError();
+            if (error2 != GLEnum.NoError)
+            {
+                Log.Error("gl.BindTexture(GLEnum.Texture2D, textures[i].TextureHandle);;");
+                Log.Error("OpenGL Error: {Error}", error2);
+            }
+#endif
         }
+        //uniform int num_diffuse_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_diffuse_textures"), (int)diffuseNr);
+#if DEBUG
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_diffuse_textures\"), {diffuseNr});");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
+        //uniform int num_normal_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_normal_textures"), (int)normalNr);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_normal_textures\"), normalNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
+        //uniform int num_specular_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_specular_textures"), (int)specularNr);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_specular_textures\"), specularNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
+        //uniform int num_height_textures;
+        gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, "num_height_textures"), (int)heightNr);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error("gl.Uniform1(gl.GetUniformLocation(shader.ShaderProgramHandle, \"num_height_textures\"), heightNr);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
         // draw mesh
+        Console.WriteLine($"Drawing {IndicesLength} indices");
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+
+        // Check if we're actually calling draw
         Vao.BindBy(gl);
+        Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
+
+        Console.WriteLine("About to call DrawElements...");
         gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        Console.WriteLine("DrawElements called.");
+
+        // Check for OpenGL errors
+#if DEBUG
+         error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Console.WriteLine($"OpenGL Error after draw: {error}");
+        }
+#endif
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
         gl.BindVertexArray(0);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            Log.Error($"gl.BindVertexArray(0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
         // always good practice to set everything back to defaults once configured.
         gl.ActiveTexture(GLEnum.Texture0);
+#if DEBUG
+        error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+
+            Log.Error($"gl.ActiveTexture(GLEnum.Texture0);");
+            Log.Error("OpenGL Error: {Error}", error);
+        }
+#endif
     }
 }

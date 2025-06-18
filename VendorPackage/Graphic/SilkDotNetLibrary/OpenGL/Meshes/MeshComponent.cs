@@ -31,21 +31,72 @@ public readonly struct MeshComponent//model is an entity? class?
         }
     }
     
-    public void Draw(GL gl, SilkDotNetLibrary.OpenGL.Shaders.Shader[] shaders, ICamera camera, Vector3 lampPosition)
+    public void Draw(GL gl, ReadOnlySpan<SilkDotNetLibrary.OpenGL.Shaders.Shader> shaders, ICamera camera, Vector3 lampPosition)
     {
+        //Console.WriteLine("=== FORCING VISIBLE RENDERING ===");
+
+        //// Disable depth test temporarily
+        //bool depthWasEnabled = gl.IsEnabled(EnableCap.DepthTest);
+        //gl.Disable(EnableCap.DepthTest);
+
+        //// Disable face culling
+        //bool cullWasEnabled = gl.IsEnabled(EnableCap.CullFace);
+        //gl.Disable(EnableCap.CullFace);
+
+        //// Set a contrasting clear color
+        //gl.ClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray
+        //gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+
         int i = 0;
         foreach((Mesh mesh, List<Texture> textures) in Meshes)
         {
             shaders[i].UseBy(gl);
             //var diffuseColor = new Vector3(1f);
             //var ambientColor = diffuseColor * new Vector3(1);
-            shaders[i].SetUniformBy(gl, "uModel", Matrix4x4.Identity);/* * Matrix4x4.CreateTranslation(new Vector3(0f, -1 * Time, 0f))*/
+            var scale = Matrix4x4.CreateScale(100); // 10x bigger
+            shaders[i].SetUniformBy(gl, "uModel", scale);/* * Matrix4x4.CreateTranslation(new Vector3(0f, -1 * Time, 0f))*/
             shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
             shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
             //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
             //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
             //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
             mesh.Draw(gl, shaders[i++], textures);
+
+            // 4. Check if anything was drawn
+            unsafe
+            {
+
+                var pixelData = new byte[4];
+                fixed (byte* pixelDataPtr = pixelData)
+                {
+                    gl.ReadPixels(500 / 2, 400 / 2, 1, 1, GLEnum.Rgba, GLEnum.UnsignedByte, pixelDataPtr);
+
+                    Console.WriteLine($"Center pixel after draw: R={pixelData[0]}, G={pixelData[1]}, B={pixelData[2]}");
+                }
+            }
+        }
+
+
+    }
+
+    public void DrawWithoutTexture(GL gl, ReadOnlySpan<SilkDotNetLibrary.OpenGL.Shaders.Shader> shaders, ICamera camera, Vector3 lampPosition)
+    {
+        int i = 0;
+        foreach ((Mesh mesh, List<Texture> textures) in Meshes)
+        {
+            shaders[i].UseBy(gl);
+            //var diffuseColor = new Vector3(1f);
+            //var ambientColor = diffuseColor * new Vector3(1);
+            Matrix4x4 scale = Matrix4x4.CreateScale(100); // 10x bigger
+            shaders[i].SetUniformBy(gl, "uModel", scale);
+            shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
+            shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
+            //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
+            //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
+            //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
+            mesh.Draw(gl);
+            i++;
         }
     }
 }

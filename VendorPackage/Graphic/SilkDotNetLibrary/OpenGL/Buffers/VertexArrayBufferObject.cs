@@ -32,7 +32,7 @@ public readonly struct VertexArrayBufferObject<TVertexType, TIndexType>
                                               int count,
                                               VertexAttribPointerType vertexAttribPointerType,
                                               uint vertexSize,
-                                              int offSet)
+                                              nint offSet)
     {
         //Setting up a vertex attribute pointer
         gl.VertexAttribPointer(index,
