@@ -228,6 +228,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         IcosahedronVao.BindBy(_gl);
         _gl.DrawElements(PrimitiveType.Triangles, (uint)FullIcosahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
 
+        // 切換到燈光著色器並重新綁定立方體 VAO 用於燈光渲染
         LampShader.UseBy(_gl);
 
         var lampMatrix = Matrix4x4.Identity
@@ -239,6 +240,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LampShader.SetUniformBy(_gl, "uView", _camera.GetViewMatrix());
         LampShader.SetUniformBy(_gl, "uProjection", _camera.GetProjectionMatrix());
 
+        // 重新綁定立方體 VAO 用於燈光渲染
+        CubeVao.BindBy(_gl);
         //We're drawing with just vertices and no indices, and it takes 36 vertices to have a six-sided textured cube
         _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
         _gl.BindVertexArray(0);
