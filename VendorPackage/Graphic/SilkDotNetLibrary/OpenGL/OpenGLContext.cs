@@ -53,6 +53,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private BufferObject<float> TetrahedronVbo { get; set; }
     private BufferObject<uint> TetrahedronEbo { get; set; }
     private VertexArrayBufferObject<float, uint> TetrahedronVao { get; set; }
+    
+    // 球體 (Sphere) 相關的緩衝區
+    private BufferObject<float> SphereVbo { get; set; }
+    private BufferObject<uint> SphereEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> SphereVao { get; set; }
 
     private BufferObject<float> QuadVbo { get; set; }
     private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
@@ -135,6 +140,20 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         TetrahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 8);  // Tangent
         TetrahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 11); // BiTangent
         TetrahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 14); // Color
+        _gl.BindVertexArray(0);
+
+        // Initialize Sphere - using complete vertex attributes
+        SphereEbo = new BufferObject<uint>(_gl, Sphere.Indices, BufferTargetARB.ElementArrayBuffer);
+        SphereVbo = new BufferObject<float>(_gl, Sphere.Vertices, BufferTargetARB.ArrayBuffer);
+        SphereVao = new VertexArrayBufferObject<float, uint>(_gl, SphereVbo, SphereEbo);
+
+        // Set all vertex attribute pointers to match Vertex structure (17 floats total)
+        SphereVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, Sphere.VerticeSize, 0);  // Position
+        SphereVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, Sphere.VerticeSize, 3);  // Normal  
+        SphereVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, Sphere.VerticeSize, 6);  // TexCoords
+        SphereVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, Sphere.VerticeSize, 8);  // Tangent
+        SphereVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, Sphere.VerticeSize, 11); // BiTangent
+        SphereVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, Sphere.VerticeSize, 14); // Color
         _gl.BindVertexArray(0);
 
         ////for sceen
@@ -280,6 +299,14 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         TetrahedronVao.BindBy(_gl);
         _gl.DrawElements(PrimitiveType.Triangles, (uint)Tetrahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
 
+        // Render Sphere - positioned to the left, slow rotation
+        var sphereModel = Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.4f))
+                         * Matrix4x4.CreateTranslation(new Vector3(-3.0f, -2.0f, 0.0f))
+                         * Matrix4x4.CreateScale(0.8f);
+        LightingShader.SetUniformBy(_gl, "uModel", sphereModel);
+        SphereVao.BindBy(_gl);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)Sphere.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
+
         //// 渲染十二面體 (Dodecahedron) - 位置偏移並稍微縮小
         //var dodecahedronModel = Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference * 0.3f))
         //                       * Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.7f))
@@ -399,6 +426,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         TetrahedronVbo.DisposeBy(_gl);
         TetrahedronEbo.DisposeBy(_gl);
         TetrahedronVao.DisposeBy(_gl);
+        
+        // Clean up sphere resources
+        SphereVbo.DisposeBy(_gl);
+        SphereEbo.DisposeBy(_gl);
+        SphereVao.DisposeBy(_gl);
 
         ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
