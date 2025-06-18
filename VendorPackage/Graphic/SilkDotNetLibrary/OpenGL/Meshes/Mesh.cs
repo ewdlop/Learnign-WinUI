@@ -29,13 +29,13 @@ public readonly record struct Mesh
         Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 1, 
             0);
         Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "Normal").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "Normal"));
         Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "TexCoords").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "TexCoords"));
         Vao.VertexAttributePointer(gl, 3, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "Tangent").ToInt32());
+           Marshal.OffsetOf(typeof(Vertex), "Tangent"));
         Vao.VertexAttributePointer(gl, 4, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "BiTangent").ToInt32());
+            Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
     }
 
     public  void Draw(GL gl)
