@@ -48,6 +48,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private BufferObject<float> DodecahedronVbo { get; set; }
     private BufferObject<uint> DodecahedronEbo { get; set; }
     private VertexArrayBufferObject<float, uint> DodecahedronVao { get; set; }
+    
+    // 四面體 (Tetrahedron) 相關的緩衝區
+    private BufferObject<float> TetrahedronVbo { get; set; }
+    private BufferObject<uint> TetrahedronEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> TetrahedronVao { get; set; }
 
     private BufferObject<float> QuadVbo { get; set; }
     private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
@@ -116,6 +121,20 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         DodecahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 8);  // Tangent
         DodecahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 11); // BiTangent
         DodecahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 14); // Color
+        _gl.BindVertexArray(0);
+
+        // 初始化四面體 (Tetrahedron) - 使用完整的頂點屬性
+        TetrahedronEbo = new BufferObject<uint>(_gl, Tetrahedron.Indices, BufferTargetARB.ElementArrayBuffer);
+        TetrahedronVbo = new BufferObject<float>(_gl, Tetrahedron.Vertices, BufferTargetARB.ArrayBuffer);
+        TetrahedronVao = new VertexArrayBufferObject<float, uint>(_gl, TetrahedronVbo, TetrahedronEbo);
+
+        // 設定所有頂點屬性指標以匹配 Vertex 結構 (17 floats total)
+        TetrahedronVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 0);  // Position
+        TetrahedronVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 3);  // Normal  
+        TetrahedronVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 6);  // TexCoords
+        TetrahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 8);  // Tangent
+        TetrahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 11); // BiTangent
+        TetrahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, Tetrahedron.VerticeSize, 14); // Color
         _gl.BindVertexArray(0);
 
         ////for sceen
@@ -251,6 +270,16 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         IcosahedronVao.BindBy(_gl);
         _gl.DrawElements(PrimitiveType.Triangles, (uint)FullIcosahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
 
+        // 渲染四面體 (Tetrahedron) - 位置在上方，快速旋轉
+        var tetrahedronModel = Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference * 1.2f))
+                              * Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 1.5f))
+                              * Matrix4x4.CreateRotationZ(MathHelper.DegreesToRadians(difference * 0.8f))
+                              * Matrix4x4.CreateTranslation(new Vector3(0.0f, -5f, 0.0f))
+                              * Matrix4x4.CreateScale(0.3f);
+        LightingShader.SetUniformBy(_gl, "uModel", tetrahedronModel);
+        TetrahedronVao.BindBy(_gl);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)Tetrahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
+
         //// 渲染十二面體 (Dodecahedron) - 位置偏移並稍微縮小
         //var dodecahedronModel = Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference * 0.3f))
         //                       * Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.7f))
@@ -365,6 +394,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         DodecahedronVbo.DisposeBy(_gl);
         DodecahedronEbo.DisposeBy(_gl);
         DodecahedronVao.DisposeBy(_gl);
+        
+        // 清理四面體資源
+        TetrahedronVbo.DisposeBy(_gl);
+        TetrahedronEbo.DisposeBy(_gl);
+        TetrahedronVao.DisposeBy(_gl);
 
         ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
