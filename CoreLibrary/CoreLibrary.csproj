@@ -56,6 +56,9 @@
     <None Update="Assets\cube.model">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\cube\scene.gltf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\nanosuit\arm_dif.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

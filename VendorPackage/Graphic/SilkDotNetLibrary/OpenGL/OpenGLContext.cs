@@ -43,7 +43,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private BufferObject<float> IcosahedronVbo { get; set; }
     private BufferObject<uint> IcosahedronEbo { get; set; }
     private VertexArrayBufferObject<float, uint> IcosahedronVao { get; set; }
-    
+
+    // 十二面體 (Dodecahedron) 相關的緩衝區
+    private BufferObject<float> DodecahedronVbo { get; set; }
+    private BufferObject<uint> DodecahedronEbo { get; set; }
+    private VertexArrayBufferObject<float, uint> DodecahedronVao { get; set; }
+
     private BufferObject<float> QuadVbo { get; set; }
     private VertexArrayBufferObject<float, uint> QuadVao { get; set; }
     private Shader LightingShader { get; set; }
@@ -328,7 +333,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         IcosahedronVbo.DisposeBy(_gl);
         IcosahedronEbo.DisposeBy(_gl);
         IcosahedronVao.DisposeBy(_gl);
-        
+
+        // 清理十二面體資源
+        DodecahedronVbo.DisposeBy(_gl);
+        DodecahedronEbo.DisposeBy(_gl);
+        DodecahedronVao.DisposeBy(_gl);
+
         ScreenShader.DisposeBy(_gl);
         LampShader.DisposeBy(_gl);
         LightingShader.DisposeBy(_gl);

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Cube.FBX
+* source:	https://sketchfab.com/3d-models/cubefbx-df7b7e6c4d764b74b8d18184edb58eb9
+* author:	fthpdchanel (https://sketchfab.com/fthpdchanel)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Cube.FBX" (https://sketchfab.com/3d-models/cubefbx-df7b7e6c4d764b74b8d18184edb58eb9) by fthpdchanel (https://sketchfab.com/fthpdchanel) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
