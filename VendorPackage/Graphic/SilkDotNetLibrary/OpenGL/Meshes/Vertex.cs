@@ -17,7 +17,7 @@ public record struct Vertex
     public Vector2 TexCoords;
     public Vector3 Tangent;
     public Vector3 BiTangent;
-    public Vector3 color;
+    public Vector3 Color;
 
     public const uint PositionOffset = 0;
     public const uint NormalOffset = 12;
