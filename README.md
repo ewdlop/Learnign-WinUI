@@ -20,7 +20,7 @@ The purpose of this repository is to provide a collection of tools and libraries
 
 ![OpenGL](OpenGL.PNG)
 
-![OpenGL Demo](docs/Animation.gif)
+![OpenGL Demo](docs/Animation2.gif)
 
 ![Vulkan](Vulkan.PNG)
 
