@@ -197,12 +197,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _logger.LogInformation("Loading MeshComponent...");
 
         //Load the mesh component with a glTF model of an avocado
-        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/cube/scene.gltf");
+        MeshComponent = _meshComponentFactory.LoadModel(_gl, "Assets/avocado/avocado.gltf");
 
         //Load the mesh shaders
         _logger.LogInformation("Reading Mesh Shaders...");
         Task<string> meshVertexShaderTask = File.ReadAllTextAsync("Shaders/avocado_debug.vert");
-        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_debug.frag");
+        Task<string> meshFragmentShaderTask = File.ReadAllTextAsync("Shaders/avocado_debug2.frag");
 
         Task.WaitAll(meshVertexShaderTask, meshFragmentShaderTask);
 

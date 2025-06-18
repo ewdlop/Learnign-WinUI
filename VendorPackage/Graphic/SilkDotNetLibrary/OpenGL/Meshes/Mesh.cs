@@ -2,6 +2,7 @@
 using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SilkDotNetLibrary.OpenGL.Buffers;
+using SilkDotNetLibrary.OpenGL.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -16,29 +17,46 @@ public readonly record struct Mesh
     //private Texture[] Textures { get; }
 
     private uint IndicesLength { get; }
-    private VertexArrayBufferObject<Vertex, uint> Vao { get; }
-    private BufferObject<Vertex> Vbo { get; }
+    private VertexArrayBufferObject<float, uint> Vao { get; }
+    //private VertexArrayBufferObject<Vertex, uint> Vao { get; }
+    private BufferObject<float> Vbo { get; }
+    //private BufferObject<Vertex> Vbo { get; }
     private BufferObject<uint> Ebo { get; }
 
-    public Mesh(GL gl, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<uint> indices)
+    public Mesh(GL gl, ReadOnlySpan<float> vertices, ReadOnlySpan<uint> indices)
     {
         IndicesLength = Convert.ToUInt32(indices.Length);
-        Vbo = new BufferObject<Vertex>(gl, vertices, BufferTargetARB.ArrayBuffer);
+        Vbo = new BufferObject<float>(gl, vertices, BufferTargetARB.ArrayBuffer);
         Ebo = new BufferObject<uint>(gl, indices, BufferTargetARB.ElementArrayBuffer);
-        Vao = new VertexArrayBufferObject<Vertex, uint>(gl, Vbo, Ebo);
-        Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 1, 
-            0);
-        Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "Normal"));
-        Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "TexCoords"));
-        Vao.VertexAttributePointer(gl, 3, 3, VertexAttribPointerType.Float, 1,
-           Marshal.OffsetOf(typeof(Vertex), "Tangent"));
-        Vao.VertexAttributePointer(gl, 4, 3, VertexAttribPointerType.Float, 1,
-            Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
+        Vao = new VertexArrayBufferObject<float, uint>(gl, Vbo, Ebo);
+        
+        // 只設定 shader 需要的屬性（匹配 avocado_debug.vert）
+        Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 17, 0);  // aPos
+        Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 17, 3);  // aNormal
+        Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 17, 6);  // aTexCoords
+        // 注意：不設定 location 3, 4, 5 因為 shader 不需要它們
+        gl.BindVertexArray(0);
     }
 
-    public  void Draw(GL gl)
+    //public Mesh(GL gl, ReadOnlySpan<Vertex> vertices, ReadOnlySpan<uint> indices)
+    //{
+    //    IndicesLength = Convert.ToUInt32(indices.Length);
+    //    Vbo = new BufferObject<Vertex>(gl, vertices, BufferTargetARB.ArrayBuffer);
+    //    Ebo = new BufferObject<uint>(gl, indices, BufferTargetARB.ElementArrayBuffer);
+    //    Vao = new VertexArrayBufferObject<Vertex, uint>(gl, Vbo, Ebo);
+    //    Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 1,
+    //        0);
+    //    Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 1,
+    //        Marshal.OffsetOf(typeof(Vertex), "Normal"));
+    //    Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 1,
+    //        Marshal.OffsetOf(typeof(Vertex), "TexCoords"));
+    //    Vao.VertexAttributePointer(gl, 3, 3, VertexAttribPointerType.Float, 1,
+    //       Marshal.OffsetOf(typeof(Vertex), "Tangent"));
+    //    Vao.VertexAttributePointer(gl, 4, 3, VertexAttribPointerType.Float, 1,
+    //        Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
+    //}
+
+    public unsafe void Draw(GL gl)
     {
         //Draw the mesh without textures
         Console.WriteLine($"Drawing {IndicesLength} indices without textures");
@@ -48,7 +66,7 @@ public readonly record struct Mesh
         Console.WriteLine($"VAO bound: {gl.GetInteger(GLEnum.VertexArrayBinding) != 0}");
         Console.WriteLine(
             "About to call DrawElements...");
-        gl.DrawElements(GLEnum.Triangles, IndicesLength, GLEnum.UnsignedInt, 0);
+        gl.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, IndicesLength, DrawElementsType.UnsignedInt, (void*)0);
         Console.WriteLine(
             "DrawElements called.");
 #if DEBUG

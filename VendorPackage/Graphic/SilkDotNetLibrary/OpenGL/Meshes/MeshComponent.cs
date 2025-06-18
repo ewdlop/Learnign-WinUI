@@ -86,15 +86,27 @@ public readonly struct MeshComponent//model is an entity? class?
         foreach ((Mesh mesh, List<Texture> textures) in Meshes)
         {
             shaders[i].UseBy(gl);
-            //var diffuseColor = new Vector3(1f);
-            //var ambientColor = diffuseColor * new Vector3(1);
-            Matrix4x4 scale = Matrix4x4.CreateScale(100); // 10x bigger
-            shaders[i].SetUniformBy(gl, "uModel", scale);
+
+            // 變換矩陣
+            Matrix4x4 scale = Matrix4x4.CreateScale(15); // 3x bigger
+            Matrix4x4 model = scale * Matrix4x4.CreateTranslation(new Vector3(-2f, 0f, 0f));
+
+            // 設定變換矩陣
+            shaders[i].SetUniformBy(gl, "uModel", model);
             shaders[i].SetUniformBy(gl, "uView", camera.GetViewMatrix());
             shaders[i].SetUniformBy(gl, "uProjection", camera.GetProjectionMatrix());
-            //shaders[i].SetUniformBy(gl, "light.ambient", ambientColor);
-            //shaders[i].SetUniformBy(gl, "light.diffuse", diffuseColor); // darkened
-            //shaders[i].SetUniformBy(gl, "light.position", lampPosition);
+
+            //// 設定光照參數
+            //shaders[i].SetUniformBy(gl, "lightPos", lampPosition);
+            //shaders[i].SetUniformBy(gl, "lightColor", new Vector3(1.0f, 1.0f, 1.0f)); // 白光
+            //shaders[i].SetUniformBy(gl, "viewPos", camera.Position);
+
+            //// 設定材質屬性
+            //shaders[i].SetUniformBy(gl, "objectColor", new Vector3(0.2f, 0.8f, 0.3f)); // 綠色物體
+            //shaders[i].SetUniformBy(gl, "ambientStrength", 0.1f);   // 環境光強度
+            //shaders[i].SetUniformBy(gl, "specularStrength", 0.5f);  // 鏡面反射強度
+            //shaders[i].SetUniformBy(gl, "shininess", 32);           // 鏡面反射係數
+
             mesh.Draw(gl);
             i++;
         }
