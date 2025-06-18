@@ -72,7 +72,7 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
             totalIndices += (int)mesh->MFaces[i].MNumIndices;
         }
 
-        float[] vertices = new float[verticesSize*17];
+        Vertex[] vertices = new Vertex[verticesSize];
         uint[] indices = new uint[totalIndices];
         List<Texture> textures = [];
 
@@ -83,36 +83,36 @@ public class MeshComponentFactory(ILogger<MeshComponentFactory> logger)
         for (int i = 0; i < verticesSize; i++)
         {
             // Each vertex has 17 attributes: 3 for position, 3 for normal, 2 for texture coords, 3 for tangent, and 3 for bitangent.
-            vertices[i * 17] = mesh->MVertices[i].X; // Position X
-            vertices[i * 17 + 1] = mesh->MVertices[i].Y; // Position Y
-            vertices[i * 17 + 2] = mesh->MVertices[i].Z; // Position Z
-            vertices[i * 17 + 3] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].X : 0f; // Normal X
-            vertices[i * 17 + 4] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].Y : 0f; // Normal Y
-            vertices[i * 17 + 5] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].Z : 0f; // Normal Z
-            vertices[i * 17 + 6] = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].X : 0f; // TexCoord X
-            vertices[i * 17 + 7] = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].Y : 0f; // TexCoord Y
-            vertices[i * 17 + 8] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].X : 0f; // Tangent X
-            vertices[i * 17 + 9] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].Y : 0f; // Tangent Y
-            vertices[i * 17 + 10] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].Z : 0f; // Tangent Z
-            vertices[i * 17 + 11] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].X : 0f; // BiTangent X
-            vertices[i * 17 + 12] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].Y : 0f; // BiTangent Y
-            vertices[i * 17 + 13] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].Z : 0f; // BiTangent Z
-            vertices[i * 17 + 14] = 0f; // Color R (default to 0)
-            vertices[i * 17 + 15] = 0f; // Color G (default to 0)
-            vertices[i * 17 + 16] = 0f; // Color B (default to 0)
-            //Vertex vertex = new()
-            //{
-            //    Position = mesh->MVertices[i],
-            //    Normal = mesh->MNormals->Length() > 0 ? mesh->MNormals[i] : new Vector3(),
-            //    TexCoords = new Vector2
-            //    {
-            //        X = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].X : 0f,
-            //        Y = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].Y : 0f
-            //    },
-            //    Tangent = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTangents[i] : new Vector3(),
-            //    BiTangent = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MBitangents[i] : new Vector3()
-            //};
-            //vertices[i] = vertex;
+            //vertices[i * 17] = mesh->MVertices[i].X; // Position X
+            //vertices[i * 17 + 1] = mesh->MVertices[i].Y; // Position Y
+            //vertices[i * 17 + 2] = mesh->MVertices[i].Z; // Position Z
+            //vertices[i * 17 + 3] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].X : 0f; // Normal X
+            //vertices[i * 17 + 4] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].Y : 0f; // Normal Y
+            //vertices[i * 17 + 5] = mesh->MNormals->Length() > 0 ? mesh->MNormals[i].Z : 0f; // Normal Z
+            //vertices[i * 17 + 6] = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].X : 0f; // TexCoord X
+            //vertices[i * 17 + 7] = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].Y : 0f; // TexCoord Y
+            //vertices[i * 17 + 8] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].X : 0f; // Tangent X
+            //vertices[i * 17 + 9] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].Y : 0f; // Tangent Y
+            //vertices[i * 17 + 10] = mesh->MTangents->Length() > 0 ? mesh->MTangents[i].Z : 0f; // Tangent Z
+            //vertices[i * 17 + 11] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].X : 0f; // BiTangent X
+            //vertices[i * 17 + 12] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].Y : 0f; // BiTangent Y
+            //vertices[i * 17 + 13] = mesh->MBitangents->Length() > 0 ? mesh->MBitangents[i].Z : 0f; // BiTangent Z
+            //vertices[i * 17 + 14] = 0f; // Color R (default to 0)
+            //vertices[i * 17 + 15] = 0f; // Color G (default to 0)
+            //vertices[i * 17 + 16] = 0f; // Color B (default to 0)
+            Vertex vertex = new()
+            {
+                Position = mesh->MVertices[i],
+                Normal = mesh->MNormals->Length() > 0 ? mesh->MNormals[i] : new Vector3(),
+                TexCoords = new Vector2
+                {
+                    X = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].X : 0f,
+                    Y = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTextureCoords[0][i].Y : 0f
+                },
+                Tangent = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MTangents[i] : new Vector3(),
+                BiTangent = mesh->MTextureCoords.Element0->Length() > 0 ? mesh->MBitangents[i] : new Vector3()
+            };
+            vertices[i] = vertex;
         }
         
         // Fix the critical index processing bug
