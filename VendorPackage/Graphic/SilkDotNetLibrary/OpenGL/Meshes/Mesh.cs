@@ -34,7 +34,6 @@ public readonly record struct Mesh
         Vao.VertexAttributePointer(gl, 0, 3, VertexAttribPointerType.Float, 17, 0);  // aPos
         Vao.VertexAttributePointer(gl, 1, 3, VertexAttribPointerType.Float, 17, 3);  // aNormal
         Vao.VertexAttributePointer(gl, 2, 2, VertexAttribPointerType.Float, 17, 6);  // aTexCoords
-        
         // 注意：不設定 location 3, 4, 5 因為 shader 不需要它們
         gl.BindVertexArray(0);
     }
