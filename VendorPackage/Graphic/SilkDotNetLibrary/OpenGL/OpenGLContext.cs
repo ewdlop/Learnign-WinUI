@@ -88,6 +88,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         CubeVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 0);
         CubeVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 3);
         CubeVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, TexturedNormaledCube.VerticeSize, 6);
+        _gl.BindVertexArray(0);
 
         // 初始化二十面體 (Icosahedron) - 使用完整的頂點屬性
         IcosahedronEbo = new BufferObject<uint>(_gl, FullIcosahedron.Indices, BufferTargetARB.ElementArrayBuffer);
@@ -101,12 +102,29 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         IcosahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 8);  // Tangent
         IcosahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 11); // BiTangent
         IcosahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, FullIcosahedron.VerticeSize, 14); // Color
+        _gl.BindVertexArray(0);
+
+        // 初始化十二面體 (Dodecahedron) - 使用完整的頂點屬性
+        DodecahedronEbo = new BufferObject<uint>(_gl, Dodecahedron.Indices, BufferTargetARB.ElementArrayBuffer);
+        DodecahedronVbo = new BufferObject<float>(_gl, Dodecahedron.Vertices, BufferTargetARB.ArrayBuffer);
+        DodecahedronVao = new VertexArrayBufferObject<float, uint>(_gl, DodecahedronVbo, DodecahedronEbo);
+
+        // 設定所有頂點屬性指標以匹配 Vertex 結構 (17 floats total)
+        DodecahedronVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 0);  // Position
+        DodecahedronVao.VertexAttributePointer(_gl, 1, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 3);  // Normal  
+        DodecahedronVao.VertexAttributePointer(_gl, 2, 2, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 6);  // TexCoords
+        DodecahedronVao.VertexAttributePointer(_gl, 3, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 8);  // Tangent
+        DodecahedronVao.VertexAttributePointer(_gl, 4, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 11); // BiTangent
+        DodecahedronVao.VertexAttributePointer(_gl, 5, 3, VertexAttribPointerType.Float, Dodecahedron.VerticeSize, 14); // Color
+        _gl.BindVertexArray(0);
 
         ////for sceen
         QuadVbo = new BufferObject<float>(_gl, Quad.Vertices, BufferTargetARB.ArrayBuffer);
         QuadVao = new VertexArrayBufferObject<float, uint>(_gl, QuadVbo);
         QuadVao.VertexAttributePointer(_gl, 0, 2, VertexAttribPointerType.Float, Quad.VerticeSize, 0);
         QuadVao.VertexAttributePointer(_gl, 1, 2, VertexAttribPointerType.Float, Quad.VerticeSize, 2);
+        // 解除所有 VAO 綁定，確保乾淨的初始狀態
+        _gl.BindVertexArray(0);
         
         //The Lamp shader uses a fragment shader that just colors it solid white so that we know it is the light source
         ScreenShader = new Shader(_gl);
@@ -232,6 +250,15 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         
         IcosahedronVao.BindBy(_gl);
         _gl.DrawElements(PrimitiveType.Triangles, (uint)FullIcosahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
+
+        //// 渲染十二面體 (Dodecahedron) - 位置偏移並稍微縮小
+        //var dodecahedronModel = Matrix4x4.CreateRotationX(MathHelper.DegreesToRadians(difference * 0.3f))
+        //                       * Matrix4x4.CreateRotationY(MathHelper.DegreesToRadians(difference * 0.7f))
+        //                       * Matrix4x4.CreateTranslation(new Vector3(-3.0f, 0.0f, 0.0f))
+        //                       * Matrix4x4.CreateScale(0.4f);
+        //LightingShader.SetUniformBy(_gl, "uModel", dodecahedronModel);
+        //DodecahedronVao.BindBy(_gl);
+        //_gl.DrawElements(PrimitiveType.Triangles, (uint)Dodecahedron.Indices.Length, DrawElementsType.UnsignedInt, (void*)0);
 
         // 切換到燈光著色器並重新綁定立方體 VAO 用於燈光渲染
         LampShader.UseBy(_gl);
