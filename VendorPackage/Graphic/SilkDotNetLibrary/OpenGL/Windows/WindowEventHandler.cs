@@ -38,10 +38,36 @@ public class WindowEventHandler : IWindowEventHandler
         _eventHandler = eventHandler;
         _keyBoardKeyMap = new Dictionary<Key, string>
         {
-            {Key.W, "W" },
-            {Key.S, "S" },
+            {Key.Escape, "Escape" },
+            {Key.Space, "Space" },
+            {Key.Enter, "Enter" },
             {Key.A, "A" },
-            {Key.D, "D" }
+            {Key.B, "B" },
+            {Key.C, "C" },
+            {Key.D, "D" },
+            {Key.E, "E" },
+            {Key.F, "F" },
+            {Key.G, "G" },
+            {Key.H, "H" },
+            {Key.I, "I" },
+            {Key.J, "J" },
+            {Key.K, "K" },
+            {Key.L, "L" },
+            {Key.M, "M" },
+            {Key.N, "N" },
+            {Key.O, "O" },
+            {Key.P, "P" },
+            {Key.Q, "Q" },
+            {Key.R, "R" },
+            {Key.S, "S" },
+            {Key.T, "T" },
+            {Key.U, "U" },
+            {Key.V, "V" },
+            {Key.W, "W" },
+            {Key.X, "X" },
+            {Key.Y, "Y" },
+            {Key.Z, "Z" },
+
         };
         _logger = logger;
     }

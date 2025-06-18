@@ -14,6 +14,16 @@ namespace SharedLibrary.Transforms
         public float CameraPitch { get; private set; } = 0f;
         public float CameraZoom { get; private set; } = 45f;
 
+        public void MoveUp(float speed)
+        {
+            CameraPosition += speed * CameraUp;
+        }
+
+        public void MoveDown(float speed)
+        {
+            CameraPosition -= speed * CameraUp;
+        }
+
         public void MoveForward(float speed)
         {
             CameraPosition += speed * CameraFront;

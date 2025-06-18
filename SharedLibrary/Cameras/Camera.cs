@@ -51,17 +51,26 @@ namespace SharedLibrary.Cameras
         {
             switch (keyCode)
             {
-                case "W":
-                    _cameraTransform.MoveForward(Speed * 0.01f);
-                    break;
-                case "S":
-                    _cameraTransform.MoveBackward(Speed * 0.01f);
-                    break;
                 case "A":
                     _cameraTransform.MoveLeft(Speed * 0.01f);
                     break;
                 case "D":
                     _cameraTransform.MoveRight(Speed * 0.01f);
+                    break;
+                case "E":
+                    _cameraTransform.MoveDown(Speed * 0.01f);
+                    break;
+                case "Q":
+                    _cameraTransform.MoveUp(Speed * 0.01f);
+                    break;
+                case "S":
+                    _cameraTransform.MoveBackward(Speed * 0.01f);
+                    break;
+                case "W":
+                    _cameraTransform.MoveForward(Speed * 0.01f);
+                    break;
+                default:
+                    // Handle other keys if necessary
                     break;
             }
         }

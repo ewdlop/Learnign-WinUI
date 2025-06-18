@@ -8,6 +8,8 @@ public interface ICameraTransform : IReadOnlyTransfrom
     void MoveBackward(float speed);
     void MoveLeft(float speed);
     void MoveRight(float speed);
+    void MoveUp(float speed);
+    void MoveDown(float speed);
     void RotateYaw(float angle);
     void RotatePitch(float angle);
     void SetDirection();
