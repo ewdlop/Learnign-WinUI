@@ -56,6 +56,37 @@ public readonly record struct Mesh
     //        Marshal.OffsetOf(typeof(Vertex), "BiTangent"));
     //}
 
+    public enum RenderMode
+    {
+        Fill,
+        Wireframe,
+        Points
+    }
+
+    public unsafe void RenderWireframe(GL gl, float lineWidth = 1.0f)
+    {
+        // Set line width
+        gl.LineWidth(lineWidth);
+
+        // Enable wireframe mode
+        gl.PolygonMode(GLEnum.FrontAndBack, PolygonMode.Line);
+
+        // Optional: Disable depth test for better wireframe visibility
+        gl.Disable(EnableCap.DepthTest);
+
+        // Bind and draw
+        Vao.BindBy(gl);
+        gl.DrawElements(Silk.NET.OpenGL.PrimitiveType.Triangles, IndicesLength, DrawElementsType.UnsignedInt, (void*)0);
+
+        // Restore settings
+        gl.Enable(EnableCap.DepthTest);
+        gl.PolygonMode(GLEnum.FrontAndBack, PolygonMode.Fill);
+        gl.LineWidth(1.0f);
+        //Vao.UnBind();
+    }
+
+
+
     public unsafe void Draw(GL gl)
     {
         //Draw the mesh without textures

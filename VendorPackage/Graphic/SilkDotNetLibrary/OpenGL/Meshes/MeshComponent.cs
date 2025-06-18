@@ -107,7 +107,7 @@ public readonly struct MeshComponent//model is an entity? class?
             //shaders[i].SetUniformBy(gl, "specularStrength", 0.5f);  // 鏡面反射強度
             //shaders[i].SetUniformBy(gl, "shininess", 32);           // 鏡面反射係數
 
-            mesh.Draw(gl);
+            mesh.RenderWireframe(gl);
             i++;
         }
     }
