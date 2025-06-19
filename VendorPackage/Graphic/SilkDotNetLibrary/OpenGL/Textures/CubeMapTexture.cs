@@ -76,10 +76,33 @@ public readonly struct CubeMapTexture
         uint height = (uint)result.Height;
         uint textureTarget = (uint)GLEnum.TextureCubeMapPositiveX + faceIndex;
         GLEnum target = (GLEnum)textureTarget;
+        
         fixed (void* data = result.Data)
         {
-            gl.TexImage2D(target, 0, InternalFormat.Rgba, (uint)result.Width,
-                   (uint)result.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            // Auto-detect format based on components
+            if (result.Comp == ColorComponents.RedGreenBlue)
+            {
+                gl.TexImage2D(target, 0, InternalFormat.Rgb, width, height, 0, 
+                            PixelFormat.Rgb, PixelType.UnsignedByte, data);
+            }
+            else if (result.Comp == ColorComponents.RedGreenBlueAlpha)
+            {
+                gl.TexImage2D(target, 0, InternalFormat.Rgba, width, height, 0, 
+                            PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            }
+            else
+            {
+                // Fallback to RGB
+                gl.TexImage2D(target, 0, InternalFormat.Rgb, width, height, 0, 
+                            PixelFormat.Rgb, PixelType.UnsignedByte, data);
+            }
+        }
+        
+        // Check for OpenGL errors after loading each face
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            throw new Exception($"OpenGL Error loading cube face {faceIndex}: {error}");
         }
     }
 

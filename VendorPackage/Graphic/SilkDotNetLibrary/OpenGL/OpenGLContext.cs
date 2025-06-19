@@ -99,7 +99,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         //Skybox VBO and VAO
         SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
         SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
-        SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
+        SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3, 0);
         _gl.BindVertexArray(0);
 
         Task<byte[]> skyboxRightTask = File.ReadAllBytesAsync("Assets/skybox/right.jpg");
@@ -118,12 +118,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
 
         CubeMapTexture = new CubeMapTexture(_gl, new ImageResult[]
         {
-            ImageResult.FromMemory(skyboxRightTask.Result, ColorComponents.RedGreenBlueAlpha),
-            ImageResult.FromMemory(skyboxLeftTask.Result, ColorComponents.RedGreenBlueAlpha),
-            ImageResult.FromMemory(skyboxTopTask.Result, ColorComponents.RedGreenBlueAlpha),
-            ImageResult.FromMemory(skyboxBottomTask.Result, ColorComponents.RedGreenBlueAlpha),
-            ImageResult.FromMemory(skyboxFrontTask.Result, ColorComponents.RedGreenBlueAlpha),
-            ImageResult.FromMemory(skyboxBackTask.Result, ColorComponents.RedGreenBlueAlpha)
+            ImageResult.FromMemory(skyboxRightTask.Result, ColorComponents.RedGreenBlue),
+            ImageResult.FromMemory(skyboxLeftTask.Result, ColorComponents.RedGreenBlue),
+            ImageResult.FromMemory(skyboxTopTask.Result, ColorComponents.RedGreenBlue),
+            ImageResult.FromMemory(skyboxBottomTask.Result, ColorComponents.RedGreenBlue),
+            ImageResult.FromMemory(skyboxFrontTask.Result, ColorComponents.RedGreenBlue),
+            ImageResult.FromMemory(skyboxBackTask.Result, ColorComponents.RedGreenBlue)
         });
 
         SkyBoxShader = new Shader(_gl);
@@ -289,16 +289,35 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void DrawSkyBox()
     {
         _logger.LogInformation("Drawing SkyBox...");
+        
+        // Change depth function so depth test passes when values are equal to depth buffer's content
         _gl.DepthFunc(DepthFunction.Lequal);
+        
         SkyBoxShader.UseBy(_gl);
-        SkyBoxShader.SetUniformBy(_gl, "view", _camera.GetViewMatrix());
+        
+        // Remove translation from view matrix - keep only rotation
+        var view = _camera.GetViewMatrix();
+        var viewNoTranslation = new Matrix4x4(
+            view.M11, view.M12, view.M13, 0.0f,
+            view.M21, view.M22, view.M23, 0.0f,
+            view.M31, view.M32, view.M33, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+        
+        SkyBoxShader.SetUniformBy(_gl, "view", viewNoTranslation);
         SkyBoxShader.SetUniformBy(_gl, "projection", _camera.GetProjectionMatrix());
+        
+        // Skybox cube
         SkyBoxVao.BindBy(_gl);
-        _gl.ActiveTexture(GLEnum.Texture0);
+        _gl.ActiveTexture(TextureUnit.Texture0);
         CubeMapTexture.BindBy(_gl, TextureUnit.Texture0);
-        _gl.DrawArrays(GLEnum.Triangles, 0, 36);
+        _gl.DrawArrays(PrimitiveType.Triangles, 0, 36);
+        
+        // Set depth function back to default
+        _gl.DepthFunc(DepthFunction.Less);
+        
+        // Unbind skybox VAO to avoid conflicts
         _gl.BindVertexArray(0);
-        _gl.DepthFunc(DepthFunction.Less); // Reset depth function to default
     }
 
     private void DrawMesh()
@@ -398,6 +417,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         DrawMesh();
         #endregion
 
+        // Draw skybox as the last geometry (draw as last to prevent overdraw)
         //DrawSkyBox();
 
         var error = _gl.GetError();
@@ -468,6 +488,13 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private void OnDispose()
     {
         _logger.LogInformation("OpenGLContext Disposing...");
+        
+        // Clean up skybox resources
+        SkyBoxVbo.DisposeBy(_gl);
+        SkyBoxVao.DisposeBy(_gl);
+        CubeMapTexture.DisposeBy(_gl);
+        SkyBoxShader.DisposeBy(_gl);
+        
         QuadVbo.DisposeBy(_gl);
         QuadVao.DisposeBy(_gl);
         CubeVbo.DisposeBy(_gl);
