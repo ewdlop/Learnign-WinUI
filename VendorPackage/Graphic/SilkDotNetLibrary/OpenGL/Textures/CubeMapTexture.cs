@@ -4,6 +4,7 @@ using Silk.NET.Assimp;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using StbImageSharp;
 
 namespace SilkDotNetLibrary.OpenGL.Textures;
 
@@ -40,6 +41,45 @@ public readonly struct CubeMapTexture
         {
             Console.WriteLine($"CubeMapTexture Error: {ex}");
             throw;
+        }
+    }
+
+    public unsafe CubeMapTexture(GL gl, ImageResult[] images, TextureType textureType = default)
+    {
+        try
+        {
+            TextureHandle = gl.GenTexture();
+            BindBy(gl);
+
+            for (uint i = 0; i < images.Length; i++)
+            {
+                LoadCubeFace(gl, i, images[i]);
+            }
+
+            // Setting cube map specific texture parameters
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"CubeMapTexture Error: {ex}");
+            throw;
+        }
+    }
+
+    private unsafe void LoadCubeFace(GL gl, uint faceIndex, ImageResult result)
+    {
+        uint width = (uint)result.Width;
+        uint height = (uint)result.Height;
+        uint textureTarget = (uint)GLEnum.TextureCubeMapPositiveX + faceIndex;
+        GLEnum target = (GLEnum)textureTarget;
+        fixed (void* data = result.Data)
+        {
+            gl.TexImage2D(target, 0, InternalFormat.Rgba, (uint)result.Width,
+                   (uint)result.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
         }
     }
 

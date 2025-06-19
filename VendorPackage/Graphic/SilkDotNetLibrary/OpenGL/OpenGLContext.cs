@@ -1,23 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
+using Serilog;
 using SharedLibrary.Cameras;
 using SharedLibrary.Math;
+using SharedLibrary.Systems;
 using SharedLibrary.Transforms;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SilkDotNetLibrary.OpenGL.Buffers;
-using SilkDotNetLibrary.OpenGL.Primitives;
-using System;
-using System.Numerics;
-using System.Threading.Tasks;
-using SharedLibrary.Systems;
-using SilkDotNetLibrary.OpenGL.Textures;
-using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 using SilkDotNetLibrary.OpenGL.Meshes;
-using System.IO;
+using SilkDotNetLibrary.OpenGL.Primitives;
+using SilkDotNetLibrary.OpenGL.Textures;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using Serilog;
+using StbImageSharp;
+using System;
+using System.IO;
+using System.Numerics;
+using System.Threading.Tasks;
+using Shader = SilkDotNetLibrary.OpenGL.Shaders.Shader;
 
 namespace SilkDotNetLibrary.OpenGL;
 
@@ -95,43 +96,44 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     {
         _gl = _window.CreateOpenGL();
 
-        ////Skybox VBO and VAO
-        //SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
-        //SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
-        //SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
+        //Skybox VBO and VAO
+        SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
+        SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
+        SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
+        _gl.BindVertexArray(0);
 
-        //Task<Image> skyboxRightTask = Image.LoadAsync("Assets/skybox/right.jpg");
-        //Task<Image> skyboxLeftTask = Image.LoadAsync("Assets/skybox/left.jpg");
-        //Task<Image> skyboxTopTask = Image.LoadAsync("Assets/skybox/top.jpg");
-        //Task<Image> skyboxBottomTask = Image.LoadAsync("Assets/skybox/bottom.jpg");
-        //Task<Image> skyboxFrontTask = Image.LoadAsync("Assets/skybox/front.jpg");
-        //Task<Image> skyboxBackTask = Image.LoadAsync("Assets/skybox/back.jpg");
+        Task<byte[]> skyboxRightTask = File.ReadAllBytesAsync("Assets/skybox/right.jpg");
+        Task<byte[]> skyboxLeftTask = File.ReadAllBytesAsync("Assets/skybox/left.jpg");
+        Task<byte[]> skyboxTopTask = File.ReadAllBytesAsync("Assets/skybox/top.jpg");
+        Task<byte[]> skyboxBottomTask = File.ReadAllBytesAsync("Assets/skybox/bottom.jpg");
+        Task<byte[]> skyboxFrontTask = File.ReadAllBytesAsync("Assets/skybox/front.jpg");
+        Task<byte[]> skyboxBackTask = File.ReadAllBytesAsync("Assets/skybox/back.jpg");
 
-        //Task.WaitAll(skyboxRightTask,
-        //             skyboxLeftTask,
-        //             skyboxTopTask,
-        //             skyboxBottomTask,
-        //             skyboxFrontTask,
-        //             skyboxBackTask);
+        Task.WaitAll(skyboxRightTask,
+                     skyboxLeftTask,
+                     skyboxTopTask,
+                     skyboxBottomTask,
+                     skyboxFrontTask,
+                     skyboxBackTask);
 
-        //CubeMapTexture = new CubeMapTexture(_gl, new Image[]
-        //{
-        //    skyboxRightTask.Result,
-        //    skyboxLeftTask.Result,
-        //    skyboxTopTask.Result,
-        //    skyboxBottomTask.Result,
-        //    skyboxFrontTask.Result,
-        //    skyboxBackTask.Result
-        //});
+        CubeMapTexture = new CubeMapTexture(_gl, new ImageResult[]
+        {
+            ImageResult.FromMemory(skyboxRightTask.Result, ColorComponents.RedGreenBlueAlpha),
+            ImageResult.FromMemory(skyboxLeftTask.Result, ColorComponents.RedGreenBlueAlpha),
+            ImageResult.FromMemory(skyboxTopTask.Result, ColorComponents.RedGreenBlueAlpha),
+            ImageResult.FromMemory(skyboxBottomTask.Result, ColorComponents.RedGreenBlueAlpha),
+            ImageResult.FromMemory(skyboxFrontTask.Result, ColorComponents.RedGreenBlueAlpha),
+            ImageResult.FromMemory(skyboxBackTask.Result, ColorComponents.RedGreenBlueAlpha)
+        });
 
-        //SkyBoxShader = new Shader(_gl);
-        //Task<string> skyboxVertexShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.vert");
-        //Task<string> skyboxFragmentShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.frag");
-        //Task.WaitAll(skyboxVertexShaderTask, skyboxFragmentShaderTask);
-        //SkyBoxShader.LoadBy(_gl, skyboxVertexShaderTask.Result, skyboxFragmentShaderTask.Result);
+        SkyBoxShader = new Shader(_gl);
+        Task<string> skyboxVertexShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.vert");
+        Task<string> skyboxFragmentShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.frag");
+        Task.WaitAll(skyboxVertexShaderTask, skyboxFragmentShaderTask);
+        SkyBoxShader.LoadBy(_gl, skyboxVertexShaderTask.Result, skyboxFragmentShaderTask.Result);
 
-        //SkyBoxShader.UseBy(_gl);
-        //SkyBoxShader.SetUniformBy(_gl,"skybox", 0);
+        SkyBoxShader.UseBy(_gl);
+        SkyBoxShader.SetUniformBy(_gl, "skybox", 0);
 
 
         //Telling the VAO object how to lay out the attribute pointers
