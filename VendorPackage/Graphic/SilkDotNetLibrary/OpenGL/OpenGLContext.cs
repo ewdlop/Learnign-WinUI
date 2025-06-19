@@ -95,43 +95,43 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     {
         _gl = _window.CreateOpenGL();
 
-        //Skybox VBO and VAO
-        SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
-        SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
-        SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
+        ////Skybox VBO and VAO
+        //SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
+        //SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
+        //SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
 
-        Task<Image> skyboxRightTask = Image.LoadAsync("Assets/skybox/right.png");
-        Task<Image> skyboxLeftTask = Image.LoadAsync("Assets/skybox/left.png");
-        Task<Image> skyboxTopTask = Image.LoadAsync("Assets/skybox/top.png");
-        Task<Image> skyboxBottomTask = Image.LoadAsync("Assets/skybox/bottom.png");
-        Task<Image> skyboxFrontTask = Image.LoadAsync("Assets/skybox/front.png");
-        Task<Image> skyboxBackTask = Image.LoadAsync("Assets/skybox/back.png");
+        //Task<Image> skyboxRightTask = Image.LoadAsync("Assets/skybox/right.jpg");
+        //Task<Image> skyboxLeftTask = Image.LoadAsync("Assets/skybox/left.jpg");
+        //Task<Image> skyboxTopTask = Image.LoadAsync("Assets/skybox/top.jpg");
+        //Task<Image> skyboxBottomTask = Image.LoadAsync("Assets/skybox/bottom.jpg");
+        //Task<Image> skyboxFrontTask = Image.LoadAsync("Assets/skybox/front.jpg");
+        //Task<Image> skyboxBackTask = Image.LoadAsync("Assets/skybox/back.jpg");
 
-        Task.WaitAll(skyboxRightTask,
-                     skyboxLeftTask,
-                     skyboxTopTask,
-                     skyboxBottomTask,
-                     skyboxFrontTask,
-                     skyboxBackTask);
+        //Task.WaitAll(skyboxRightTask,
+        //             skyboxLeftTask,
+        //             skyboxTopTask,
+        //             skyboxBottomTask,
+        //             skyboxFrontTask,
+        //             skyboxBackTask);
 
-        CubeMapTexture = new CubeMapTexture(_gl, new Image[]
-        {
-            skyboxRightTask.Result,
-            skyboxLeftTask.Result,
-            skyboxTopTask.Result,
-            skyboxBottomTask.Result,
-            skyboxFrontTask.Result,
-            skyboxBackTask.Result
-        });
+        //CubeMapTexture = new CubeMapTexture(_gl, new Image[]
+        //{
+        //    skyboxRightTask.Result,
+        //    skyboxLeftTask.Result,
+        //    skyboxTopTask.Result,
+        //    skyboxBottomTask.Result,
+        //    skyboxFrontTask.Result,
+        //    skyboxBackTask.Result
+        //});
 
-        SkyBoxShader = new Shader(_gl);
-        Task<string> skyboxVertexShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.vert");
-        Task<string> skyboxFragmentShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.frag");
-        Task.WaitAll(skyboxVertexShaderTask, skyboxFragmentShaderTask);
-        SkyBoxShader.LoadBy(_gl, skyboxVertexShaderTask.Result, skyboxFragmentShaderTask.Result);
+        //SkyBoxShader = new Shader(_gl);
+        //Task<string> skyboxVertexShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.vert");
+        //Task<string> skyboxFragmentShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.frag");
+        //Task.WaitAll(skyboxVertexShaderTask, skyboxFragmentShaderTask);
+        //SkyBoxShader.LoadBy(_gl, skyboxVertexShaderTask.Result, skyboxFragmentShaderTask.Result);
 
-        SkyBoxShader.UseBy(_gl);
-        SkyBoxShader.SetUniformBy(_gl,"skybox", 0);
+        //SkyBoxShader.UseBy(_gl);
+        //SkyBoxShader.SetUniformBy(_gl,"skybox", 0);
 
 
         //Telling the VAO object how to lay out the attribute pointers
@@ -396,7 +396,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         DrawMesh();
         #endregion
 
-        DrawSkyBox();
+        //DrawSkyBox();
 
         var error = _gl.GetError();
         if (error != GLEnum.NoError)

@@ -10,11 +10,12 @@ namespace SilkDotNetLibrary.OpenGL.Textures;
 public readonly struct CubeMapTexture
 {
     public uint TextureHandle { get; }
+    
     /// <summary>
-    /// Texture is flipped automatically
+    /// Texture is handled automatically with proper format detection
     /// </summary>
     /// <param name="gl"></param>
-    /// <param name="imagePath"></param>
+    /// <param name="images">Array of 6 images in order: right, left, top, bottom, front, back</param>
     /// <param name="textureType"></param>
     public unsafe CubeMapTexture(GL gl, Image[] images, TextureType textureType = default)
     {
@@ -25,69 +26,118 @@ public readonly struct CubeMapTexture
 
             for (uint i = 0; i < images.Length; i++)
             {
-                Image<Rgba32> imag32 = (Image<Rgba32>)images[i];
-                //// OpenGL has image origin in the bottom-left corner
-                CubeMapTexture tmpThis = this;
-                imag32.ProcessPixelRows(accessor =>
-                {
-                    fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
-                    {
-                        tmpThis.Load(gl, i, data, (uint)images[i].Width, (uint)images[i].Height);
-                    }
-                });
+                LoadCubeFace(gl, i, images[i]);
             }
 
-            //Setting some texture parameters so the texture behaves as expected.
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (int)GLEnum.ClampToEdge);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
-            gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
-
-            //Deleting the img from imagesharp.
-            //image.Dispose();
+            // Setting cube map specific texture parameters
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)GLEnum.ClampToEdge);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
+            gl.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
         }
         catch (Exception ex)
         {
-            Console.Write(ex.ToString());
+            Console.WriteLine($"CubeMapTexture Error: {ex}");
             throw;
         }
     }
 
-    private unsafe void Load(GL gl,
-                             uint index,
-                             void* data,
-                             uint width,
-                             uint height,
-                             InternalFormat internalForamt = InternalFormat.Rgb,
-                             PixelFormat pixelFormat = PixelFormat.Rgb,
-                             PixelType pixelType = PixelType.UnsignedByte)
+    private unsafe void LoadCubeFace(GL gl, uint faceIndex, Image image)
     {
-        try
+        uint width = (uint)image.Width;
+        uint height = (uint)image.Height;
+        uint textureTarget = (uint)GLEnum.TextureCubeMapPositiveX + faceIndex;
+        GLEnum target = (GLEnum)textureTarget;
+
+        // Auto-detect format based on pixel format
+        switch (image.PixelType.BitsPerPixel)
         {
-            uint TextureTarget = (uint)GLEnum.TextureCubeMapPositiveX + index;
-            GLEnum textureTargetEnum = (GLEnum)TextureTarget;
-            gl.TexImage2D(textureTargetEnum,
-                0,
-                internalForamt,
-                width,
-                height,
-                0,
-                pixelFormat,
-                pixelType,
-                data);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
+            case 24: // RGB
+                {
+                    Image<Rgb24> img24 = image.CloneAs<Rgb24>();
+                    img24.ProcessPixelRows(accessor =>
+                    {
+                        fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                        {
+                            gl.TexImage2D(target, 0, InternalFormat.Rgb, width, height, 0, 
+                                        PixelFormat.Rgb, PixelType.UnsignedByte, data);
+                        }
+                    });
+                    img24.Dispose();
+                    break;
+                }
+            case 32: // RGBA
+                {
+                    Image<Rgba32> img32 = image.CloneAs<Rgba32>();
+                    img32.ProcessPixelRows(accessor =>
+                    {
+                        fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                        {
+                            gl.TexImage2D(target, 0, InternalFormat.Rgba, width, height, 0, 
+                                        PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                        }
+                    });
+                    img32.Dispose();
+                    break;
+                }
+            case 8: // Grayscale
+                {
+                    Image<L8> img8 = image.CloneAs<L8>();
+                    img8.ProcessPixelRows(accessor =>
+                    {
+                        fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                        {
+                            gl.TexImage2D(target, 0, InternalFormat.Red, width, height, 0, 
+                                        PixelFormat.Red, PixelType.UnsignedByte, data);
+                        }
+                    });
+                    img8.Dispose();
+                    break;
+                }
+            case 16: // Grayscale + Alpha
+                {
+                    Image<La16> img16 = image.CloneAs<La16>();
+                    img16.ProcessPixelRows(accessor =>
+                    {
+                        fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                        {
+                            gl.TexImage2D(target, 0, InternalFormat.RG, width, height, 0, 
+                                        PixelFormat.RG, PixelType.UnsignedByte, data);
+                        }
+                    });
+                    img16.Dispose();
+                    break;
+                }
+            default:
+                {
+                    // Fallback: Convert to RGBA32 for any unsupported format
+                    Console.WriteLine($"Warning: Unsupported format {image.PixelType.BitsPerPixel} bits, converting to RGBA32");
+                    Image<Rgba32> imgFallback = image.CloneAs<Rgba32>();
+                    imgFallback.ProcessPixelRows(accessor =>
+                    {
+                        fixed (void* data = &MemoryMarshal.GetReference(accessor.GetRowSpan(0)))
+                        {
+                            gl.TexImage2D(target, 0, InternalFormat.Rgba, width, height, 0, 
+                                        PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                        }
+                    });
+                    imgFallback.Dispose();
+                    break;
+                }
         }
 
+        // Check for OpenGL errors after loading each face
+        var error = gl.GetError();
+        if (error != GLEnum.NoError)
+        {
+            throw new Exception($"OpenGL Error loading cube face {faceIndex}: {error}");
+        }
     }
 
     public void BindBy(GL gl, TextureUnit textureUnit = TextureUnit.Texture0)
     {
-        //When we bind a texture we can choose which textureslot we can bind it to.
-        //gl.ActiveTexture(textureUnit);
+        gl.ActiveTexture(textureUnit);
         gl.BindTexture(TextureTarget.TextureCubeMap, TextureHandle);
     }
 

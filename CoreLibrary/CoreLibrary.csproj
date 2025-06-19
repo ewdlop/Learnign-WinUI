@@ -147,6 +147,12 @@
     <None Update="Assets\skybox\top.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Shaders\6.1.skybox.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\6.1.skybox.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Shaders\ambient_lighting.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
