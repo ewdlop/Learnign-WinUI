@@ -418,7 +418,7 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         #endregion
 
         // Draw skybox as the last geometry (draw as last to prevent overdraw)
-        //DrawSkyBox();
+        DrawSkyBox();
 
         var error = _gl.GetError();
         if (error != GLEnum.NoError)

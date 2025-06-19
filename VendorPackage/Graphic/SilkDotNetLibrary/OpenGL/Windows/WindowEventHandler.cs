@@ -142,6 +142,7 @@ public class WindowEventHandler : IWindowEventHandler
 
     public void OnFrameBufferResize(Vector2D<int> resize)
     {
+        _eventHandler.OnWindowFrameBufferResizeHandler(new Vector2(resize.X, resize.Y));
         _openGLContext.OnWindowFrameBufferResize(resize);
     }
 

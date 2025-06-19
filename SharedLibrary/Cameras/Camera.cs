@@ -30,6 +30,11 @@ namespace SharedLibrary.Cameras
             //_eventHandler.OnMouseMove += (this as IMouseEventListener).OnMouseMove;
             //_eventHandler.OnMouseScrollWheel += (this as IMouseEventListener).OnMouseWheel;
             _eventHandler.OnKeyBoardKeyDown += (this as IKeyBoardEventListener).OnKeyBoardKeyDown;
+            _eventHandler.OnWindowFrameBufferResize += (sender, e) =>
+            {
+                AspectRatio = e.X / e.Y;
+                Console.WriteLine($"Aspect Ratio Updated: {AspectRatio}");
+            };
         }
 
         void IMouseEventListener.OnMouseMove(object sender, (Vector2 Position, Vector2 LastMousePosition) e)
