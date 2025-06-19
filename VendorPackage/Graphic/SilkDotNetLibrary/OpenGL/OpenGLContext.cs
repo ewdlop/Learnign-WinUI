@@ -35,6 +35,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     //private ImGuiController _ImGuiController;
     private FrameBufferObject Fbo { get; set; }
     private RenderBufferObject Rbo { get; set; }
+    private BufferObject<float> SkyBoxVbo { get; set; }
+    private VertexArrayBufferObject<float, uint> SkyBoxVao { get; set; }
     private BufferObject<float> CubeVbo { get; set; }
     private BufferObject<uint> CubeEbo { get; set; }
     private VertexArrayBufferObject<float, uint> CubeVao { get; set; }
@@ -65,10 +67,12 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private Shader LampShader { get; set; }
     private Shader ScreenShader { get; set; }
     private Shader[] MeshShaders { get; set; } = new Shader[3];
+    private Shader SkyBoxShader { get; set; } = new Shader();
 
     //private Textures.Texture Texture { get; set; }
     private Textures.Texture DiffuseMap { get; set; }
     private Textures.Texture SpecularMap { get; set; }
+    private CubeMapTexture CubeMapTexture { get; set; }
     private FrameBufferTexture Fbt { get; set; }
     private float Time { get; set; }
     private MeshComponent MeshComponent { get; set; }
@@ -90,6 +94,45 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     public GL OnLoad()
     {
         _gl = _window.CreateOpenGL();
+
+        ////Skybox VBO and VAO
+        //SkyBoxVbo = new BufferObject<float>(_gl, Skybox.Vertices, BufferTargetARB.ArrayBuffer);
+        //SkyBoxVao = new VertexArrayBufferObject<float, uint>(_gl, SkyBoxVbo);
+        //SkyBoxVao.VertexAttributePointer(_gl, 0, 3, VertexAttribPointerType.Float, 3 * sizeof(float), 0);
+
+        //Task<Image> skyboxRightTask = Image.LoadAsync("Assets/skybox/right.jpg");
+        //Task<Image> skyboxLeftTask = Image.LoadAsync("Assets/skybox/left.jpg");
+        //Task<Image> skyboxTopTask = Image.LoadAsync("Assets/skybox/top.jpg");
+        //Task<Image> skyboxBottomTask = Image.LoadAsync("Assets/skybox/bottom.jpg");
+        //Task<Image> skyboxFrontTask = Image.LoadAsync("Assets/skybox/front.jpg");
+        //Task<Image> skyboxBackTask = Image.LoadAsync("Assets/skybox/back.jpg");
+
+        //Task.WaitAll(skyboxRightTask,
+        //             skyboxLeftTask,
+        //             skyboxTopTask,
+        //             skyboxBottomTask,
+        //             skyboxFrontTask,
+        //             skyboxBackTask);
+
+        //CubeMapTexture = new CubeMapTexture(_gl, new Image[]
+        //{
+        //    skyboxRightTask.Result,
+        //    skyboxLeftTask.Result,
+        //    skyboxTopTask.Result,
+        //    skyboxBottomTask.Result,
+        //    skyboxFrontTask.Result,
+        //    skyboxBackTask.Result
+        //});
+
+        //SkyBoxShader = new Shader(_gl);
+        //Task<string> skyboxVertexShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.vert");
+        //Task<string> skyboxFragmentShaderTask = File.ReadAllTextAsync("Shaders/6.1.skybox.frag");
+        //Task.WaitAll(skyboxVertexShaderTask, skyboxFragmentShaderTask);
+        //SkyBoxShader.LoadBy(_gl, skyboxVertexShaderTask.Result, skyboxFragmentShaderTask.Result);
+
+        //SkyBoxShader.UseBy(_gl);
+        //SkyBoxShader.SetUniformBy(_gl,"skybox", 0);
+
 
         //Telling the VAO object how to lay out the attribute pointers
         CubeEbo = new BufferObject<uint>(_gl, TexturedNormaledCube.Indices, BufferTargetARB.ElementArrayBuffer);
@@ -241,6 +284,21 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     {
         throw new NotImplementedException();
     }
+    private void DrawSkyBox()
+    {
+        _logger.LogInformation("Drawing SkyBox...");
+        _gl.DepthFunc(DepthFunction.Lequal);
+        SkyBoxShader.UseBy(_gl);
+        SkyBoxShader.SetUniformBy(_gl, "view", _camera.GetViewMatrix());
+        SkyBoxShader.SetUniformBy(_gl, "projection", _camera.GetProjectionMatrix());
+        SkyBoxVao.BindBy(_gl);
+        _gl.ActiveTexture(GLEnum.Texture0);
+        CubeMapTexture.BindBy(_gl, TextureUnit.Texture0);
+        _gl.DrawArrays(GLEnum.Triangles, 0, 36);
+        _gl.BindVertexArray(0);
+        _gl.DepthFunc(DepthFunction.Less); // Reset depth function to default
+    }
+
     private void DrawMesh()
     {
         //MeshComponent.Draw(_gl, new Shader[] { MeshShader1, MeshShader2, MeshShader3}, _camera, _lampPosition);
@@ -337,6 +395,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         #region mesh
         DrawMesh();
         #endregion
+
+        //DrawSkyBox();
 
         var error = _gl.GetError();
         if (error != GLEnum.NoError)
