@@ -11,6 +11,7 @@ using SilkDotNetLibrary.OpenGL.Buffers;
 using SilkDotNetLibrary.OpenGL.Meshes;
 using SilkDotNetLibrary.OpenGL.Primitives;
 using SilkDotNetLibrary.OpenGL.Textures;
+using SilkDotNetLibrary.OpenGL.Particles;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using StbImageSharp;
@@ -77,6 +78,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
     private FrameBufferTexture Fbt { get; set; }
     private float Time { get; set; }
     private MeshComponent MeshComponent { get; set; }
+    
+    // 粒子系統
+    private ParticleSystem _particleSystem;
+    private ParticleEmitter _fireEmitter;
+    private ParticleEmitter _smokeEmitter;
 
     //Setup the camera's location, and relative up and right directions
     public OpenGLContext(
@@ -279,6 +285,11 @@ public class OpenGLContext : IOpenGLContext, IDisposable
             MeshShaders[i].LoadBy(_gl, meshVertexShaderTask.Result, meshFragmentShaderTask.Result);
         }
         #endregion
+        
+        #region 粒子系統初始化
+        InitializeParticleSystem();
+        #endregion
+        
         return _gl;
     }
 
@@ -327,6 +338,97 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         _logger.LogInformation("MeshComponent Meshes Count: {Count}", MeshComponent.Meshes.Count);
         //MeshComponent.Draw(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
         MeshComponent.DrawWithoutTexture(_gl, MeshShaders.AsSpan()[..MeshComponent.Meshes.Count], _camera, _lampPosition);
+    }
+    
+    /// <summary>
+    /// 初始化粒子系統
+    /// </summary>
+    private void InitializeParticleSystem()
+    {
+        _logger.LogInformation("正在初始化粒子系統...");
+        
+        // 創建粒子系統（最多 1500 個粒子）
+        _particleSystem = new ParticleSystem(_gl, maxParticles: 1500);
+        
+        // 設置全局物理參數
+        _particleSystem.Gravity = new Vector3(0, -3.0f, 0); // 輕微重力
+        _particleSystem.Wind = new Vector3(0.2f, 0, 0); // 輕微風力
+        _particleSystem.Damping = 0.995f; // 很少的阻尼
+        
+        // 創建火焰發射器
+        _fireEmitter = new ParticleEmitter
+        {
+            Position = new Vector3(0, -2.0f, 0),
+            Direction = Vector3.UnitY,
+            SpreadAngle = MathF.PI / 6, // 30度擴散
+            EmissionRate = 100.0f,
+            MinSpeed = 2.0f,
+            MaxSpeed = 4.0f,
+            MinLifetime = 1.0f,
+            MaxLifetime = 2.5f,
+            MinSize = 0.1f,
+            MaxSize = 0.3f,
+            StartColor = new Vector4(1.0f, 0.8f, 0.2f, 1.0f), // 黃橙色
+            EndColor = new Vector4(1.0f, 0.2f, 0.0f, 0.0f),   // 紅色，透明結束
+            IsEnabled = true,
+            Loop = true
+        };
+        
+        // 創建煙霧發射器
+        _smokeEmitter = new ParticleEmitter
+        {
+            Position = new Vector3(0, -1.0f, 0),
+            Direction = Vector3.UnitY,
+            SpreadAngle = MathF.PI / 4, // 45度擴散
+            EmissionRate = 40.0f,
+            MinSpeed = 0.8f,
+            MaxSpeed = 2.0f,
+            MinLifetime = 2.0f,
+            MaxLifetime = 4.0f,
+            MinSize = 0.15f,
+            MaxSize = 0.5f,
+            StartColor = new Vector4(0.6f, 0.6f, 0.6f, 0.8f), // 灰色
+            EndColor = new Vector4(0.4f, 0.4f, 0.4f, 0.0f),   // 深灰色，透明結束
+            IsEnabled = true,
+            Loop = true
+        };
+        
+        // 將發射器添加到粒子系統
+        _particleSystem.AddEmitter(_fireEmitter);
+        _particleSystem.AddEmitter(_smokeEmitter);
+        
+        _logger.LogInformation("粒子系統初始化完成，創建了火焰和煙霧發射器");
+    }
+    
+    /// <summary>
+    /// 渲染粒子系統
+    /// </summary>
+    private void DrawParticles()
+    {
+        if (_particleSystem != null)
+        {
+            // 動態更新發射器位置
+            float time = Time * 0.5f;
+            
+            // 讓火焰發射器圍繞中心緩慢移動
+            _fireEmitter.Position = new Vector3(
+                MathF.Sin(time) * 1.5f,
+                -2.0f + MathF.Sin(time * 2.0f) * 0.2f,
+                MathF.Cos(time) * 1.5f
+            );
+            
+            // 煙霧發射器跟隨火焰但位置稍高
+            _smokeEmitter.Position = new Vector3(
+                _fireEmitter.Position.X,
+                _fireEmitter.Position.Y + 1.0f,
+                _fireEmitter.Position.Z
+            );
+            
+            // 渲染粒子系統
+            var viewMatrix = _camera.GetViewMatrix();
+            var projectionMatrix = _camera.GetProjectionMatrix();
+            _particleSystem.Render(viewMatrix, projectionMatrix);
+        }
     }
     private unsafe void RenderScene(double dt)
     {
@@ -416,6 +518,10 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         #region mesh
         DrawMesh();
         #endregion
+        
+        #region 粒子系統渲染
+        DrawParticles();
+        #endregion
 
         // Draw skybox as the last geometry (draw as last to prevent overdraw)
         //DrawSkyBox();
@@ -477,7 +583,8 @@ public class OpenGLContext : IOpenGLContext, IDisposable
    
     public void OnUpdate(double dt)
     {
-
+        // 更新粒子系統
+        _particleSystem?.Update((float)dt);
     }
 
     public void OnWindowFrameBufferResize(Vector2D<int> resize)
@@ -526,6 +633,9 @@ public class OpenGLContext : IOpenGLContext, IDisposable
         LightingShader.DisposeBy(_gl);
         DiffuseMap.DisposeBy(_gl);
         SpecularMap.DisposeBy(_gl);
+        
+        // 清理粒子系統資源
+        _particleSystem?.Dispose();
     }
 
     protected virtual void Dispose(bool disposing)

@@ -9,7 +9,7 @@ public readonly struct BufferObject<TDataType> : IBufferObject
     public uint BufferHandle { get; }
     public BufferTargetARB BufferTargetARB { get; }
 
-    public unsafe BufferObject(GL gl, ReadOnlySpan<TDataType> span, BufferTargetARB bufferTargetARB)
+    public unsafe BufferObject(GL gl, ReadOnlySpan<TDataType> span, BufferTargetARB bufferTargetARB, BufferUsageARB bufferUsageARB = BufferUsageARB.StaticDraw)
     {
         //Setting the gl instance and storing our buffer type.
         BufferHandle = gl.GenBuffer();
@@ -20,7 +20,7 @@ public readonly struct BufferObject<TDataType> : IBufferObject
             gl.BufferData(BufferTargetARB,
                            (nuint)(span.Length * sizeof(TDataType)),
                            data,
-                           BufferUsageARB.StaticDraw);
+                           bufferUsageARB);
         }
     }
     public void BindBy(GL gl)
